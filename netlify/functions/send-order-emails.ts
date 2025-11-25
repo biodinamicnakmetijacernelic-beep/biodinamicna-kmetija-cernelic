@@ -1,4 +1,4 @@
-import { Handler } from '@netlify/functions';
+// import { Handler } from '@netlify/functions';
 
 const SENDFOX_API_KEY = process.env.SENDFOX_API_KEY;
 const SENDFOX_API_URL = 'https://api.sendfox.com/messages';
@@ -28,7 +28,7 @@ interface OrderData {
   newStatus?: string;
 }
 
-export const handler: Handler = async (event) => {
+export const handler = async (event: any) => {
   // Only allow POST requests
   if (event.httpMethod !== 'POST') {
     return {
