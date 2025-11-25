@@ -140,6 +140,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
 
   // Order Filter State
   const [orderStatusFilter, setOrderStatusFilter] = useState<'pending' | 'in-preparation' | 'ready-for-pickup' | 'completed' | 'rejected'>('pending');
+  const [pickupLocationFilter, setPickupLocationFilter] = useState<'all' | 'home' | 'market'>('all');
   const [orderSearchTerm, setOrderSearchTerm] = useState('');
 
   // --- Authentication ---
@@ -1143,6 +1144,28 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
               </button>
             </div>
 
+            {/* Pickup Location Filter */}
+            <div className="flex gap-2 mb-4 flex-wrap">
+              <button
+                onClick={() => setPickupLocationFilter('all')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-colors ${pickupLocationFilter === 'all' ? 'bg-gray-500 text-white' : 'bg-white text-olive/60 hover:bg-gray-50'}`}
+              >
+                Vsi prevzemi ({orders.length})
+              </button>
+              <button
+                onClick={() => setPickupLocationFilter('home')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-colors ${pickupLocationFilter === 'home' ? 'bg-blue-500 text-white' : 'bg-white text-olive/60 hover:bg-blue-50'}`}
+              >
+                Doma ({orders.filter(o => o.pickupLocation === 'home').length})
+              </button>
+              <button
+                onClick={() => setPickupLocationFilter('market')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-colors ${pickupLocationFilter === 'market' ? 'bg-purple-500 text-white' : 'bg-white text-olive/60 hover:bg-purple-50'}`}
+              >
+                Tržnica ({orders.filter(o => o.pickupLocation === 'market').length})
+              </button>
+            </div>
+
             {isLoadingOrders ? (
               <div className="text-center py-20">
                 <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-olive"></div>
@@ -1158,16 +1181,20 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
               <div className="grid gap-6">
                 {(orders || [])
                   .filter(order => {
-                    // If searching, search across all statuses
+                    // If searching, search across all statuses and locations
                     if (orderSearchTerm) {
                       const searchLower = orderSearchTerm.toLowerCase();
-                      return (
+                      const matchesSearch = (
                         order.customer.name.toLowerCase().includes(searchLower) ||
                         order.customer.email.toLowerCase().includes(searchLower)
                       );
+                      const matchesLocation = pickupLocationFilter === 'all' || order.pickupLocation === pickupLocationFilter;
+                      return matchesSearch && matchesLocation;
                     }
-                    // If not searching, filter by selected status
-                    return order.status === orderStatusFilter;
+                    // If not searching, filter by selected status and location
+                    const matchesStatus = order.status === orderStatusFilter;
+                    const matchesLocation = pickupLocationFilter === 'all' || order.pickupLocation === pickupLocationFilter;
+                    return matchesStatus && matchesLocation;
                   })
                   .map((order) => (
                     <div key={order.id} className="bg-white rounded-[2rem] p-6 border border-black/5 shadow-sm hover:shadow-md transition-all">
@@ -1196,6 +1223,11 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                           <div className="text-sm text-olive/60 space-y-1 mb-4">
                             <p className="flex items-center gap-2"><span className="w-4"><Send size={12} /></span> {order.customer.email}</p>
                             <p className="flex items-center gap-2"><span className="w-4"><Bell size={12} /></span> {order.customer.phone}</p>
+                            <p className="flex items-center gap-2"><span className="w-4">📍</span>
+                              {order.pickupLocation === 'home' ? 'Prevzem na kmetiji' :
+                               order.pickupLocation === 'market' ? 'Prevzem na tržnici Ljubljana' :
+                               'Prevzem ni določen'}
+                            </p>
                           </div>
 
                           {order.note && (
