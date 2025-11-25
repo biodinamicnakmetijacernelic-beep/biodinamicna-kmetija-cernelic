@@ -115,7 +115,7 @@ async function sendCustomerConfirmationEmail(orderData: OrderData): Promise<bool
         to: orderData.customer.email,
         from: 'Biodinamična kmetija Černelič <info@biodinamicnakmetija-cernelic.si>',
         subject: `Potrditev naročila #${orderData.orderNumber}`,
-      html: `
+        html: `
         <!DOCTYPE html>
         <html lang="sl">
         <head>
