@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Save, Search, RefreshCw, ShoppingBag, ClipboardList, Settings, Bell, Image as ImageIcon, Upload, Trash2, Pencil, ArrowLeft, AlertTriangle, Plus, Lock, Send, Eye, EyeOff, FileText, Type, Video, Check, LogOut } from 'lucide-react';
+import { X, Save, Search, RefreshCw, ShoppingBag, ClipboardList, Bell, Image as ImageIcon, Upload, Trash2, Pencil, ArrowLeft, AlertTriangle, Plus, Lock, Send, Eye, EyeOff, FileText, Type, Video, Check, LogOut } from 'lucide-react';
 import { GalleryItem, PreOrderItem, NewsItem, VideoGalleryItem, Order } from '../types';
 import { uploadImageToSanity, fetchProducts, updateProductStatus, createProduct, updateProduct, deleteProduct, createNewsPost, fetchAllNews, updateNewsPost, deleteNewsPost, fetchVideoGallery, createVideo, updateVideo, deleteVideo, fetchOrders, updateOrderStatus, deleteOrder, fetchGalleryImages, updateGalleryImage, deleteGalleryImage } from '../sanityClient';
 import { sendOrderStatusUpdateEmail } from '../utils/emailService';
@@ -38,11 +38,14 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loginError, setLoginError] = useState('');
 
-  const [activeTab, setActiveTab] = useState<'inventory' | 'orders' | 'gallery' | 'news' | 'videos' | 'settings'>('inventory');
+  const [activeTab, setActiveTab] = useState<'inventory' | 'orders' | 'gallery' | 'news' | 'videos'>('inventory');
 
   // Admin credentials (v produkciji shranite v environment variables!)
   const ADMIN_EMAIL = 'admin@biodinamicnakmetija-cernelic.si';
   const ADMIN_PASSWORD = 'Admin123!'; // ⚠️ SPREMENITE TO GESLO V PRODUKCIJI!
+
+  // Sanity token from environment variables
+  const sanityToken = import.meta.env.VITE_SANITY_TOKEN;
 
   // Inventory State
   const [products, setProducts] = useState<PreOrderItem[]>([]);
@@ -655,7 +658,6 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
   };
 
   const handleUploadConfirm = async () => {
-    if (!sanityToken) { setNotification("⚠️ Manjka API ključ!"); setActiveTab('settings'); return; }
     if (pendingUploads.length > 0) {
       setIsUploading(true);
       setUploadProgress(0);
@@ -831,7 +833,6 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
           <button onClick={() => setActiveTab('news')} className={`flex-1 min-w-[80px] py-4 text-xs font-bold uppercase tracking-widest flex flex-col md:flex-row items-center gap-2 transition-colors ${activeTab === 'news' ? 'text-olive border-b-2 border-olive bg-olive/5' : 'text-olive/40'}`}><FileText size={16} />Novice</button>
           <button onClick={() => setActiveTab('videos')} className={`flex-1 min-w-[80px] py-4 text-xs font-bold uppercase tracking-widest flex flex-col md:flex-row items-center gap-2 transition-colors ${activeTab === 'videos' ? 'text-olive border-b-2 border-olive bg-olive/5' : 'text-olive/40'}`}><Video size={16} />Video</button>
           <button onClick={() => setActiveTab('gallery')} className={`flex-1 min-w-[80px] py-4 text-xs font-bold uppercase tracking-widest flex flex-col md:flex-row items-center gap-2 transition-colors ${activeTab === 'gallery' ? 'text-olive border-b-2 border-olive bg-olive/5' : 'text-olive/40'}`}><ImageIcon size={16} />Galerija</button>
-          <button onClick={() => setActiveTab('settings')} className={`flex-1 min-w-[80px] py-4 text-xs font-bold uppercase tracking-widest flex flex-col md:flex-row items-center gap-2 transition-colors ${activeTab === 'settings' ? 'text-olive border-b-2 border-olive bg-olive/5' : 'text-olive/40'}`}><Settings size={16} />Nastavitve</button>
         </div>
 
         {/* Notification Toast */}
@@ -906,12 +907,6 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
         {/* --- NEWS TAB (RICH EDITOR) --- */}
         {activeTab === 'news' && (
           <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-gray-50 pb-24">
-            {!sanityToken && (
-              <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-2xl mb-6 text-sm flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('settings')}>
-                <Lock size={20} />
-                <div><p className="font-bold">Objavljanje onemogočeno</p><p className="text-xs">V nastavitvah vnesite API Token.</p></div>
-              </div>
-            )}
 
             {!isEditingNews ? (
               <>
@@ -1275,12 +1270,6 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
         {/* --- VIDEO GALLERY TAB --- */}
         {activeTab === 'videos' && (
           <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-gray-50 pb-24">
-            {!sanityToken && (
-              <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-2xl mb-6 text-sm flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('settings')}>
-                <Lock size={20} />
-                <div><p className="font-bold">Upravljanje onemogočeno</p><p className="text-xs">V nastavitvah vnesite API Token.</p></div>
-              </div>
-            )}
 
             {!isEditingVideo ? (
               <>
@@ -1367,12 +1356,6 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
         {/* --- GALLERY TAB --- */}
         {activeTab === 'gallery' && (
           <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-gray-50 pb-24">
-            {!sanityToken && (
-              <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-2xl mb-6 text-sm flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('settings')}>
-                <Lock size={20} />
-                <div><p className="font-bold">Upravljanje onemogočeno</p><p className="text-xs">V nastavitvah vnesite API Token.</p></div>
-              </div>
-            )}
 
             {!isEditingGallery ? (
               <>
@@ -1519,37 +1502,6 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
 
 
 
-        {activeTab === 'settings' && (
-          <div className="flex-1 p-6 bg-gray-50">
-            <div className="bg-white p-6 rounded-3xl border border-black/5 shadow-sm">
-              <h3 className="font-serif text-lg text-olive-dark mb-4">Admin Račun</h3>
-
-              <div className="space-y-4">
-                <div className="bg-gray-50 p-4 rounded-xl">
-                  <h4 className="font-medium text-gray-900 mb-2">Trenutni Admin</h4>
-                  <p className="text-sm text-gray-600">{localStorage.getItem('admin_email') || 'Neznano'}</p>
-                </div>
-
-                <div className="bg-blue-50 p-4 rounded-xl">
-                  <h4 className="font-medium text-blue-900 mb-2">Varnostne Informacije</h4>
-                  <ul className="text-sm text-blue-800 space-y-1">
-                    <li>• Spremenite privzeto geslo v produkciji</li>
-                    <li>• Uporabljajte močna gesla</li>
-                    <li>• Redno spremljajte dostop</li>
-                  </ul>
-                </div>
-
-                <div className="bg-green-50 p-4 rounded-xl">
-                  <h4 className="font-medium text-green-900 mb-2">API Status</h4>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                    <span className="text-sm text-green-800">Vse povezave aktivne</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
       </div>
     </div>
