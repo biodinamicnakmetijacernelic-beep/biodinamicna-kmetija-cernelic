@@ -91,9 +91,13 @@ async function sendCustomerConfirmationEmail(orderData: OrderData): Promise<bool
     `).join('');
 
     const { data, error } = await resend.emails.send({
-      from: 'Biodinamična kmetija Černelič <test@resend.dev>',
+      from: 'Biodinamična kmetija Černelič <info@biodinamicnakmetija-cernelic.si>',
       to: [orderData.customer.email],
       subject: `Potrditev naročila #${orderData.orderNumber}`,
+      reply_to: 'info@biodinamicnakmetija-cernelic.si',
+      headers: {
+        'List-Unsubscribe': '<mailto:unsubscribe@biodinamicnakmetija-cernelic.si>',
+      },
       html: `
         <!DOCTYPE html>
         <html lang="sl">
@@ -206,9 +210,13 @@ async function sendAdminNotificationEmail(orderData: OrderData): Promise<boolean
     `).join('');
 
     const { data, error } = await resend.emails.send({
-      from: 'Biodinamična kmetija Černelič <test@resend.dev>',
+      from: 'Biodinamična kmetija Černelič <info@biodinamicnakmetija-cernelic.si>',
       to: ['biodinamicnakmetijacernelic@gmail.com'],
       subject: `Novo povpraševanje #${orderData.orderNumber}`,
+      reply_to: orderData.customer.email,
+      headers: {
+        'List-Unsubscribe': '<mailto:unsubscribe@biodinamicnakmetija-cernelic.si>',
+      },
       html: `
         <!DOCTYPE html>
         <html lang="sl">
