@@ -103,7 +103,8 @@ async function sendCustomerConfirmationEmail(orderData: OrderData): Promise<bool
         from: 'Biodinamična kmetija Černelič <info@biodinamicnakmetija-cernelic.si>',
         subject: `Potrditev naročila #${orderData.orderNumber}`,
         html: '<!DOCTYPE html><html><body><h1>Test Email</h1><p>Order received successfully</p></body></html>'
-      });
+      })
+    });
 
     if (!response.ok) {
       const errorData = await response.text();
@@ -163,7 +164,8 @@ async function sendCustomerStatusUpdateEmail(orderData: OrderData, oldStatus: st
         from: 'Biodinamična kmetija Černelič <info@biodinamicnakmetija-cernelic.si>',
         subject: `Posodobitev naročila #${orderData.orderNumber}`,
         html: '<!DOCTYPE html><html><body><h1>Status Update</h1><p>Order status changed</p></body></html>'
-      });
+      })
+    });
 
     if (!response.ok) {
       const errorData = await response.text();
@@ -194,7 +196,8 @@ async function sendAdminNotificationEmail(orderData: OrderData): Promise<boolean
         from: 'Biodinamična kmetija Černelič <info@biodinamicnakmetija-cernelic.si>',
         subject: `Novo povpraševanje #${orderData.orderNumber}`,
         html: '<!DOCTYPE html><html><body><h1>Admin Notification</h1><p>New order received</p></body></html>'
-      });
+      })
+    });
 
     if (!response.ok) {
       const errorData = await response.text();
