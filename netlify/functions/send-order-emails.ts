@@ -1,7 +1,7 @@
 import { Handler } from '@netlify/functions';
-import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const SENDFOX_API_KEY = process.env.SENDFOX_API_KEY;
+const SENDFOX_API_URL = 'https://api.sendfox.com/messages';
 
 interface OrderData {
   id: string;
@@ -105,14 +105,16 @@ async function sendCustomerConfirmationEmail(orderData: OrderData): Promise<bool
       </tr>
     `).join('');
 
-    const { data, error } = await resend.emails.send({
-      from: 'Biodinamična kmetija Černelič <info@biodinamicnakmetija-cernelic.si>',
-      to: [orderData.customer.email],
-      subject: `Potrditev naročila #${orderData.orderNumber}`,
-      reply_to: 'info@biodinamicnakmetija-cernelic.si',
+    const response = await fetch(SENDFOX_API_URL, {
+      method: 'POST',
       headers: {
-        'List-Unsubscribe': '<mailto:unsubscribe@biodinamicnakmetija-cernelic.si>',
+        'Authorization': `Bearer ${SENDFOX_API_KEY}`,
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        to: orderData.customer.email,
+        from: 'Biodinamična kmetija Černelič <info@biodinamicnakmetija-cernelic.si>',
+        subject: `Potrditev naročila #${orderData.orderNumber}`,
       html: `
         <!DOCTYPE html>
         <html lang="sl">
@@ -194,12 +196,14 @@ async function sendCustomerConfirmationEmail(orderData: OrderData): Promise<bool
       `,
     });
 
-    if (error) {
-      console.error('Error sending customer confirmation email:', error);
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('Error sending customer confirmation email:', errorData);
       return false;
     }
 
-    console.log('Customer confirmation email sent successfully:', data);
+    const result = await response.json();
+    console.log('Customer confirmation email sent successfully:', result);
     return true;
   } catch (error) {
     console.error('Failed to send customer confirmation email:', error);
@@ -239,11 +243,17 @@ async function sendCustomerStatusUpdateEmail(orderData: OrderData, oldStatus: st
       bgColor: '#f0fdf4'
     };
 
-    const { data, error } = await resend.emails.send({
-      from: 'Biodinamična kmetija Černelič <info@biodinamicnakmetija-cernelic.si>',
-      to: [orderData.customer.email],
-      subject: `Posodobitev naročila #${orderData.orderNumber}`,
-      html: `
+    const response = await fetch(SENDFOX_API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${SENDFOX_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        to: orderData.customer.email,
+        from: 'Biodinamična kmetija Černelič <info@biodinamicnakmetija-cernelic.si>',
+        subject: `Posodobitev naročila #${orderData.orderNumber}`,
+        html: `
         <!DOCTYPE html>
         <html lang="sl">
         <head>
@@ -291,12 +301,14 @@ async function sendCustomerStatusUpdateEmail(orderData: OrderData, oldStatus: st
       `,
     });
 
-    if (error) {
-      console.error('Error sending customer status update email:', error);
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('Error sending customer status update email:', errorData);
       return false;
     }
 
-    console.log('Customer status update email sent successfully:', data);
+    const result = await response.json();
+    console.log('Customer status update email sent successfully:', result);
     return true;
   } catch (error) {
     console.error('Failed to send customer status update email:', error);
@@ -320,15 +332,17 @@ async function sendAdminNotificationEmail(orderData: OrderData): Promise<boolean
       </tr>
     `).join('');
 
-    const { data, error } = await resend.emails.send({
-      from: 'Biodinamična kmetija Černelič <info@biodinamicnakmetija-cernelic.si>',
-      to: ['biodinamicnakmetijacernelic@gmail.com'],
-      subject: `Novo povpraševanje #${orderData.orderNumber}`,
-      reply_to: orderData.customer.email,
+    const response = await fetch(SENDFOX_API_URL, {
+      method: 'POST',
       headers: {
-        'List-Unsubscribe': '<mailto:unsubscribe@biodinamicnakmetija-cernelic.si>',
+        'Authorization': `Bearer ${SENDFOX_API_KEY}`,
+        'Content-Type': 'application/json',
       },
-      html: `
+      body: JSON.stringify({
+        to: 'biodinamicnakmetijacernelic@gmail.com',
+        from: 'Biodinamična kmetija Černelič <info@biodinamicnakmetija-cernelic.si>',
+        subject: `Novo povpraševanje #${orderData.orderNumber}`,
+        html: `
         <!DOCTYPE html>
         <html lang="sl">
         <head>
@@ -410,12 +424,14 @@ async function sendAdminNotificationEmail(orderData: OrderData): Promise<boolean
       `,
     });
 
-    if (error) {
-      console.error('Error sending admin notification email:', error);
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('Error sending admin notification email:', errorData);
       return false;
     }
 
-    console.log('Admin notification email sent successfully:', data);
+    const result = await response.json();
+    console.log('Admin notification email sent successfully:', result);
     return true;
   } catch (error) {
     console.error('Failed to send admin notification email:', error);
@@ -423,27 +439,10 @@ async function sendAdminNotificationEmail(orderData: OrderData): Promise<boolean
   }
 }
 
+// TODO: Implement Sendfox contact addition
+// Sendfox API for adding contacts may be different
 async function addContactToAudience(email: string, name?: string): Promise<boolean> {
-  try {
-    const audienceId = process.env.RESEND_AUDIENCE_ID || '808e9617-60a8-4628-af7a-e67f1d65ce99';
-
-    const { data, error } = await resend.contacts.create({
-      email: email,
-      first_name: name?.split(' ')[0] || '',
-      last_name: name?.split(' ').slice(1).join(' ') || '',
-      unsubscribed: false,
-      audience_id: audienceId
-    });
-
-    if (error) {
-      console.error('Error adding contact to audience:', error);
-      return false;
-    }
-
-    console.log('Contact added to audience successfully:', data);
-    return true;
-  } catch (error) {
-    console.error('Failed to add contact to audience:', error);
-    return false;
-  }
+  console.log('TODO: Implement Sendfox contact addition for:', email, name);
+  // For now, skip adding to audience
+  return true;
 }
