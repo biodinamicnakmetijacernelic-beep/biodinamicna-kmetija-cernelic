@@ -185,8 +185,7 @@ async function sendCustomerConfirmationEmail(orderData: OrderData): Promise<bool
 
             <div style="text-align: center; padding-top: 20px; border-top: 1px solid #e5e7eb;">
               <p style="color: #6b7280; margin: 0;">
-                Za vprašanja nas kontaktirajte na <a href="tel:+38651363447" style="color: #6b8e23;">051 363 447</a>
-                ali <a href="mailto:info@biodinamicnakmetija-cernelic.si" style="color: #6b8e23;">info@biodinamicnakmetija-cernelic.si</a>
+                Za vprašanja nas kontaktirajte na <a href="mailto:biodinamicnakmetijacernelic@gmail.com" style="color: #6b8e23;">biodinamicnakmetijacernelic@gmail.com</a>
               </p>
             </div>
           </div>
@@ -283,8 +282,7 @@ async function sendCustomerStatusUpdateEmail(orderData: OrderData, oldStatus: st
 
             <div style="text-align: center; padding-top: 20px; border-top: 1px solid #e5e7eb;">
               <p style="color: #6b7280; margin: 0;">
-                Za vprašanja nas kontaktirajte na <a href="tel:+38651363447" style="color: #6b8e23;">051 363 447</a>
-                ali <a href="mailto:info@biodinamicnakmetija-cernelic.si" style="color: #6b8e23;">info@biodinamicnakmetija-cernelic.si</a>
+                Za vprašanja nas kontaktirajte na <a href="mailto:biodinamicnakmetijacernelic@gmail.com" style="color: #6b8e23;">biodinamicnakmetijacernelic@gmail.com</a>
               </p>
             </div>
           </div>
