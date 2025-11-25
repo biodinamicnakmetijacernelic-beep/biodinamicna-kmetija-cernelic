@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sanity Debug</title>
+</head>
+<body>
+    <h1>Sanity Debug Test</h1>
+    <div id="output"></div>
+
+    <script type="module">
+        // Test Sanity connection
+        const output = document.getElementById('output');
+
+        try {
+            // Test 1: Check if we can read from Sanity
+            const response = await fetch('https://swdrisve.api.sanity.io/v2024-03-01/data/query/production?query=*[_type == "product"][0...1]');
+            const data = await response.json();
+
+            output.innerHTML += '<h2>✅ Sanity Read Test:</h2>';
+            output.innerHTML += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+
+            // Test 2: Check if we can write to Sanity (create order)
+            const writeResponse = await fetch('https://swdrisve.api.sanity.io/v2024-03-01/data/mutate/production', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    mutations: [{
+                        create: {
+                            _type: 'order',
+                            orderNumber: 'TEST-' + Date.now(),
+                            customerName: 'Test User',
+                            customerEmail: 'test@example.com',
+                            customerPhone: '041 123 456',
+                            items: [{ name: 'Test Item', quantity: 1, price: 10, unit: 'kg' }],
+                            totalAmount: 10,
+                            status: 'pending',
+                            createdAt: new Date().toISOString()
+                        }
+                    }]
+                })
+            });
+
+            const writeData = await writeResponse.json();
+            output.innerHTML += '<h2>✅ Sanity Write Test:</h2>';
+            output.innerHTML += '<pre>' + JSON.stringify(writeData, null, 2) + '</pre>';
+
+        } catch (error) {
+            output.innerHTML += '<h2>❌ Error:</h2>';
+            output.innerHTML += '<pre>' + error.message + '</pre>';
+        }
+    </script>
+</body>
+</html>
