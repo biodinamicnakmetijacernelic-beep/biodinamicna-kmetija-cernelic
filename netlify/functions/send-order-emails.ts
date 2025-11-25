@@ -3,6 +3,9 @@
 const SENDFOX_API_KEY = process.env.SENDFOX_API_KEY;
 const SENDFOX_API_URL = 'https://api.sendfox.com/messages';
 
+console.log('SENDFOX_API_KEY loaded:', SENDFOX_API_KEY ? 'YES' : 'NO');
+console.log('SENDFOX_API_URL:', SENDFOX_API_URL);
+
 interface OrderData {
   id: string;
   orderNumber: string;
@@ -90,7 +93,14 @@ export const handler = async (event) => {
 };
 
 async function sendCustomerConfirmationEmail(orderData: OrderData): Promise<boolean> {
+  console.log('📧 Sending customer confirmation email for order:', orderData.orderNumber);
   try {
+
+    console.log('📧 Making request to:', SENDFOX_API_URL);
+    console.log('📧 Request data:', {
+      to: orderData.customer.email,
+      subject: `Potrditev naročila #${orderData.orderNumber}`
+    });
 
     const response = await fetch(SENDFOX_API_URL, {
       method: 'POST',
@@ -108,7 +118,8 @@ async function sendCustomerConfirmationEmail(orderData: OrderData): Promise<bool
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error('Error sending customer confirmation email:', errorData);
+      console.error('Error sending customer confirmation email - Status:', response.status);
+      console.error('Error response:', errorData);
       return false;
     }
 
