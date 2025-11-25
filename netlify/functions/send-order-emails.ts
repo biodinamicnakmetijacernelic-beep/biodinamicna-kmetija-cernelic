@@ -115,19 +115,7 @@ async function sendCustomerConfirmationEmail(orderData: OrderData): Promise<bool
         to: orderData.customer.email,
         from: 'Biodinamična kmetija Černelič <info@biodinamicnakmetija-cernelic.si>',
         subject: `Potrditev naročila #${orderData.orderNumber}`,
-        html: `
-        <!DOCTYPE html>
-        <html lang="sl">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Potrditev naročila</title>
-        </head>
-        <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #374151; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: linear-gradient(135deg, #6b8e23 0%, #8fbc8f 100%); padding: 40px 30px; border-radius: 16px 16px 0 0; text-align: center;">
-            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">Biodinamična kmetija Černelič</h1>
-            <p style="color: #f0f9f0; margin: 10px 0 0 0; font-size: 16px;">Hvala za vaše naročilo!</p>
-          </div>
+        html: '<!DOCTYPE html><html><body><h1>Test Email</h1><p>This is a test</p></body></html>'
 
           <div style="background: white; border: 1px solid #e5e7eb; border-radius: 0 0 16px 16px; padding: 40px 30px;">
             <div style="text-align: center; margin-bottom: 30px;">
@@ -193,7 +181,7 @@ async function sendCustomerConfirmationEmail(orderData: OrderData): Promise<bool
           </div>
         </body>
         </html>
-      `,
+      `
     });
 
     if (!response.ok) {
@@ -253,14 +241,7 @@ async function sendCustomerStatusUpdateEmail(orderData: OrderData, oldStatus: st
         to: orderData.customer.email,
         from: 'Biodinamična kmetija Černelič <info@biodinamicnakmetija-cernelic.si>',
         subject: `Posodobitev naročila #${orderData.orderNumber}`,
-        html: `
-        <!DOCTYPE html>
-        <html lang="sl">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Posodobitev naročila</title>
-        </head>
+        html: '<!DOCTYPE html><html><body><h1>Status Update</h1><p>Order status changed</p></body></html>'
         <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #374151; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #6b8e23 0%, #8fbc8f 100%); padding: 40px 30px; border-radius: 16px 16px 0 0; text-align: center;">
             <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">Biodinamična kmetija Černelič</h1>
@@ -298,7 +279,7 @@ async function sendCustomerStatusUpdateEmail(orderData: OrderData, oldStatus: st
           </div>
         </body>
         </html>
-      `,
+      `
     });
 
     if (!response.ok) {
@@ -342,14 +323,7 @@ async function sendAdminNotificationEmail(orderData: OrderData): Promise<boolean
         to: 'biodinamicnakmetijacernelic@gmail.com',
         from: 'Biodinamična kmetija Černelič <info@biodinamicnakmetija-cernelic.si>',
         subject: `Novo povpraševanje #${orderData.orderNumber}`,
-        html: `
-        <!DOCTYPE html>
-        <html lang="sl">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Novo povpraševanje</title>
-        </head>
+        html: '<!DOCTYPE html><html><body><h1>Admin Notification</h1><p>New order received</p></body></html>'
         <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #374151; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #6b8e23 0%, #8fbc8f 100%); padding: 40px 30px; border-radius: 16px 16px 0 0; text-align: center;">
             <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">Novo povpraševanje!</h1>
@@ -421,7 +395,7 @@ async function sendAdminNotificationEmail(orderData: OrderData): Promise<boolean
           </div>
         </body>
         </html>
-      `,
+      `
     });
 
     if (!response.ok) {
