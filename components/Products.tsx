@@ -179,6 +179,8 @@ const Products: React.FC = () => {
     e.preventDefault();
     console.log('🛒 Starting checkout process...');
     console.log('📋 Form data:', customerForm);
+    console.log('🛍️ Cart items:', cartItemsList);
+    console.log('💰 Total price:', totalPrice);
     setIsSubmittingOrder(true);
 
     try {
@@ -258,7 +260,8 @@ const Products: React.FC = () => {
         setCustomerForm({ name: '', email: '', phone: '', note: '', newsletterSubscribe: false });
       }, 3000);
     } catch (error) {
-      console.error('Order submission error:', error);
+      console.error('❌ Order submission error:', error);
+      console.error('❌ Error details:', error);
       alert(`Prišlo je do napake pri oddaji povpraševanja: ${error.message}`);
     } finally {
       setIsSubmittingOrder(false);
