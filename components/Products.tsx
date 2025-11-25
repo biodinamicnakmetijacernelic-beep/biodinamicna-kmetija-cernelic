@@ -177,6 +177,7 @@ const Products: React.FC = () => {
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('🎯 handleCheckout function called!');
     console.log('🛒 Starting checkout process...');
     console.log('📋 Form data:', customerForm);
     console.log('🛍️ Cart items:', cartItemsList);
@@ -547,7 +548,10 @@ const Products: React.FC = () => {
                 <p className="text-olive/60">Na vaš e-mail naslov boste prejeli potrdilo. Kmalu vas bomo kontaktirali.</p>
               </div>
             ) : (
-              <form onSubmit={handleCheckout} className="space-y-4">
+              <form onSubmit={(e) => {
+                console.log('🎯 Form submit triggered!');
+                handleCheckout(e);
+              }} className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-widest text-olive/50 mb-1 ml-1">Ime in Priimek</label>
                   <input
@@ -611,6 +615,7 @@ const Products: React.FC = () => {
                   <button
                     type="submit"
                     disabled={isSubmittingOrder}
+                    onClick={() => console.log('🔘 Submit button clicked!')}
                     className="w-full bg-olive text-white py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-olive-dark transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
                   >
                     {isSubmittingOrder ? (
