@@ -41,8 +41,8 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
   const [activeTab, setActiveTab] = useState<'inventory' | 'orders' | 'gallery' | 'news' | 'videos'>('inventory');
 
   // Admin credentials (v produkciji shranite v environment variables!)
-  const ADMIN_EMAIL = 'admin@biodinamicnakmetija-cernelic.si';
-  const ADMIN_PASSWORD = 'Admin123!'; // ⚠️ SPREMENITE TO GESLO V PRODUKCIJI!
+  const ADMIN_EMAIL = 'biodinamicnakmetijacernelic@gmail.com';
+  const ADMIN_PASSWORD = 'Landini174*'; // Admin geslo za dostop
 
   // Sanity token from environment variables
   const sanityToken = import.meta.env.VITE_SANITY_TOKEN;
@@ -748,7 +748,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-olive focus:border-transparent"
-                placeholder="admin@biodinamicnakmetija-cernelic.si"
+                placeholder="Vnesite email naslov"
                 required
               />
             </div>
