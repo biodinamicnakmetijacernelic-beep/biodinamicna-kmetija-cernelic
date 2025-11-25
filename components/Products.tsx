@@ -177,6 +177,8 @@ const Products: React.FC = () => {
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('🛒 Starting checkout process...');
+    console.log('📋 Form data:', customerForm);
     setIsSubmittingOrder(true);
 
     try {
@@ -193,6 +195,8 @@ const Products: React.FC = () => {
         total: totalPrice,
         note: customerForm.note
       });
+
+      console.log('📧 Preparing to send emails...');
 
       // Send confirmation email to customer
       try {
