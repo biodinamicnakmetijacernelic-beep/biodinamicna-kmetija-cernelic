@@ -1,14 +1,23 @@
 import { Resend } from 'resend';
 
 // Initialize Resend with API key
-const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY || 're_Ty7bSfpJ_ARKzPiC2EteMx3AdYqh55N4T');
+const RESEND_API_KEY = import.meta.env.VITE_RESEND_API_KEY || 're_Ty7bSfpJ_ARKzPiC2EteMx3AdYqh55N4T';
+console.log('🔑 Resend API Key loaded:', RESEND_API_KEY ? 'YES' : 'NO');
+console.log('🌐 Environment check:', {
+  hasEnvVar: !!import.meta.env.VITE_RESEND_API_KEY,
+  fallbackUsed: !import.meta.env.VITE_RESEND_API_KEY
+});
+
+const resend = new Resend(RESEND_API_KEY);
 
 /**
  * Add contact to Resend audience for newsletter
  */
 export async function addContactToAudience(email: string, name?: string): Promise<boolean> {
+  console.log('👥 Adding contact to audience:', email, name);
   try {
     const audienceId = import.meta.env.VITE_RESEND_AUDIENCE_ID || '808e9617-60a8-4628-af7a-e67f1d65ce99';
+    console.log('👥 Audience ID:', audienceId);
 
     const { data, error } = await resend.contacts.create({
       email: email,
@@ -55,8 +64,10 @@ export interface OrderData {
  * Send order notification email to admin
  */
 export async function sendOrderNotificationToAdmin(orderData: OrderData): Promise<boolean> {
+  console.log('📧 Sending admin notification email for order:', orderData.orderNumber);
   try {
     const adminEmail = 'biodinamicnakmetijacernelic@gmail.com';
+    console.log('📧 Admin email:', adminEmail);
 
     const { data, error } = await resend.emails.send({
       from: 'Biodinamična kmetija Černelič <info@biodinamicnakmetija-cernelic.si>',
@@ -82,7 +93,9 @@ export async function sendOrderNotificationToAdmin(orderData: OrderData): Promis
  * Send order confirmation email to customer
  */
 export async function sendOrderConfirmationEmail(orderData: OrderData): Promise<boolean> {
+  console.log('📧 Sending customer confirmation email for order:', orderData.orderNumber);
   try {
+    console.log('📧 Customer email:', orderData.customer.email);
     const { data, error } = await resend.emails.send({
       from: 'Biodinamična kmetija Černelič <info@biodinamicnakmetija-cernelic.si>',
       to: [orderData.customer.email],
