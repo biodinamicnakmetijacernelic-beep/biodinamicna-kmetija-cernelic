@@ -3,6 +3,34 @@ import { Resend } from 'resend';
 // Initialize Resend with API key
 const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY || 're_Ty7bSfpJ_ARKzPiC2EteMx3AdYqh55N4T');
 
+/**
+ * Add contact to Resend audience for newsletter
+ */
+export async function addContactToAudience(email: string, name?: string): Promise<boolean> {
+  try {
+    const audienceId = import.meta.env.VITE_RESEND_AUDIENCE_ID || '808e9617-60a8-4628-af7a-e67f1d65ce99';
+
+    const { data, error } = await resend.contacts.create({
+      email: email,
+      first_name: name?.split(' ')[0] || '',
+      last_name: name?.split(' ').slice(1).join(' ') || '',
+      unsubscribed: false,
+      audience_id: audienceId
+    });
+
+    if (error) {
+      console.error('Error adding contact to audience:', error);
+      return false;
+    }
+
+    console.log('Contact added to audience successfully:', data);
+    return true;
+  } catch (error) {
+    console.error('Failed to add contact to audience:', error);
+    return false;
+  }
+}
+
 export interface OrderData {
   id: string;
   orderNumber: string;

@@ -5,6 +5,7 @@ import { PreOrderItem } from '../types';
 import FadeIn from './FadeIn';
 import { ShoppingBag, Truck, Plus, Minus, Check, ShoppingCart, Trash2, X, ChevronUp, ArrowRight } from 'lucide-react';
 import { fetchProducts, submitOrder } from '../sanityClient';
+import { sendOrderConfirmationEmail, addContactToAudience } from '../utils/emailService';
 
 // --- Type Definitions & Helpers ---
 
@@ -133,7 +134,8 @@ const Products: React.FC = () => {
     name: '',
     email: '',
     phone: '',
-    note: ''
+    note: '',
+    newsletterSubscribe: false
   });
 
   useEffect(() => {
@@ -185,12 +187,51 @@ const Products: React.FC = () => {
         unit: item.unit
       }));
 
-      await submitOrder({
+      const orderResult = await submitOrder({
         customer: customerForm,
         items: orderItems,
         total: totalPrice,
         note: customerForm.note
       });
+
+      // Send confirmation email to customer
+      try {
+        const emailOrderData = {
+          id: orderResult._id,
+          orderNumber: orderResult.orderNumber,
+          customer: customerForm,
+          items: orderItems,
+          total: totalPrice,
+          status: orderResult.status,
+          createdAt: orderResult.createdAt,
+          note: customerForm.note
+        };
+
+        const emailSent = await sendOrderConfirmationEmail(emailOrderData);
+        if (emailSent) {
+          console.log("✅ Confirmation email sent successfully");
+        } else {
+          console.warn("⚠️ Failed to send confirmation email");
+        }
+
+        // Add to newsletter audience if subscribed
+        if (customerForm.newsletterSubscribe) {
+          try {
+            const contactAdded = await addContactToAudience(customerForm.email, customerForm.name);
+            if (contactAdded) {
+              console.log("✅ Contact added to newsletter audience");
+            } else {
+              console.warn("⚠️ Failed to add contact to newsletter audience");
+            }
+          } catch (contactError) {
+            console.warn("⚠️ Error adding contact to newsletter audience:", contactError);
+            // Don't block the success flow if contact addition fails
+          }
+        }
+      } catch (emailError) {
+        console.warn("⚠️ Error sending confirmation email:", emailError);
+        // Don't block the success flow if email fails
+      }
 
       setOrderSuccess(true);
       setQuantities({}); // Clear cart
@@ -198,7 +239,7 @@ const Products: React.FC = () => {
         setOrderSuccess(false);
         setIsCheckoutModalOpen(false);
         setIsCartModalOpen(false);
-        setCustomerForm({ name: '', email: '', phone: '', note: '' });
+        setCustomerForm({ name: '', email: '', phone: '', note: '', newsletterSubscribe: false });
       }, 3000);
     } catch (error) {
       console.error('Order submission error:', error);
@@ -532,6 +573,19 @@ const Products: React.FC = () => {
                     value={customerForm.note}
                     onChange={e => setCustomerForm({ ...customerForm, note: e.target.value })}
                   ></textarea>
+                </div>
+
+                <div className="flex items-start gap-3 pt-2">
+                  <input
+                    type="checkbox"
+                    id="newsletterSubscribe"
+                    checked={customerForm.newsletterSubscribe}
+                    onChange={e => setCustomerForm({ ...customerForm, newsletterSubscribe: e.target.checked })}
+                    className="mt-1 h-4 w-4 text-olive focus:ring-olive border-gray-300 rounded"
+                  />
+                  <label htmlFor="newsletterSubscribe" className="text-sm text-olive/70 leading-relaxed">
+                    Želim prejemati novice in obvestila o novih izdelkih ter dogodkih na kmetiji
+                  </label>
                 </div>
 
                 <div className="pt-4">
