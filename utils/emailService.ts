@@ -1,14 +1,6 @@
 import { Resend } from 'resend';
 
-// Initialize Resend with API key
-const RESEND_API_KEY = import.meta.env.VITE_RESEND_API_KEY || 're_Ty7bSfpJ_ARKzPiC2EteMx3AdYqh55N4T';
-console.log('🔑 Resend API Key loaded:', RESEND_API_KEY ? 'YES' : 'NO');
-console.log('🌐 Environment check:', {
-  hasEnvVar: !!import.meta.env.VITE_RESEND_API_KEY,
-  fallbackUsed: !import.meta.env.VITE_RESEND_API_KEY
-});
-
-const resend = new Resend(RESEND_API_KEY);
+// Email functionality moved to Netlify functions with Sendfox
 
 /**
  * Add contact to Resend audience for newsletter
@@ -16,7 +8,7 @@ const resend = new Resend(RESEND_API_KEY);
 export async function addContactToAudience(email: string, name?: string): Promise<boolean> {
   console.log('👥 Adding contact to audience:', email, name);
   try {
-    const audienceId = import.meta.env.VITE_RESEND_AUDIENCE_ID || '808e9617-60a8-4628-af7a-e67f1d65ce99';
+    // Audience functionality moved to Netlify functions
     console.log('👥 Audience ID:', audienceId);
 
     const { data, error } = await resend.contacts.create({
