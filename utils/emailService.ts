@@ -350,6 +350,12 @@ function generateOrderConfirmationHTML(order: OrderData): string {
  */
 function generateOrderStatusUpdateHTML(order: OrderData, oldStatus: string, newStatus: string): string {
   const statusMessages = {
+    pending: {
+      title: '⏳ Povpraševanje v čakanju',
+      message: 'Prejeli smo vaše povpraševanje in ga pregledamo. Kontaktirali vas bomo v najkrajšem možnem času z informacijami o dostopnosti izdelkov in plačilu.',
+      color: '#f59e0b',
+      bgColor: '#fef3c7'
+    },
     'in-preparation': {
       title: '✅ Naročilo v pripravi',
       message: 'Vaše naročilo smo pregledali in sprejeli. Trenutno pripravljamo vaše izdelke. Kontaktirali vas bomo glede termina prevzema.',
@@ -364,7 +370,7 @@ function generateOrderStatusUpdateHTML(order: OrderData, oldStatus: string, newS
     },
     'ready-for-pickup': {
       title: '📦 Naročilo pripravljeno - čaka na prevzem',
-      message: 'Vaše naročilo je pripravljeno in čaka na vas! Prosimo, kontaktirajte nas za dogovor glede termina prevzema.',
+      message: 'Vaše naročilo je pripravljeno in čaka na vas! Pridelke lahko prevzamete na kmetiji: Torek & Petek (ob mraku - 22:00) ali na tržnici Ljubljana: Sreda & Sobota (07:30 - 14:00). Prosimo, kontaktirajte nas za dogovor.',
       color: '#0891b2',
       bgColor: '#cffafe'
     },
