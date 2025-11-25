@@ -1147,22 +1147,16 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
             {/* Pickup Location Filter */}
             <div className="flex gap-2 mb-4 flex-wrap">
               <button
-                onClick={() => setPickupLocationFilter('all')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-colors ${pickupLocationFilter === 'all' ? 'bg-gray-500 text-white' : 'bg-white text-olive/60 hover:bg-gray-50'}`}
-              >
-                Vsi prevzemi ({orders.length})
-              </button>
-              <button
                 onClick={() => setPickupLocationFilter('home')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-colors ${pickupLocationFilter === 'home' ? 'bg-blue-500 text-white' : 'bg-white text-olive/60 hover:bg-blue-50'}`}
               >
-                Doma ({orders.filter(o => o.pickupLocation === 'home').length})
+                Prevzem doma ({orders.filter(o => o.pickupLocation === 'home').length})
               </button>
               <button
                 onClick={() => setPickupLocationFilter('market')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-colors ${pickupLocationFilter === 'market' ? 'bg-purple-500 text-white' : 'bg-white text-olive/60 hover:bg-purple-50'}`}
               >
-                Tržnica ({orders.filter(o => o.pickupLocation === 'market').length})
+                Prevzem tržnica ({orders.filter(o => o.pickupLocation === 'market').length})
               </button>
             </div>
 
