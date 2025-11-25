@@ -22,6 +22,10 @@ interface OrderData {
   createdAt: string;
   note?: string;
   newsletterSubscribe?: boolean;
+  pickupLocation?: 'home' | 'market';
+  isStatusUpdate?: boolean;
+  oldStatus?: string;
+  newStatus?: string;
 }
 
 export const handler: Handler = async (event) => {
@@ -38,19 +42,30 @@ export const handler: Handler = async (event) => {
 
     console.log('📧 Processing order emails for:', orderData.orderNumber);
 
-    // Send customer confirmation email
-    const customerEmailResult = await sendCustomerConfirmationEmail(orderData);
-    console.log('📧 Customer email result:', customerEmailResult);
-
-    // Send admin notification email
-    const adminEmailResult = await sendAdminNotificationEmail(orderData);
-    console.log('📧 Admin email result:', adminEmailResult);
-
-    // Add to newsletter audience if subscribed
+    let customerEmailResult = null;
+    let adminEmailResult = null;
     let audienceResult = null;
-    if (orderData.newsletterSubscribe && orderData.customer.email) {
-      audienceResult = await addContactToAudience(orderData.customer.email, orderData.customer.name);
-      console.log('👥 Audience result:', audienceResult);
+
+    if (orderData.isStatusUpdate) {
+      // This is a status update - send status update email
+      console.log('📧 Sending status update email for status change:', orderData.oldStatus, '→', orderData.newStatus);
+      customerEmailResult = await sendCustomerStatusUpdateEmail(orderData, orderData.oldStatus || '', orderData.newStatus || '');
+      console.log('📧 Status update email result:', customerEmailResult);
+    } else {
+      // This is a new order - send confirmation emails
+      // Send customer confirmation email
+      customerEmailResult = await sendCustomerConfirmationEmail(orderData);
+      console.log('📧 Customer confirmation email result:', customerEmailResult);
+
+      // Send admin notification email
+      adminEmailResult = await sendAdminNotificationEmail(orderData);
+      console.log('📧 Admin email result:', adminEmailResult);
+
+      // Add to newsletter audience if subscribed
+      if (orderData.newsletterSubscribe && orderData.customer.email) {
+        audienceResult = await addContactToAudience(orderData.customer.email, orderData.customer.name);
+        console.log('👥 Audience result:', audienceResult);
+      }
     }
 
     return {
@@ -189,6 +204,104 @@ async function sendCustomerConfirmationEmail(orderData: OrderData): Promise<bool
     return true;
   } catch (error) {
     console.error('Failed to send customer confirmation email:', error);
+    return false;
+  }
+}
+
+async function sendCustomerStatusUpdateEmail(orderData: OrderData, oldStatus: string, newStatus: string): Promise<boolean> {
+  try {
+    const statusMessages = {
+      'in-preparation': {
+        title: '👨‍🍳 Naročilo v pripravi',
+        message: 'Vaše naročilo smo pregledali in sprejeli. Trenutno pripravljamo vaše izdelke. Kontaktirali vas bomo glede termina prevzema.',
+        color: '#16a34a',
+        bgColor: '#dcfce7'
+      },
+      'ready-for-pickup': {
+        title: '📦 Naročilo pripravljeno - čaka na prevzem',
+        message: orderData.pickupLocation === 'home'
+          ? 'Vaše naročilo je pripravljeno in vas čaka na kmetiji! Pridelke lahko prevzamete: Torek & Petek (ob mraku - 22:00). Prosimo, kontaktirajte nas za dogovor o natančnem terminu.'
+          : 'Vaše naročilo je pripravljeno in vas čaka na tržnici Ljubljana! Pridelke lahko prevzamete: Sreda & Sobota (07:30 - 14:00) na Pogačarjevem trgu. Prosimo, kontaktirajte nas za dogovor.',
+        color: '#0891b2',
+        bgColor: '#cffafe'
+      },
+      rejected: {
+        title: '❌ Naročilo zavrnjeno',
+        message: 'Žal trenutno ne moremo izpolniti vašega naročila. Kontaktirali vas bomo za dodatne informacije.',
+        color: '#dc2626',
+        bgColor: '#fef2f2'
+      }
+    };
+
+    const statusInfo = statusMessages[newStatus as keyof typeof statusMessages] || {
+      title: 'Posodobitev statusa naročila',
+      message: `Status vašega naročila se je spremenil iz "${oldStatus}" v "${newStatus}".`,
+      color: '#6b8e23',
+      bgColor: '#f0fdf4'
+    };
+
+    const { data, error } = await resend.emails.send({
+      from: 'Biodinamična kmetija Černelič <info@biodinamicnakmetija-cernelic.si>',
+      to: [orderData.customer.email],
+      subject: `Posodobitev naročila #${orderData.orderNumber}`,
+      html: `
+        <!DOCTYPE html>
+        <html lang="sl">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Posodobitev naročila</title>
+        </head>
+        <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #374151; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #6b8e23 0%, #8fbc8f 100%); padding: 40px 30px; border-radius: 16px 16px 0 0; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">Biodinamična kmetija Černelič</h1>
+            <p style="color: #f0f9f0; margin: 10px 0 0 0; font-size: 16px;">Posodobitev naročila</p>
+          </div>
+
+          <div style="background: white; border: 1px solid #e5e7eb; border-radius: 0 0 16px 16px; padding: 40px 30px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <div style="display: inline-block; background: ${statusInfo.bgColor}; color: ${statusInfo.color}; padding: 12px 24px; border-radius: 50px; font-weight: bold; font-size: 16px;">
+                ${statusInfo.title}
+              </div>
+            </div>
+
+            <div style="margin-bottom: 30px;">
+              <h2 style="color: #374151; margin: 0 0 20px 0; font-size: 20px;">Naročilo #${orderData.orderNumber}</h2>
+              <div style="background: #f9fafb; padding: 20px; border-radius: 8px;">
+                <p style="margin: 5px 0;"><strong>Ime:</strong> ${orderData.customer.name}</p>
+                <p style="margin: 5px 0;"><strong>Telefon:</strong> ${orderData.customer.phone}</p>
+                <p style="margin: 5px 0;"><strong>E-mail:</strong> ${orderData.customer.email}</p>
+                <p style="margin: 5px 0;"><strong>Datum naročila:</strong> ${new Date(orderData.createdAt).toLocaleDateString('sl-SI')}</p>
+              </div>
+            </div>
+
+            <div style="background: ${statusInfo.bgColor}; border: 1px solid ${statusInfo.color}20; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+              <p style="color: ${statusInfo.color}; margin: 0; font-weight: 500;">
+                ${statusInfo.message}
+              </p>
+            </div>
+
+            <div style="text-align: center; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+              <p style="color: #6b7280; margin: 0;">
+                Za vprašanja nas kontaktirajte na <a href="tel:+38651363447" style="color: #6b8e23;">051 363 447</a>
+                ali <a href="mailto:info@biodinamicnakmetija-cernelic.si" style="color: #6b8e23;">info@biodinamicnakmetija-cernelic.si</a>
+              </p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+    });
+
+    if (error) {
+      console.error('Error sending customer status update email:', error);
+      return false;
+    }
+
+    console.log('Customer status update email sent successfully:', data);
+    return true;
+  } catch (error) {
+    console.error('Failed to send customer status update email:', error);
     return false;
   }
 }

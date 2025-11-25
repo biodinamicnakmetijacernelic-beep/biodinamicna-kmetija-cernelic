@@ -4,6 +4,40 @@ import { X, Save, Search, RefreshCw, ShoppingBag, ClipboardList, Bell, Image as 
 import { GalleryItem, PreOrderItem, NewsItem, VideoGalleryItem, Order } from '../types';
 import { uploadImageToSanity, fetchProducts, updateProductStatus, createProduct, updateProduct, deleteProduct, createNewsPost, fetchAllNews, updateNewsPost, deleteNewsPost, fetchVideoGallery, createVideo, updateVideo, deleteVideo, fetchOrders, updateOrderStatus, deleteOrder, fetchGalleryImages, updateGalleryImage, deleteGalleryImage } from '../sanityClient';
 import { sendOrderStatusUpdateEmail } from '../utils/emailService';
+
+// Function to send status update emails via Netlify function
+async function sendStatusUpdateEmail(orderData: any, oldStatus: string, newStatus: string) {
+  console.log('📧 Sending status update email via Netlify function:', { orderNumber: orderData.orderNumber, oldStatus, newStatus });
+
+  try {
+    const response = await fetch('/.netlify/functions/send-order-emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...orderData,
+        oldStatus,
+        newStatus,
+        isStatusUpdate: true
+      }),
+    });
+
+    const result = await response.json();
+    console.log('📧 Status update email result:', result);
+
+    if (response.ok && result.success) {
+      console.log("✅ Status update email sent successfully");
+      return true;
+    } else {
+      console.warn("⚠️ Status update email failed:", result);
+      return false;
+    }
+  } catch (error) {
+    console.warn("⚠️ Error sending status update email:", error);
+    return false;
+  }
+}
 import { createClient } from '@sanity/client';
 import { sanityConfig } from '../sanityConfig';
 
@@ -274,7 +308,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
 
       // Send email asynchronously (don't block the UI) - skip for completed orders
       if (newStatus !== 'completed') {
-        sendOrderStatusUpdateEmail(emailOrderData, oldStatus, newStatus).catch(emailError => {
+        sendStatusUpdateEmail(emailOrderData, oldStatus, newStatus).catch(emailError => {
           console.warn('Failed to send status update email:', emailError);
         });
       }
