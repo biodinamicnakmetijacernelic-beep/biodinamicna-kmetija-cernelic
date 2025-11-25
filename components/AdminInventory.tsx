@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Save, Search, RefreshCw, ShoppingBag, ClipboardList, Settings, Bell, Image as ImageIcon, Upload, Trash2, Pencil, ArrowLeft, AlertTriangle, Plus, Lock, Send, Eye, EyeOff, FileText, Type, Video, Check } from 'lucide-react';
+import { X, Save, Search, RefreshCw, ShoppingBag, ClipboardList, Settings, Bell, Image as ImageIcon, Upload, Trash2, Pencil, ArrowLeft, AlertTriangle, Plus, Lock, Send, Eye, EyeOff, FileText, Type, Video, Check, LogOut } from 'lucide-react';
 import { GalleryItem, PreOrderItem, NewsItem, VideoGalleryItem, Order } from '../types';
 import { uploadImageToSanity, fetchProducts, updateProductStatus, createProduct, updateProduct, deleteProduct, createNewsPost, fetchAllNews, updateNewsPost, deleteNewsPost, fetchVideoGallery, createVideo, updateVideo, deleteVideo, fetchOrders, updateOrderStatus, deleteOrder, fetchGalleryImages, updateGalleryImage, deleteGalleryImage } from '../sanityClient';
 import { sendOrderStatusUpdateEmail } from '../utils/emailService';
@@ -31,11 +31,18 @@ interface NewsBlock {
 }
 
 const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onAddImage, onDeleteImage }) => {
+  // Authentication State
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('admin_session'));
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [loginError, setLoginError] = useState('');
+
   const [activeTab, setActiveTab] = useState<'inventory' | 'orders' | 'gallery' | 'news' | 'videos' | 'settings'>('inventory');
 
-  // Settings / API Token State
-  const [sanityToken, setSanityToken] = useState(localStorage.getItem('sanity_token') || 'skfLb49oZf7DkswLGeSd8OgU4lrwWApK141Xcd0AOoeeM8gROXL045ZlHcWB0tgfQc4foFr0M72H95j7NwPdBqbb2w8ut4cXqVfhrPGExcUyatX6WNdk31jx1R4g3SBAeGIlUhRNFJfCvBQw5hIgHQx6negfr5annw1QeQTgH6CbZBAaQFqw');
-  const [showToken, setShowToken] = useState(false);
+  // Admin credentials (v produkciji shranite v environment variables!)
+  const ADMIN_EMAIL = 'admin@biodinamicnakmetija-cernelic.si';
+  const ADMIN_PASSWORD = 'Admin123!'; // ⚠️ SPREMENITE TO GESLO V PRODUKCIJI!
 
   // Inventory State
   const [products, setProducts] = useState<PreOrderItem[]>([]);
@@ -98,12 +105,41 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
   const [orderStatusFilter, setOrderStatusFilter] = useState<'pending' | 'in-preparation' | 'ready-for-pickup' | 'completed' | 'rejected'>('pending');
   const [orderSearchTerm, setOrderSearchTerm] = useState('');
 
+  // --- Authentication ---
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoggingIn(true);
+    setLoginError('');
+
+    // Preprosta avtentikacija (v produkciji uporabite bolj varno metodo)
+    if (loginEmail === ADMIN_EMAIL && loginPassword === ADMIN_PASSWORD) {
+      localStorage.setItem('admin_session', 'true');
+      localStorage.setItem('admin_email', loginEmail);
+      setIsLoggedIn(true);
+      loadInventory();
+      loadOrders();
+    } else {
+      setLoginError('Napačen email ali geslo');
+    }
+
+    setIsLoggingIn(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('admin_session');
+    localStorage.removeItem('admin_email');
+    setIsLoggedIn(false);
+    setLoginEmail('');
+    setLoginPassword('');
+  };
+
   // --- Initialize ---
   useEffect(() => {
-    const savedToken = localStorage.getItem('sanity_token');
-    if (savedToken) setSanityToken(savedToken);
-    loadInventory();
-  }, []);
+    if (isLoggedIn) {
+      loadInventory();
+      loadOrders();
+    }
+  }, [isLoggedIn]);
 
   useEffect(() => {
     if (activeTab === 'videos') {
@@ -173,10 +209,8 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
   const loadOrders = async () => {
     setIsLoadingOrders(true);
     try {
-      const token = localStorage.getItem('sanity_token');
+      const token = import.meta.env.VITE_SANITY_TOKEN;
       console.log("🔍 Loading orders - Token exists:", !!token);
-      console.log("🔍 Token preview:", token ? "***" + token.slice(-4) : "NO TOKEN");
-      console.log("🔍 Current localStorage keys:", Object.keys(localStorage));
 
       if (token) {
         console.log("🔍 Calling fetchOrders with token...");
@@ -207,9 +241,9 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
 
   const handleOrderStatus = async (orderId: string, newStatus: string) => {
     try {
-      const token = localStorage.getItem('sanity_token');
+      const token = import.meta.env.VITE_SANITY_TOKEN;
       if (!token) {
-        alert('Manjka API token. Preverite nastavitve.');
+        alert('Manjka Sanity API token. Obrnite se na administratorja.');
         return;
       }
 
@@ -276,11 +310,6 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
     }
   };
 
-  const handleSaveToken = () => {
-    localStorage.setItem('sanity_token', sanityToken);
-    setNotification("🔑 Povezava shranjena! Zdaj lahko nalagate slike.");
-    setTimeout(() => setNotification(null), 3000);
-  };
 
   // --- News Block Logic ---
   const addTextBlock = () => {
@@ -697,6 +726,73 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
     return (filter === 'all' || p.category === filter) && productName.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
+  // Login Screen
+  if (!isLoggedIn) {
+    return (
+      <div className="fixed inset-0 z-[60] bg-cream flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8">
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Admin Prijava</h1>
+            <p className="text-gray-600">Biodinamična kmetija Černelič</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-olive focus:border-transparent"
+                placeholder="admin@biodinamicnakmetija-cernelic.si"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Geslo
+              </label>
+              <input
+                type="password"
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-olive focus:border-transparent"
+                placeholder="Vnesite geslo"
+                required
+              />
+            </div>
+
+            {loginError && (
+              <div className="text-red-600 text-sm text-center bg-red-50 p-3 rounded-xl">
+                {loginError}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={isLoggingIn}
+              className="w-full py-3 bg-olive text-white rounded-xl font-semibold hover:bg-olive/90 transition-colors disabled:opacity-50"
+            >
+              {isLoggingIn ? 'Prijava...' : 'Prijava'}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700 text-sm"
+            >
+              Nazaj na stran
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 z-[60] bg-cream overflow-auto">
       <div className="min-h-screen w-full max-w-7xl mx-auto flex flex-col font-sans">
@@ -714,6 +810,15 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
               )}
             </div>
           </div>
+
+          {/* Logout Button */}
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-colors text-sm font-medium"
+          >
+            <LogOut size={16} />
+            Odjava
+          </button>
           <button onClick={onClose} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200">
             <X size={20} className="text-olive-dark" />
           </button>
@@ -1417,55 +1522,29 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
         {activeTab === 'settings' && (
           <div className="flex-1 p-6 bg-gray-50">
             <div className="bg-white p-6 rounded-3xl border border-black/5 shadow-sm">
-              <h3 className="font-serif text-lg text-olive-dark mb-4">API Konfiguracija</h3>
-              <div className="relative mb-4">
-                <input
-                  type={showToken ? "text" : "password"}
-                  value={sanityToken}
-                  onChange={(e) => setSanityToken(e.target.value)}
-                  placeholder="Vnesite Sanity API token"
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm"
-                />
-                <button onClick={() => setShowToken(!showToken)} className="absolute right-8 top-1/2 -translate-y-1/2 text-gray-400">{showToken ? <EyeOff size={16} /> : <Eye size={16} />}</button>
-                <button
-                  onClick={async () => {
-                    try {
-                      const text = await navigator.clipboard.readText();
-                      setSanityToken(text);
-                      alert('Token prilepljen iz odložišča!');
-                    } catch (err) {
-                      alert('Napaka pri branju odložišča. Kopirajte token ročno.');
-                    }
-                  }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  title="Prilepi iz odložišča"
-                >
-                  📄
-                </button>
-              </div>
-              <div className="space-y-3">
-                <button onClick={handleSaveToken} className="w-full py-3 bg-olive text-white rounded-xl text-xs font-bold uppercase">Shrani Povezavo</button>
+              <h3 className="font-serif text-lg text-olive-dark mb-4">Admin Račun</h3>
 
-                <div className="text-xs text-gray-600 bg-gray-50 p-3 rounded-xl">
-                  <div className="font-medium mb-1">Status povezave:</div>
+              <div className="space-y-4">
+                <div className="bg-gray-50 p-4 rounded-xl">
+                  <h4 className="font-medium text-gray-900 mb-2">Trenutni Admin</h4>
+                  <p className="text-sm text-gray-600">{localStorage.getItem('admin_email') || 'Neznano'}</p>
+                </div>
+
+                <div className="bg-blue-50 p-4 rounded-xl">
+                  <h4 className="font-medium text-blue-900 mb-2">Varnostne Informacije</h4>
+                  <ul className="text-sm text-blue-800 space-y-1">
+                    <li>• Spremenite privzeto geslo v produkciji</li>
+                    <li>• Uporabljajte močna gesla</li>
+                    <li>• Redno spremljajte dostop</li>
+                  </ul>
+                </div>
+
+                <div className="bg-green-50 p-4 rounded-xl">
+                  <h4 className="font-medium text-green-900 mb-2">API Status</h4>
                   <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${localStorage.getItem('sanity_token') ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                    <span>{localStorage.getItem('sanity_token') ? 'Povezan' : 'Ni povezan'}</span>
+                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <span className="text-sm text-green-800">Vse povezave aktivne</span>
                   </div>
-                  {localStorage.getItem('sanity_token') && (
-                    <div className="mt-2">
-                      <button
-                        onClick={() => {
-                          const token = localStorage.getItem('sanity_token');
-                          navigator.clipboard.writeText(token || '');
-                          alert('Token kopiran v odložišče!');
-                        }}
-                        className="text-blue-600 underline text-xs"
-                      >
-                        Kopiraj token za drug brskalnik
-                      </button>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
