@@ -1,7 +1,7 @@
 import { Resend } from 'resend';
 
 // Initialize Resend with API key
-const resend = new Resend('re_Ty7bSfpJ_ARKzPiC2EteMx3AdYqh55N4T');
+const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY || 're_Ty7bSfpJ_ARKzPiC2EteMx3AdYqh55N4T');
 
 export interface OrderData {
   id: string;
