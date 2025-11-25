@@ -5,7 +5,6 @@ import { PreOrderItem } from '../types';
 import FadeIn from './FadeIn';
 import { ShoppingBag, Truck, Plus, Minus, Check, ShoppingCart, Trash2, X, ChevronUp, ArrowRight } from 'lucide-react';
 import { fetchProducts, submitOrder } from '../sanityClient';
-import { sendOrderConfirmationEmail, sendOrderNotificationToAdmin, addContactToAudience } from '../utils/emailService';
 
 // --- Type Definitions & Helpers ---
 
@@ -199,9 +198,9 @@ const Products: React.FC = () => {
         note: customerForm.note
       });
 
-      console.log('📧 Preparing to send emails...');
+      console.log('📧 Preparing to send emails via Netlify function...');
 
-      // Send confirmation email to customer
+      // Send emails via Netlify function
       try {
         const emailOrderData = {
           id: orderResult._id,
@@ -211,44 +210,33 @@ const Products: React.FC = () => {
           total: totalPrice,
           status: orderResult.status,
           createdAt: orderResult.createdAt,
-          note: customerForm.note
+          note: customerForm.note,
+          newsletterSubscribe: customerForm.newsletterSubscribe
         };
 
-        const emailSent = await sendOrderConfirmationEmail(emailOrderData);
-        if (emailSent) {
-          console.log("✅ Confirmation email sent successfully");
+        console.log('📧 Calling Netlify function with data:', emailOrderData);
+
+        const response = await fetch('/.netlify/functions/send-order-emails', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(emailOrderData),
+        });
+
+        const result = await response.json();
+        console.log('📧 Netlify function response:', result);
+
+        if (response.ok && result.success) {
+          console.log("✅ All emails sent successfully");
+          if (result.customerEmail) console.log("✅ Customer confirmation email sent");
+          if (result.adminEmail) console.log("✅ Admin notification email sent");
+          if (result.audience) console.log("✅ Contact added to newsletter audience");
         } else {
-          console.warn("⚠️ Failed to send confirmation email");
-        }
-
-        // Send notification to admin
-        try {
-          const adminEmailSent = await sendOrderNotificationToAdmin(emailOrderData);
-          if (adminEmailSent) {
-            console.log("✅ Admin notification email sent successfully");
-          } else {
-            console.warn("⚠️ Failed to send admin notification email");
-          }
-        } catch (adminEmailError) {
-          console.warn("⚠️ Error sending admin notification email:", adminEmailError);
-        }
-
-        // Add to newsletter audience if subscribed
-        if (customerForm.newsletterSubscribe) {
-          try {
-            const contactAdded = await addContactToAudience(customerForm.email, customerForm.name);
-            if (contactAdded) {
-              console.log("✅ Contact added to newsletter audience");
-            } else {
-              console.warn("⚠️ Failed to add contact to newsletter audience");
-            }
-          } catch (contactError) {
-            console.warn("⚠️ Error adding contact to newsletter audience:", contactError);
-            // Don't block the success flow if contact addition fails
-          }
+          console.warn("⚠️ Some emails failed:", result);
         }
       } catch (emailError) {
-        console.warn("⚠️ Error sending confirmation email:", emailError);
+        console.warn("⚠️ Error calling Netlify function:", emailError);
         // Don't block the success flow if email fails
       }
 
@@ -275,6 +263,7 @@ const Products: React.FC = () => {
   // Explicit type casting to fix 'unknown' type errors
   const quantityValues = Object.values(quantities) as number[];
   const totalItems = quantityValues.reduce((a, b) => a + b, 0);
+  console.log('🛒 Cart status:', { totalItems, quantities });
 
   const totalPrice = displayProducts.reduce((sum, product) => {
     const qty = quantities[product.id] || 0;
@@ -614,8 +603,8 @@ const Products: React.FC = () => {
                 <div className="pt-4">
                   <button
                     type="submit"
-                    disabled={isSubmittingOrder}
-                    onClick={() => console.log('🔘 Submit button clicked!')}
+                    disabled={isSubmittingOrder || totalItems === 0}
+                    onClick={() => console.log('🔘 Submit button clicked!', { isSubmitting: isSubmittingOrder, totalItems })}
                     className="w-full bg-olive text-white py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-olive-dark transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
                   >
                     {isSubmittingOrder ? (
