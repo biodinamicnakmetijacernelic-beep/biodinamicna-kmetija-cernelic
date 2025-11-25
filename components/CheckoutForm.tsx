@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { PREORDER_PRODUCTS, PreOrderItem } from '../constants';
 import { submitOrder } from '../sanityClient';
-import { sendOrderConfirmationEmail } from '../utils/emailService';
+import { sendOrderConfirmationEmail, sendOrderNotificationToAdmin } from '../utils/emailService';
 import FadeIn from './FadeIn';
 import { ShoppingCart, User, Phone, Mail, MessageSquare, Check, X, ArrowLeft } from 'lucide-react';
 
@@ -96,6 +96,18 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ quantities, onBack, onOrder
           console.log("✅ Confirmation email sent successfully");
         } else {
           console.warn("⚠️ Failed to send confirmation email");
+        }
+
+        // Send notification to admin
+        try {
+          const adminEmailSent = await sendOrderNotificationToAdmin(emailOrderData);
+          if (adminEmailSent) {
+            console.log("✅ Admin notification email sent successfully");
+          } else {
+            console.warn("⚠️ Failed to send admin notification email");
+          }
+        } catch (adminEmailError) {
+          console.warn("⚠️ Error sending admin notification email:", adminEmailError);
         }
       } catch (emailError) {
         console.warn("⚠️ Error sending confirmation email:", emailError);

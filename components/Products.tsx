@@ -5,7 +5,7 @@ import { PreOrderItem } from '../types';
 import FadeIn from './FadeIn';
 import { ShoppingBag, Truck, Plus, Minus, Check, ShoppingCart, Trash2, X, ChevronUp, ArrowRight } from 'lucide-react';
 import { fetchProducts, submitOrder } from '../sanityClient';
-import { sendOrderConfirmationEmail, addContactToAudience } from '../utils/emailService';
+import { sendOrderConfirmationEmail, sendOrderNotificationToAdmin, addContactToAudience } from '../utils/emailService';
 
 // --- Type Definitions & Helpers ---
 
@@ -212,6 +212,18 @@ const Products: React.FC = () => {
           console.log("✅ Confirmation email sent successfully");
         } else {
           console.warn("⚠️ Failed to send confirmation email");
+        }
+
+        // Send notification to admin
+        try {
+          const adminEmailSent = await sendOrderNotificationToAdmin(emailOrderData);
+          if (adminEmailSent) {
+            console.log("✅ Admin notification email sent successfully");
+          } else {
+            console.warn("⚠️ Failed to send admin notification email");
+          }
+        } catch (adminEmailError) {
+          console.warn("⚠️ Error sending admin notification email:", adminEmailError);
         }
 
         // Add to newsletter audience if subscribed
