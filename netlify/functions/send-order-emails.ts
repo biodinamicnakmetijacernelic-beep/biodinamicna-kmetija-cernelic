@@ -91,19 +91,6 @@ export const handler = async (event) => {
 
 async function sendCustomerConfirmationEmail(orderData: OrderData): Promise<boolean> {
   try {
-    const itemsHTML = orderData.items.map(item => `
-      <tr>
-        <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
-          <strong>${item.name}</strong>
-        </td>
-        <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center;">
-          ${item.quantity} × ${item.price.toFixed(2)} € / ${item.unit}
-        </td>
-        <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: bold;">
-          ${(item.quantity * item.price).toFixed(2)} €
-        </td>
-      </tr>
-    `).join('');
 
     const response = await fetch(SENDFOX_API_URL, {
       method: 'POST',
@@ -195,19 +182,6 @@ async function sendCustomerStatusUpdateEmail(orderData: OrderData, oldStatus: st
 
 async function sendAdminNotificationEmail(orderData: OrderData): Promise<boolean> {
   try {
-    const itemsHTML = orderData.items.map(item => `
-      <tr>
-        <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
-          <strong>${item.name}</strong>
-        </td>
-        <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center;">
-          ${item.quantity} × ${item.price.toFixed(2)} € / ${item.unit}
-        </td>
-        <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: bold;">
-          ${(item.quantity * item.price).toFixed(2)} €
-        </td>
-      </tr>
-    `).join('');
 
     const response = await fetch(SENDFOX_API_URL, {
       method: 'POST',
