@@ -220,8 +220,8 @@ async function sendCustomerStatusUpdateEmail(orderData: OrderData, oldStatus: st
       'ready-for-pickup': {
         title: '📦 Naročilo pripravljeno - čaka na prevzem',
         message: orderData.pickupLocation === 'home'
-          ? 'Vaše naročilo je pripravljeno in vas čaka na kmetiji! Pridelke lahko prevzamete: Torek & Petek (ob mraku - 22:00). Prosimo, kontaktirajte nas za dogovor o natančnem terminu.'
-          : 'Vaše naročilo je pripravljeno in vas čaka na tržnici Ljubljana! Pridelke lahko prevzamete: Sreda & Sobota (07:30 - 14:00) na Pogačarjevem trgu. Prosimo, kontaktirajte nas za dogovor.',
+          ? 'Vaše naročilo je pripravljeno in vas čaka na kmetiji! Pridelke lahko prevzamete: Torek & Petek (ob mraku - 22:00).'
+          : 'Vaše naročilo je pripravljeno in vas čaka na tržnici Ljubljana! Pridelke lahko prevzamete: Sreda & Sobota (07:30 - 14:00) na Pogačarjevem trgu.',
         color: '#0891b2',
         bgColor: '#cffafe'
       },
