@@ -28,7 +28,7 @@ interface OrderData {
   newStatus?: string;
 }
 
-export const handler = async (event: any) => {
+export const handler = async (event) => {
   // Only allow POST requests
   if (event.httpMethod !== 'POST') {
     return {
