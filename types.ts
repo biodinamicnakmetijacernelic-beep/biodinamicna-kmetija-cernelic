@@ -87,4 +87,5 @@ export interface Order {
   status: 'pending' | 'in-preparation' | 'ready-for-pickup' | 'completed' | 'rejected';
   createdAt: string;
   note?: string;
+  pickupLocation?: 'home' | 'market';
 }

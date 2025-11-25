@@ -272,10 +272,12 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
         status: newStatus as 'pending' | 'approved' | 'rejected' | 'completed'
       };
 
-      // Send email asynchronously (don't block the UI)
-      sendOrderStatusUpdateEmail(emailOrderData, oldStatus, newStatus).catch(emailError => {
-        console.warn('Failed to send status update email:', emailError);
-      });
+      // Send email asynchronously (don't block the UI) - skip for completed orders
+      if (newStatus !== 'completed') {
+        sendOrderStatusUpdateEmail(emailOrderData, oldStatus, newStatus).catch(emailError => {
+          console.warn('Failed to send status update email:', emailError);
+        });
+      }
 
       // Update local state
       setOrders(orders.map(order =>

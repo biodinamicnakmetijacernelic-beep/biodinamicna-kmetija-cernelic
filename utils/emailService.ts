@@ -58,6 +58,7 @@ export interface OrderData {
   status: 'pending' | 'in-preparation' | 'ready-for-pickup' | 'completed' | 'rejected';
   createdAt: string;
   note?: string;
+  pickupLocation?: 'home' | 'market';
 }
 
 /**
@@ -370,7 +371,9 @@ function generateOrderStatusUpdateHTML(order: OrderData, oldStatus: string, newS
     },
     'ready-for-pickup': {
       title: '📦 Naročilo pripravljeno - čaka na prevzem',
-      message: 'Vaše naročilo je pripravljeno in čaka na vas! Pridelke lahko prevzamete na kmetiji: Torek & Petek (ob mraku - 22:00) ali na tržnici Ljubljana: Sreda & Sobota (07:30 - 14:00). Prosimo, kontaktirajte nas za dogovor.',
+      message: order.pickupLocation === 'home'
+        ? 'Vaše naročilo je pripravljeno in vas čaka na kmetiji! Pridelke lahko prevzamete: Torek & Petek (ob mraku - 22:00). Prosimo, kontaktirajte nas za dogovor o natančnem terminu.'
+        : 'Vaše naročilo je pripravljeno in vas čaka na tržnici Ljubljana! Pridelke lahko prevzamete: Sreda & Sobota (07:30 - 14:00) na Pogačarjevem trgu. Prosimo, kontaktirajte nas za dogovor.',
       color: '#0891b2',
       bgColor: '#cffafe'
     },

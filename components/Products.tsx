@@ -134,7 +134,8 @@ const Products: React.FC = () => {
     email: '',
     phone: '',
     note: '',
-    newsletterSubscribe: false
+    newsletterSubscribe: false,
+    pickupLocation: 'home' as 'home' | 'market'
   });
 
   useEffect(() => {
@@ -246,7 +247,7 @@ const Products: React.FC = () => {
         setOrderSuccess(false);
         setIsCheckoutModalOpen(false);
         setIsCartModalOpen(false);
-        setCustomerForm({ name: '', email: '', phone: '', note: '', newsletterSubscribe: false });
+        setCustomerForm({ name: '', email: '', phone: '', note: '', newsletterSubscribe: false, pickupLocation: 'home' });
       }, 3000);
     } catch (error) {
       console.error('❌ Order submission error:', error);
@@ -587,7 +588,41 @@ const Products: React.FC = () => {
                   ></textarea>
                 </div>
 
-                <div className="flex items-start gap-3 pt-2">
+                <div className="pt-2">
+                  <label className="block text-xs font-bold uppercase tracking-widest text-olive/50 mb-2 ml-1">Prevzem pridelkov</label>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="radio"
+                        id="pickup-home"
+                        name="pickupLocation"
+                        value="home"
+                        checked={customerForm.pickupLocation === 'home'}
+                        onChange={e => setCustomerForm({ ...customerForm, pickupLocation: e.target.value as 'home' | 'market' })}
+                        className="h-4 w-4 text-olive focus:ring-olive border-gray-300"
+                      />
+                      <label htmlFor="pickup-home" className="text-sm text-olive/70">
+                        Prevzem na kmetiji (Dečno selo 48, 8253 Artiče)
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="radio"
+                        id="pickup-market"
+                        name="pickupLocation"
+                        value="market"
+                        checked={customerForm.pickupLocation === 'market'}
+                        onChange={e => setCustomerForm({ ...customerForm, pickupLocation: e.target.value as 'home' | 'market' })}
+                        className="h-4 w-4 text-olive focus:ring-olive border-gray-300"
+                      />
+                      <label htmlFor="pickup-market" className="text-sm text-olive/70">
+                        Prevzem na tržnici Ljubljana (Pogačarjev trg)
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 pt-4">
                   <input
                     type="checkbox"
                     id="newsletterSubscribe"

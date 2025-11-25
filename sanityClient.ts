@@ -664,7 +664,8 @@ export async function submitOrder(orderData: any) {
       totalAmount: orderData.total,
       status: 'pending',
       createdAt: new Date().toISOString(),
-      note: orderData.note
+      note: orderData.note,
+      pickupLocation: orderData.pickupLocation || 'home'
     };
 
     const result = await writeClient.create(doc);
@@ -693,7 +694,8 @@ export async function fetchOrders(token: string): Promise<Order[]> {
       totalAmount,
       status,
       createdAt,
-      note
+      note,
+      pickupLocation
     }`;
 
     console.log("Executing Sanity query for orders:", query);
@@ -712,7 +714,8 @@ export async function fetchOrders(token: string): Promise<Order[]> {
       total: item.totalAmount,
       status: item.status,
       createdAt: item.createdAt,
-      note: item.note
+      note: item.note,
+      pickupLocation: item.pickupLocation || 'home'
     }));
 
     console.log("Mapped orders data:", mappedData);
