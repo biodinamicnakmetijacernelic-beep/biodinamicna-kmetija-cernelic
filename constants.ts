@@ -71,7 +71,7 @@ export const ABOUT_TEXT = {
       id: 'today',
       title: "Kako delamo danes?",
       content: "V središču našega dela je celostni, zaprti cikel in spoštovanje naravnih ritmov. Rodovitnost tal gradimo brez kemije: z močjo dragocenega komposta iz lastne reje, posebno izbranimi posevki za biotsko pestrost in certificiranimi biodinamičnimi preparati. Ta celovit model nam omogoča pridelavo hrane z izjemno vitalnostjo in je bil potrjen z najvišjimi evropskimi priznanji, vključno z nagrado za najboljše upravljanje s tlemi.",
-      image: "https://lh3.googleusercontent.com/pw/AP1GczNb6VoU-V4GTpVl33IEwqTa5832hHmuZRa9w2V_MVmE-1L7m38aOb3ociVYR0XruVV6iNVbcP9WP9-Lx9dRGmHVrIQCoKx6_OJIODv24J9rP2vJqJTLXyJwX-7HPj7-TFc_oJb7wrg1QwztJVKbb7ag=w1142-h1718-s-no?authuser=0", // Zvone image
+      image: "https://cdn.sanity.io/images/swdrisve/production/36de5c63b602a5c6c57383463cc761c796bb3abb-1920x1281.jpg", // Zvone image
       imageAlt: "Zvone Černelič s pridelkom"
     }
   ],
