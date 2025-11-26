@@ -227,11 +227,21 @@ export async function uploadImageToSanity(
       filename: file.name
     });
 
+    // Convert date to ISO format for consistent sorting
+    let isoDate = metadata.date;
+    if (metadata.date.includes('.')) {
+      // It's in DD.MM.YYYY format, convert to YYYY-MM-DD
+      const parsedDate = parseEuropeanDate(metadata.date);
+      if (parsedDate) {
+        isoDate = parsedDate.toISOString().split('T')[0];
+      }
+    }
+
     const doc = {
       _type: 'galleryImage',
       title: metadata.title || 'Utrinek s kmetije',
       description: metadata.description,
-      date: metadata.date,
+      date: isoDate,
       category: 'Utrinek',
       image: {
         _type: 'image',
@@ -249,6 +259,21 @@ export async function uploadImageToSanity(
     console.error("Upload failed:", error);
     throw error;
   }
+}
+
+// Helper function to parse DD.MM.YYYY date format
+function parseEuropeanDate(dateString: string): Date | null {
+  if (!dateString) return null;
+  const parts = dateString.split('.');
+  if (parts.length !== 3) return null;
+
+  const day = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1; // JavaScript months are 0-based
+  const year = parseInt(parts[2], 10);
+
+  if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
+
+  return new Date(year, month, day);
 }
 
 export async function updateGalleryImage(
@@ -270,7 +295,16 @@ export async function updateGalleryImage(
     };
 
     if (data.date) {
-      fieldsToUpdate.date = data.date;
+      // Convert date to ISO format for consistent sorting
+      let isoDate = data.date;
+      if (data.date.includes('.')) {
+        // It's in DD.MM.YYYY format, convert to YYYY-MM-DD
+        const parsedDate = parseEuropeanDate(data.date);
+        if (parsedDate) {
+          isoDate = parsedDate.toISOString().split('T')[0];
+        }
+      }
+      fieldsToUpdate.date = isoDate;
     }
 
     await patch.set(fieldsToUpdate).commit();
