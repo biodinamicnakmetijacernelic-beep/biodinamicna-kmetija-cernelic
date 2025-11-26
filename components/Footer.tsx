@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Facebook, Instagram, Mail, Phone } from 'lucide-react';
+import { Facebook, Instagram, Mail, Phone, Youtube } from 'lucide-react';
 import { LOGO_PATHS, FARM_LOGO } from '../constants';
 
 const Footer: React.FC = () => {
@@ -58,15 +58,16 @@ const Footer: React.FC = () => {
           <div className="space-y-6">
             <h4 className="text-terracotta text-xs font-bold uppercase tracking-widest">Povezave</h4>
             <div className="flex gap-3 mb-6">
-              <a href="#" className="p-3 bg-olive/5 rounded-full hover:bg-[#1877F2] hover:text-white transition-all transform hover:-translate-y-1 text-olive">
+              <a href="https://www.facebook.com/biodinamicnakmetijacernelic" target="_blank" rel="noopener noreferrer" className="p-3 bg-olive/5 rounded-full hover:bg-[#1877F2] hover:text-white transition-all transform hover:-translate-y-1 text-olive">
                 <Facebook size={20} />
               </a>
-              <a href="#" className="p-3 bg-olive/5 rounded-full hover:bg-[#E4405F] hover:text-white transition-all transform hover:-translate-y-1 text-olive">
+              <a href="https://www.instagram.com/biodinamicnakmetijacernelic/" target="_blank" rel="noopener noreferrer" className="p-3 bg-olive/5 rounded-full hover:bg-[#E4405F] hover:text-white transition-all transform hover:-translate-y-1 text-olive">
                 <Instagram size={20} />
               </a>
+              <a href="https://www.youtube.com/channel/UCEu10obkT9aAr09USIWkBtw" target="_blank" rel="noopener noreferrer" className="p-3 bg-olive/5 rounded-full hover:bg-[#FF0000] hover:text-white transition-all transform hover:-translate-y-1 text-olive">
+                <Youtube size={20} />
+              </a>
             </div>
-
-
           </div>
         </div>
 
