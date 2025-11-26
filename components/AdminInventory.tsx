@@ -70,6 +70,7 @@ interface PendingUpload {
   file: File;
   src: string;
   description: string;
+  date: string; // YYYY-MM-DD format
 }
 
 interface NewsBlock {
@@ -722,6 +723,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
     const files = event.target.files;
     if (files && files.length > 0) {
       const newUploads: PendingUpload[] = [];
+      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
 
       // Show loading or notification if needed, but for now we just process
       for (let i = 0; i < files.length; i++) {
@@ -729,11 +731,11 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
         try {
           const compressedFile = await compressImage(file);
           const src = URL.createObjectURL(compressedFile);
-          newUploads.push({ file: compressedFile, src, description: '' });
+          newUploads.push({ file: compressedFile, src, description: '', date: today });
         } catch (error) {
           console.error("Error compressing image:", error);
           const src = URL.createObjectURL(file);
-          newUploads.push({ file, src, description: '' });
+          newUploads.push({ file, src, description: '', date: today });
         }
       }
       setPendingUploads(prev => [...prev, ...newUploads]);
@@ -745,12 +747,11 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
     if (pendingUploads.length > 0) {
       setIsUploading(true);
       setUploadProgress(0);
-      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format for proper sorting
       let successCount = 0;
       try {
         for (let i = 0; i < pendingUploads.length; i++) {
           const item = pendingUploads[i];
-          await uploadImageToSanity(item.file, { title: item.description || 'Utrinek', description: item.description, date: today }, sanityToken);
+          await uploadImageToSanity(item.file, { title: item.description || 'Utrinek', description: item.description, date: item.date }, sanityToken);
           successCount++;
           setUploadProgress(((i + 1) / pendingUploads.length) * 100);
         }
@@ -1482,25 +1483,37 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                     <div className="mt-4 space-y-3">
                       <h4 className="text-sm font-bold text-olive-dark">Pripravljene slike ({pendingUploads.length})</h4>
                       {pendingUploads.map((upload, idx) => (
-                        <div key={idx} className="flex items-center gap-3 bg-gray-50 p-3 rounded-xl">
-                          <img src={upload.src} className="w-16 h-16 object-cover rounded-lg" alt="Preview" />
+                        <div key={idx} className="flex flex-col gap-2 bg-gray-50 p-3 rounded-xl">
+                          <div className="flex items-center gap-3">
+                            <img src={upload.src} className="w-16 h-16 object-cover rounded-lg" alt="Preview" />
+                            <input
+                              type="text"
+                              placeholder="Naslov slike..."
+                              value={upload.description}
+                              onChange={(e) => {
+                                const updated = [...pendingUploads];
+                                updated[idx].description = e.target.value;
+                                setPendingUploads(updated);
+                              }}
+                              className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm"
+                            />
+                            <button
+                              onClick={() => setPendingUploads(prev => prev.filter((_, i) => i !== idx))}
+                              className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                            >
+                              <X size={16} />
+                            </button>
+                          </div>
                           <input
-                            type="text"
-                            placeholder="Naslov slike..."
-                            value={upload.description}
+                            type="date"
+                            value={upload.date}
                             onChange={(e) => {
                               const updated = [...pendingUploads];
-                              updated[idx].description = e.target.value;
+                              updated[idx].date = e.target.value;
                               setPendingUploads(updated);
                             }}
-                            className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm"
+                            className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm"
                           />
-                          <button
-                            onClick={() => setPendingUploads(prev => prev.filter((_, i) => i !== idx))}
-                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
-                          >
-                            <X size={16} />
-                          </button>
                         </div>
                       ))}
                       <button
