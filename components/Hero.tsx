@@ -123,7 +123,7 @@ const Hero: React.FC = () => {
       </div>
 
       {/* Minimalist Feature Grid at Bottom with Shimmer */}
-      <FadeIn delay={1000} direction="up" className="w-full absolute bottom-8 md:bottom-12 z-20 px-4 md:px-6">
+      <FadeIn delay={1000} direction="up" className="w-full absolute bottom-24 md:bottom-12 z-20 px-4 md:px-6">
         <div className="max-w-6xl mx-auto grid grid-cols-4 gap-2 md:gap-12 pb-4">
 
           {/* VITALNOST */}
