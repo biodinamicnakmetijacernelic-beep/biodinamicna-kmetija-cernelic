@@ -40,9 +40,9 @@ const VideoModal: React.FC<VideoModalProps> = ({ isOpen, onClose, videoId }) => 
 
       {/* Modal Content */}
       <div className="relative w-full max-w-6xl aspect-video bg-black rounded-[2rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 border border-white/10 ring-1 ring-white/5 flex flex-col">
-        <button 
+        <button
           onClick={onClose}
-          className="absolute top-6 right-6 z-20 p-3 bg-white/10 text-white rounded-full hover:bg-white hover:text-black transition-all backdrop-blur-md border border-white/10 group"
+          className="absolute -top-2 md:top-6 right-4 md:right-6 z-20 p-3 bg-white/10 text-white rounded-full hover:bg-white hover:text-black transition-all backdrop-blur-md border border-white/10 group"
         >
           <X size={24} className="group-hover:rotate-90 transition-transform duration-300" />
         </button>
