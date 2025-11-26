@@ -253,7 +253,7 @@ export async function uploadImageToSanity(
 
 export async function updateGalleryImage(
   id: string,
-  data: { title: string; description?: string },
+  data: { title: string; description?: string; date?: string },
   token: string
 ) {
   const authClient = createClient({
@@ -263,10 +263,17 @@ export async function updateGalleryImage(
   });
 
   try {
-    await authClient.patch(id).set({
+    const patch = authClient.patch(id);
+    const fieldsToUpdate: { [key: string]: any } = {
       title: data.title,
-      description: data.description
-    }).commit();
+      description: data.description,
+    };
+
+    if (data.date) {
+      fieldsToUpdate.date = data.date;
+    }
+
+    await patch.set(fieldsToUpdate).commit();
     return true;
   } catch (error) {
     console.error("Update gallery image failed:", error);

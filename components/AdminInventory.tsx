@@ -153,7 +153,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
   const [isLoadingGallery, setIsLoadingGallery] = useState(false);
   const [isEditingGallery, setIsEditingGallery] = useState(false);
   const [editingGalleryId, setEditingGalleryId] = useState<string | null>(null);
-  const [galleryEditForm, setGalleryEditForm] = useState({ title: '', description: '' });
+  const [galleryEditForm, setGalleryEditForm] = useState({ title: '', description: '', date: '' });
 
   // Order Filter State
   const [orderStatusFilter, setOrderStatusFilter] = useState<'pending' | 'in-preparation' | 'ready-for-pickup' | 'completed' | 'rejected'>('pending');
@@ -770,7 +770,18 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
 
   const startEditGalleryImage = (image: GalleryItem) => {
     setEditingGalleryId(image.id);
-    setGalleryEditForm({ title: image.alt || '', description: image.description || '' });
+    let imageDate = '';
+    if (image.date) {
+      // Try to parse European date format (DD.MM.YYYY) or ISO format
+      const parsedDate = parseEuropeanDate(image.date);
+      if (parsedDate) {
+        imageDate = parsedDate.toISOString().split('T')[0];
+      } else {
+        // Fallback to original parsing for ISO dates
+        imageDate = new Date(image.date).toISOString().split('T')[0];
+      }
+    }
+    setGalleryEditForm({ title: image.alt || '', description: image.description || '', date: imageDate });
     setIsEditingGallery(true);
   };
 
@@ -782,7 +793,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
       setNotification("✅ Slika posodobljena!");
       setIsEditingGallery(false);
       setEditingGalleryId(null);
-      setGalleryEditForm({ title: '', description: '' });
+      setGalleryEditForm({ title: '', description: '', date: '' });
       loadGallery();
     } catch (e) {
       setNotification("❌ Napaka pri shranjevanju.");
@@ -1578,7 +1589,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
               </>
             ) : (
               <div className={`bg-white rounded-3xl p-6 shadow-sm border border-black/5 ${!sanityToken ? 'opacity-50 pointer-events-none' : ''}`}>
-                <div className="flex items-center gap-2 mb-6 text-olive/50 cursor-pointer" onClick={() => { setIsEditingGallery(false); setEditingGalleryId(null); setGalleryEditForm({ title: '', description: '' }); }}>
+                <div className="flex items-center gap-2 mb-6 text-olive/50 cursor-pointer" onClick={() => { setIsEditingGallery(false); setEditingGalleryId(null); setGalleryEditForm({ title: '', description: '', date: '' }); }}>
                   <ArrowLeft size={16} />
                   <span className="text-xs font-bold uppercase">Nazaj</span>
                 </div>
@@ -1604,6 +1615,16 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                       value={galleryEditForm.description}
                       onChange={e => setGalleryEditForm({ ...galleryEditForm, description: e.target.value })}
                       placeholder="Opis slike..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold uppercase text-olive/50 block mb-2">Datum</label>
+                    <input
+                      type="date"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta"
+                      value={galleryEditForm.date}
+                      onChange={e => setGalleryEditForm({ ...galleryEditForm, date: e.target.value })}
                     />
                   </div>
 
