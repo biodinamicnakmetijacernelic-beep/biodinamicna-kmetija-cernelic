@@ -12,7 +12,7 @@ interface GalleryProps {
 
 const Gallery: React.FC<GalleryProps> = ({ images, showViewAll = true }) => {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [visibleCount, setVisibleCount] = useState(6);
+  const [visibleCount, setVisibleCount] = useState(showViewAll ? 6 : 12);
 
   // Lock body scroll when lightbox is open
   useEffect(() => {
@@ -25,6 +25,24 @@ const Gallery: React.FC<GalleryProps> = ({ images, showViewAll = true }) => {
       document.body.style.overflow = 'unset';
     };
   }, [selectedIndex]);
+
+  // Infinite scroll for full gallery page
+  useEffect(() => {
+    if (showViewAll) return; // Only for full gallery page
+
+    const handleScroll = () => {
+      // Check if user scrolled near bottom
+      const scrollPosition = window.innerHeight + window.scrollY;
+      const pageHeight = document.documentElement.scrollHeight;
+
+      if (scrollPosition >= pageHeight - 500 && visibleCount < images.length) {
+        setVisibleCount(prev => Math.min(prev + 6, images.length));
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [showViewAll, visibleCount, images.length]);
 
   // Keyboard Navigation
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -46,9 +64,8 @@ const Gallery: React.FC<GalleryProps> = ({ images, showViewAll = true }) => {
     setSelectedIndex(newIndex);
   };
 
-  // For homepage: show first 6 images
-  // For full gallery page: show all with load more
-  const displayImages = showViewAll ? images.slice(0, 6) : images.slice(0, visibleCount);
+  // Display images based on visibleCount
+  const displayImages = images.slice(0, visibleCount);
   const hasMore = visibleCount < images.length;
 
   return (
