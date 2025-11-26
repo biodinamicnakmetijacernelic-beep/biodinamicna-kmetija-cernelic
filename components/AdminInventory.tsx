@@ -783,6 +783,9 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
     }
     setGalleryEditForm({ title: image.alt || '', description: image.description || '', date: imageDate });
     setIsEditingGallery(true);
+
+    // Scroll to top smoothly when starting to edit
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleSaveGalleryImage = async () => {
