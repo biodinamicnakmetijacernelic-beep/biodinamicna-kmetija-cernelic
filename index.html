@@ -46,33 +46,55 @@
       html {
         scroll-padding-top: 100px; /* Offset for fixed navbar */
       }
+      /* Aggressive mobile stability fixes */
+      html, body {
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        position: relative !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: none;
+        touch-action: manipulation;
+      }
+
       body {
         background-color: #F5F5F7;
         color: #1A2619;
-        overflow-x: hidden;
         -webkit-font-smoothing: antialiased;
         transition: background-color 0.3s ease, color 0.3s ease;
-        /* Mobile touch optimizations */
-        touch-action: manipulation;
-        overscroll-behavior: none;
-        -webkit-overflow-scrolling: touch;
-        /* Prevent horizontal movement on touch */
+        /* Extra mobile constraints */
+        box-sizing: border-box;
+        min-height: 100vh;
         position: relative;
-        width: 100%;
+        width: 100vw;
         max-width: 100vw;
+        overflow-x: hidden;
+        /* Prevent any horizontal movement */
+        transform: translateX(0);
+        -webkit-transform: translateX(0);
       }
 
-      /* Prevent horizontal scroll on mobile */
-      html, body {
-        width: 100%;
+      /* Force all elements to respect viewport */
+      * {
+        box-sizing: border-box;
+        max-width: 100%;
+        -webkit-tap-highlight-color: rgba(204, 164, 59, 0.1);
+      }
+
+      /* Prevent horizontal overflow on all containers */
+      #root, main, section, div, article, aside, header, footer, nav {
         max-width: 100vw;
         overflow-x: hidden;
       }
 
-      /* Improve touch responsiveness */
-      * {
-        -webkit-tap-highlight-color: rgba(204, 164, 59, 0.1);
-        touch-action: inherit;
+      /* Modal stability */
+      [class*="modal"], [class*="overlay"], [class*="backdrop"] {
+        position: fixed;
+        touch-action: none;
+        overscroll-behavior: contain;
       }
       .glass {
         background: rgba(255, 255, 255, 0.7);
