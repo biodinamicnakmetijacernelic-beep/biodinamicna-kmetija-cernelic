@@ -66,29 +66,7 @@ const Footer: React.FC = () => {
               </a>
             </div>
 
-            <div className="flex items-center gap-4">
-              {/* Demeter Logo SVG (Dark for white bg) */}
-              <div className="group relative">
-                <div className="h-12 w-12 bg-olive/5 rounded-full flex items-center justify-center hover:bg-orange-500/10 transition-colors cursor-help">
-                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-olive-dark group-hover:text-orange-500 transition-colors">
-                    <path d={LOGO_PATHS.demeter} />
-                  </svg>
-                </div>
-                <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-olive-dark text-white px-2 py-1 text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg">Demeter</span>
-              </div>
 
-              {/* EU Organic Logo Placeholder */}
-              <div className="group relative">
-                <div className="h-12 w-16 bg-olive/5 rounded-lg flex items-center justify-center hover:bg-green-500/10 transition-colors cursor-help">
-                  <div className="flex gap-0.5">
-                    <div className="w-1 h-1 bg-olive-dark rounded-full"></div>
-                    <div className="w-1 h-1 bg-olive-dark rounded-full"></div>
-                    <div className="w-1 h-1 bg-olive-dark rounded-full"></div>
-                  </div>
-                </div>
-                <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-olive-dark text-white px-2 py-1 text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg">EU Ekološko</span>
-              </div>
-            </div>
           </div>
         </div>
 
