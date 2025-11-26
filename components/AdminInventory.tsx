@@ -5,6 +5,21 @@ import { GalleryItem, PreOrderItem, NewsItem, VideoGalleryItem, Order } from '..
 import { uploadImageToSanity, fetchProducts, updateProductStatus, createProduct, updateProduct, deleteProduct, createNewsPost, fetchAllNews, updateNewsPost, deleteNewsPost, fetchVideoGallery, createVideo, updateVideo, deleteVideo, fetchOrders, updateOrderStatus, deleteOrder, fetchGalleryImages, updateGalleryImage, deleteGalleryImage } from '../sanityClient';
 import { sendOrderStatusUpdateEmail } from '../utils/emailService';
 
+// Helper function to parse DD.MM.YYYY date format
+function parseEuropeanDate(dateString: string): Date | null {
+  if (!dateString) return null;
+  const parts = dateString.split('.');
+  if (parts.length !== 3) return null;
+
+  const day = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1; // JavaScript months are 0-based
+  const year = parseInt(parts[2], 10);
+
+  if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
+
+  return new Date(year, month, day);
+}
+
 // Function to send status update emails via Netlify function
 async function sendStatusUpdateEmail(orderData: any, oldStatus: string, newStatus: string) {
   console.log('📧 Sending status update email via Netlify function:', { orderNumber: orderData.orderNumber, oldStatus, newStatus });
@@ -1509,7 +1524,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                         <div className="p-3">
                           <p className="text-sm font-medium text-olive-dark truncate">{image.alt}</p>
                           {image.description && <p className="text-xs text-olive/60 truncate">{image.description}</p>}
-                          {image.date && <p className="text-xs text-olive/40 mt-1">{new Date(image.date).toLocaleDateString('sl-SI')}</p>}
+                          {image.date && <p className="text-xs text-olive/40 mt-1">{parseEuropeanDate(image.date)?.toLocaleDateString('sl-SI')}</p>}
                         </div>
                       </div>
                     ))}
