@@ -745,7 +745,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
     if (pendingUploads.length > 0) {
       setIsUploading(true);
       setUploadProgress(0);
-      const today = new Date().toLocaleDateString('sl-SI');
+      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format for proper sorting
       let successCount = 0;
       try {
         for (let i = 0; i < pendingUploads.length; i++) {
