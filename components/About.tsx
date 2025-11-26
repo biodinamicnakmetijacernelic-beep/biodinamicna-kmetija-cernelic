@@ -21,6 +21,18 @@ const About: React.FC = () => {
     loadAwards();
   }, []);
 
+  // Lock body scroll when award modal is open
+  useEffect(() => {
+    if (selectedAward) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedAward]);
+
   return (
     <section id="o-nas" className="bg-cream relative z-20 transition-colors duration-300">
 
@@ -165,17 +177,17 @@ const About: React.FC = () => {
         </div>
       </div>
 
-      {/* Award Floating Window Modal (Not Full Screen) */}
+      {/* Award Floating Window Modal (Smaller Size) */}
       {selectedAward && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pt-24">
           {/* Soft Blurred Backdrop */}
           <div
             className="absolute inset-0 bg-olive-dark/60 backdrop-blur-sm transition-opacity"
             onClick={() => setSelectedAward(null)}
           />
 
-          {/* Floating Window Container */}
-          <div className="relative z-10 w-full max-w-3xl bg-cream rounded-[2rem] shadow-2xl border border-white/20 animate-in zoom-in-95 duration-300 overflow-hidden flex flex-col max-h-[90vh]">
+          {/* Floating Window Container - Smaller */}
+          <div className="relative z-10 w-full max-w-2xl bg-cream rounded-[2rem] shadow-2xl border border-white/20 animate-in zoom-in-95 duration-300 overflow-hidden flex flex-col max-h-[80vh]">
 
             {/* Window Header / Close */}
             <div className="flex items-center justify-between p-4 border-b border-black/5 bg-white/50 backdrop-blur-sm">
@@ -188,17 +200,17 @@ const About: React.FC = () => {
               </button>
             </div>
 
-            {/* Image Container - Full Image Visible */}
-            <div className="bg-white overflow-auto p-4 md:p-8 flex items-center justify-center bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
+            {/* Image Container - Smaller */}
+            <div className="bg-white overflow-auto p-4 md:p-6 flex items-center justify-center bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
               <img
                 src={selectedAward.image}
                 alt={selectedAward.title}
-                className="w-auto h-auto max-w-full max-h-[60vh] object-contain shadow-lg rounded-lg"
+                className="w-auto h-auto max-w-full max-h-[50vh] object-contain shadow-lg rounded-lg"
               />
             </div>
 
             {/* Footer Details */}
-            <div className="bg-white p-6 border-t border-black/5 text-center">
+            <div className="bg-white p-4 md:p-6 border-t border-black/5 text-center">
               <p className="text-terracotta font-bold uppercase tracking-widest text-xs md:text-sm mb-2">{selectedAward.highlight}</p>
               <p className="text-olive/70 text-sm leading-relaxed max-w-xl mx-auto">{selectedAward.description}</p>
             </div>

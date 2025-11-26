@@ -1,9 +1,13 @@
 
 import React from 'react';
-import { Facebook, Instagram, Mail, Phone, Youtube } from 'lucide-react';
+import { Facebook, Instagram, Mail, Phone, Youtube, Settings } from 'lucide-react';
 import { LOGO_PATHS, FARM_LOGO } from '../constants';
 
-const Footer: React.FC = () => {
+interface FooterProps {
+  onAdminClick?: () => void;
+}
+
+const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
   return (
     <footer id="kontakt" className="bg-white text-olive-dark pt-16 md:pt-20 pb-8 rounded-t-[2rem] md:rounded-t-[3rem] mt-[-2rem] relative z-30 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] transition-colors duration-300">
       <div className="container mx-auto px-6 max-w-7xl">
@@ -67,6 +71,11 @@ const Footer: React.FC = () => {
               <a href="https://www.youtube.com/channel/UCEu10obkT9aAr09USIWkBtw" target="_blank" rel="noopener noreferrer" className="p-3 bg-olive/5 rounded-full hover:bg-[#FF0000] hover:text-white transition-all transform hover:-translate-y-1 text-olive">
                 <Youtube size={20} />
               </a>
+              {onAdminClick && (
+                <button onClick={onAdminClick} className="p-3 bg-olive/5 rounded-full hover:bg-olive-dark hover:text-white transition-all transform hover:-translate-y-1 text-olive">
+                  <Settings size={20} />
+                </button>
+              )}
             </div>
           </div>
         </div>
