@@ -1,11 +1,20 @@
 
 /**
- * Compresses an image file by converting it to WebP format and resizing it if necessary.
+ * Helper to promisify canvas.toBlob
+ */
+function canvasToBlob(canvas: HTMLCanvasElement, type: string, quality: number): Promise<Blob | null> {
+    return new Promise((resolve) => {
+        canvas.toBlob((blob) => resolve(blob), type, quality);
+    });
+}
+
+/**
+ * Compresses an image file by converting it to WebP format (or JPEG if WebP fails) and resizing it.
  * 
  * @param file The original File object
- * @param quality Quality of the WebP image (0.0 to 1.0), default 0.8
+ * @param quality Quality of the image (0.0 to 1.0), default 0.8
  * @param maxWidth Maximum width of the image, default 1920px
- * @returns A Promise that resolves to a new File object in WebP format
+ * @returns A Promise that resolves to a new File object
  */
 export async function compressImage(
     file: File,
@@ -24,7 +33,7 @@ export async function compressImage(
         const img = new Image();
         const url = URL.createObjectURL(file);
 
-        img.onload = () => {
+        img.onload = async () => {
             console.log('🖼️ Image loaded into object, dimensions:', img.width, 'x', img.height);
             URL.revokeObjectURL(url);
 
@@ -52,29 +61,41 @@ export async function compressImage(
             // Draw image to canvas
             ctx.drawImage(img, 0, 0, width, height);
 
-            // Convert to WebP blob
-            canvas.toBlob(
-                (blob) => {
-                    if (!blob) {
-                        console.error('❌ Canvas toBlob failed');
-                        reject(new Error('Could not compress image'));
-                        return;
-                    }
+            try {
+                // 1. Try WebP
+                let blob = await canvasToBlob(canvas, 'image/webp', quality);
+                let finalType = 'image/webp';
+                let extension = '.webp';
 
-                    console.log(`✅ Compression successful. New size: ${(blob.size / 1024 / 1024).toFixed(2)} MB`);
+                // 2. Check if browser fell back to PNG (Safari issue)
+                if (blob && blob.type === 'image/png') {
+                    console.warn('⚠️ Browser does not support WebP encoding (returned PNG), falling back to JPEG.');
+                    blob = await canvasToBlob(canvas, 'image/jpeg', quality);
+                    finalType = 'image/jpeg';
+                    extension = '.jpg';
+                }
 
-                    // Create new File object
-                    const newFileName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
-                    const newFile = new File([blob], newFileName, {
-                        type: 'image/webp',
-                        lastModified: Date.now(),
-                    });
+                if (!blob) {
+                    console.error('❌ Canvas toBlob failed');
+                    reject(new Error('Could not compress image'));
+                    return;
+                }
 
-                    resolve(newFile);
-                },
-                'image/webp',
-                quality
-            );
+                console.log(`✅ Compression successful. Type: ${finalType}, New size: ${(blob.size / 1024 / 1024).toFixed(2)} MB`);
+
+                // Create new File object
+                const newFileName = file.name.replace(/\.[^/.]+$/, "") + extension;
+                const newFile = new File([blob], newFileName, {
+                    type: finalType,
+                    lastModified: Date.now(),
+                });
+
+                resolve(newFile);
+
+            } catch (err) {
+                console.error('❌ Compression error:', err);
+                reject(err);
+            }
         };
 
         img.onerror = (err) => {
