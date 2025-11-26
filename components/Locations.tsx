@@ -89,10 +89,10 @@ const Locations: React.FC = () => {
                       {item.phoneNumber && (
                         <a
                           href={`tel:${item.phoneNumber.replace(/\s/g, '')}`}
-                          className="w-full bg-terracotta text-olive-dark py-3 md:py-4 px-4 rounded-xl font-bold uppercase tracking-widest hover:bg-white transition-all shadow-lg flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 group/btn text-sm text-center"
+                          className="w-full bg-terracotta text-olive-dark py-3 md:py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-white transition-all shadow-lg flex items-center justify-center gap-2 group/btn text-sm"
                         >
                           <Phone size={18} />
-                          <span className="leading-tight">Pokliči za naročilo:<br className="sm:hidden" /> {item.phoneNumber}</span>
+                          <span>Pokliči za naročilo: {item.phoneNumber}</span>
                         </a>
                       )}
 
