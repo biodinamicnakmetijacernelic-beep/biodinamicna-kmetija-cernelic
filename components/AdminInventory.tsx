@@ -4,6 +4,7 @@ import { X, Save, Search, RefreshCw, ShoppingBag, ClipboardList, Bell, Image as 
 import { GalleryItem, PreOrderItem, NewsItem, VideoGalleryItem, Order } from '../types';
 import { uploadImageToSanity, fetchProducts, updateProductStatus, createProduct, updateProduct, deleteProduct, createNewsPost, fetchAllNews, updateNewsPost, deleteNewsPost, fetchVideoGallery, createVideo, updateVideo, deleteVideo, fetchOrders, updateOrderStatus, deleteOrder, fetchGalleryImages, updateGalleryImage, deleteGalleryImage } from '../sanityClient';
 import { sendOrderStatusUpdateEmail } from '../utils/emailService';
+import { compressImage } from '../utils/imageOptimizer';
 
 // Helper function to parse DD.MM.YYYY date format
 function parseEuropeanDate(dateString: string): Date | null {
@@ -383,16 +384,31 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
     setNewsBlocks(newsBlocks.map(b => b.id === id ? { ...b, content } : b));
   };
 
-  const handleBlockImageSelect = (id: string, file: File) => {
-    const preview = URL.createObjectURL(file);
-    setNewsBlocks(newsBlocks.map(b => b.id === id ? { ...b, file, preview } : b));
+  const handleBlockImageSelect = async (id: string, file: File) => {
+    try {
+      const compressedFile = await compressImage(file);
+      const preview = URL.createObjectURL(compressedFile);
+      setNewsBlocks(newsBlocks.map(b => b.id === id ? { ...b, file: compressedFile, preview } : b));
+    } catch (error) {
+      console.error("Error compressing block image:", error);
+      const preview = URL.createObjectURL(file);
+      setNewsBlocks(newsBlocks.map(b => b.id === id ? { ...b, file, preview } : b));
+    }
   };
 
-  const handleNewsImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNewsImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setNewsImageFile(file);
-      setNewsImagePreview(URL.createObjectURL(file));
+      try {
+        const compressedFile = await compressImage(file);
+        setNewsImageFile(compressedFile);
+        setNewsImagePreview(URL.createObjectURL(compressedFile));
+      } catch (error) {
+        console.error("Error compressing image:", error);
+        // Fallback to original
+        setNewsImageFile(file);
+        setNewsImagePreview(URL.createObjectURL(file));
+      }
     }
   };
 
@@ -646,11 +662,18 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
     setIsEditing(true);
   };
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setEditImageFile(file);
-      setEditImagePreview(URL.createObjectURL(file));
+      try {
+        const compressedFile = await compressImage(file);
+        setEditImageFile(compressedFile);
+        setEditImagePreview(URL.createObjectURL(compressedFile));
+      } catch (error) {
+        console.error("Error compressing image:", error);
+        setEditImageFile(file);
+        setEditImagePreview(URL.createObjectURL(file));
+      }
     }
   };
 
@@ -699,10 +722,19 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
     const files = event.target.files;
     if (files && files.length > 0) {
       const newUploads: PendingUpload[] = [];
+
+      // Show loading or notification if needed, but for now we just process
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        const src = URL.createObjectURL(file);
-        newUploads.push({ file, src, description: '' });
+        try {
+          const compressedFile = await compressImage(file);
+          const src = URL.createObjectURL(compressedFile);
+          newUploads.push({ file: compressedFile, src, description: '' });
+        } catch (error) {
+          console.error("Error compressing image:", error);
+          const src = URL.createObjectURL(file);
+          newUploads.push({ file, src, description: '' });
+        }
       }
       setPendingUploads(prev => [...prev, ...newUploads]);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -1234,8 +1266,8 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                             <p className="flex items-center gap-2"><span className="w-4"><Bell size={12} /></span> {order.customer.phone}</p>
                             <p className="flex items-center gap-2"><span className="w-4">📍</span>
                               {order.pickupLocation === 'home' ? 'Prevzem na kmetiji' :
-                               order.pickupLocation === 'market' ? 'Prevzem na tržnici Ljubljana' :
-                               'Prevzem ni določen'}
+                                order.pickupLocation === 'market' ? 'Prevzem na tržnici Ljubljana' :
+                                  'Prevzem ni določen'}
                             </p>
                           </div>
 
