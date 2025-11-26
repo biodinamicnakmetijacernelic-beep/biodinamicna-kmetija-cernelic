@@ -26,7 +26,7 @@ const NewsSection: React.FC = () => {
         <FadeIn>
           <div className="text-center mb-12 md:mb-16">
             <span className="text-terracotta font-bold uppercase tracking-widest text-xs mb-3 block">Blog & Aktualno</span>
-            <h2 className="font-serif text-4xl text-olive-dark mb-4">Novice s Kmetije</h2>
+            <h2 className="font-serif text-3xl md:text-4xl text-olive-dark mb-4">Novice s Kmetije</h2>
             <p className="text-olive/70 max-w-2xl mx-auto">Sveže zgodbe iz polj, vinogradov in naše skupnosti.</p>
           </div>
         </FadeIn>
@@ -38,7 +38,7 @@ const NewsSection: React.FC = () => {
                 to={`/blog-novice/${item.slug}`}
                 className="group bg-white rounded-3xl overflow-hidden border border-black/5 hover:shadow-xl transition-all duration-300 h-full flex flex-col"
               >
-                <div className="h-48 overflow-hidden relative">
+                <div className="h-40 sm:h-48 overflow-hidden relative">
                   <img 
                     src={item.image || 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80&w=800'} 
                     alt={item.title}
@@ -51,7 +51,7 @@ const NewsSection: React.FC = () => {
                     <Calendar size={12} />
                     {new Date(item.publishedAt).toLocaleDateString('sl-SI')}
                   </div>
-                  <h3 className="font-serif text-xl text-olive-dark mb-3 group-hover:text-olive transition-colors leading-tight">
+                  <h3 className="font-serif text-lg sm:text-xl text-olive-dark mb-3 group-hover:text-olive transition-colors leading-tight">
                     {item.title}
                   </h3>
                   <p className="text-olive/60 text-sm line-clamp-3 mb-4 flex-grow">

@@ -2,35 +2,6 @@ import { Resend } from 'resend';
 
 // Email functionality moved to Netlify functions with Sendfox
 
-/**
- * Add contact to Resend audience for newsletter
- */
-export async function addContactToAudience(email: string, name?: string): Promise<boolean> {
-  console.log('👥 Adding contact to audience:', email, name);
-  try {
-    // Audience functionality moved to Netlify functions
-    console.log('👥 Audience ID:', audienceId);
-
-    const { data, error } = await resend.contacts.create({
-      email: email,
-      first_name: name?.split(' ')[0] || '',
-      last_name: name?.split(' ').slice(1).join(' ') || '',
-      unsubscribed: false,
-      audience_id: audienceId
-    });
-
-    if (error) {
-      console.error('Error adding contact to audience:', error);
-      return false;
-    }
-
-    console.log('Contact added to audience successfully:', data);
-    return true;
-  } catch (error) {
-    console.error('Failed to add contact to audience:', error);
-    return false;
-  }
-}
 
 export interface OrderData {
   id: string;
@@ -51,6 +22,9 @@ export interface OrderData {
   createdAt: string;
   note?: string;
   pickupLocation?: 'home' | 'market';
+  isStatusUpdate?: boolean;
+  oldStatus?: string;
+  newStatus?: string;
 }
 
 /**

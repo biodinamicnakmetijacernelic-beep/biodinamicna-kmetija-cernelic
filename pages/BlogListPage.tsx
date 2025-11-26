@@ -45,7 +45,7 @@ const BlogListPage: React.FC = () => {
         {/* Header */}
         <FadeIn>
           <div className="text-center mb-16">
-            <h1 className="font-serif text-5xl md:text-6xl text-olive-dark mb-6 tracking-tight">Novice in Vpogledi v Kmetijo</h1>
+            <h1 className="font-serif text-4xl md:text-5xl text-olive-dark mb-6 tracking-tight">Novice in Vpogledi v Kmetijo</h1>
             <p className="text-lg text-olive/70 max-w-2xl mx-auto font-light">
               Na enem mestu zbiramo vse, kar morate vedeti: sveže novice, poglobljeni zapisi o biodinamiki, prihajajoči dogodki in vpogledi v naše vsakdanje delovanje.
             </p>
@@ -79,7 +79,7 @@ const BlogListPage: React.FC = () => {
                 >
                   <div className="grid md:grid-cols-2 gap-0">
                     {/* Image */}
-                    <div className="relative h-80 md:h-auto overflow-hidden bg-gray-100">
+                    <div className="relative h-64 sm:h-80 md:h-auto overflow-hidden bg-gray-100">
                       <img
                         src={featuredPost.image || 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80&w=800'}
                         alt={featuredPost.title}
@@ -99,7 +99,7 @@ const BlogListPage: React.FC = () => {
                         <Calendar size={14} />
                         {new Date(featuredPost.publishedAt).toLocaleDateString('sl-SI')}
                       </div>
-                      <h2 className="font-serif text-3xl md:text-5xl text-olive-dark mb-6 leading-tight tracking-tight group-hover:text-olive transition-colors break-words">
+                      <h2 className="font-serif text-3xl md:text-4xl text-olive-dark mb-6 leading-tight tracking-tight group-hover:text-olive transition-colors break-words">
                         {featuredPost.title}
                       </h2>
                       <p className="text-olive/70 text-lg leading-relaxed mb-8 font-light break-words">
@@ -125,7 +125,7 @@ const BlogListPage: React.FC = () => {
                       className="group block bg-white rounded-3xl overflow-hidden hover:shadow-xl transition-all duration-500"
                     >
                       {/* Image */}
-                      <div className="h-56 overflow-hidden bg-gray-100">
+                      <div className="h-48 sm:h-56 overflow-hidden bg-gray-100">
                         <img
                           src={post.image || 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80&w=800'}
                           alt={post.title}
@@ -142,7 +142,7 @@ const BlogListPage: React.FC = () => {
                             year: 'numeric'
                           })}
                         </div>
-                        <h3 className="font-serif text-xl text-olive-dark mb-3 leading-tight group-hover:text-olive transition-colors line-clamp-2 break-words">
+                        <h3 className="font-serif text-lg sm:text-xl text-olive-dark mb-3 leading-tight group-hover:text-olive transition-colors line-clamp-2 break-words">
                           {post.title}
                         </h3>
                         <p className="text-olive/70 text-sm leading-relaxed line-clamp-3 mb-4 break-words overflow-hidden">

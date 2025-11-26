@@ -14,7 +14,7 @@ const Locations: React.FC = () => {
         <FadeIn>
           <div className="flex flex-col md:flex-row justify-between items-end mb-12 md:mb-20 gap-8">
             <div className="max-w-2xl">
-              <h2 className="font-serif text-4xl md:text-7xl text-white mb-6 leading-none">Kje nas najdete</h2>
+              <h2 className="font-serif text-4xl md:text-6xl text-white mb-6 leading-none">Kje nas najdete</h2>
               <p className="text-lg md:text-xl text-gray-400 font-light">
                 Sveži pridelki neposredno z naše kmetije ali na tržnici v središču prestolnice.
               </p>
@@ -44,7 +44,7 @@ const Locations: React.FC = () => {
                     </div>
                   </div>
 
-                  <h3 className="font-serif text-2xl md:text-4xl text-white mb-3 leading-tight">{item.location}</h3>
+                  <h3 className="font-serif text-2xl md:text-3xl text-white mb-3 leading-tight">{item.location}</h3>
                   <p className="text-gray-400 font-light text-sm mb-6 md:mb-8 flex items-start gap-2">
                     <MapPin size={16} className="mt-0.5 shrink-0 text-terracotta" />
                     {item.address}

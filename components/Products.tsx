@@ -45,7 +45,7 @@ const ProductCard: React.FC<ProductItemProps> = ({ product, quantity, onQuantity
       </div>
 
       {/* Image */}
-      <div className="h-48 overflow-hidden bg-gray-50 relative shrink-0">
+      <div className="h-40 sm:h-48 overflow-hidden bg-gray-50 relative shrink-0">
         <img
           src={product.image}
           alt={product.name}
@@ -134,7 +134,6 @@ const Products: React.FC = () => {
     email: '',
     phone: '',
     note: '',
-    newsletterSubscribe: false,
     pickupLocation: 'home' as 'home' | 'market'
   });
 
@@ -211,8 +210,7 @@ const Products: React.FC = () => {
           total: totalPrice,
           status: orderResult.status,
           createdAt: orderResult.createdAt,
-          note: customerForm.note,
-          newsletterSubscribe: customerForm.newsletterSubscribe
+          note: customerForm.note
         };
 
         console.log('📧 Calling Netlify function with data:', emailOrderData);
@@ -232,7 +230,6 @@ const Products: React.FC = () => {
           console.log("✅ All emails sent successfully");
           if (result.customerEmail) console.log("✅ Customer confirmation email sent");
           if (result.adminEmail) console.log("✅ Admin notification email sent");
-          if (result.audience) console.log("✅ Contact added to newsletter audience");
         } else {
           console.warn("⚠️ Some emails failed:", result);
         }
@@ -247,7 +244,7 @@ const Products: React.FC = () => {
         setOrderSuccess(false);
         setIsCheckoutModalOpen(false);
         setIsCartModalOpen(false);
-        setCustomerForm({ name: '', email: '', phone: '', note: '', newsletterSubscribe: false, pickupLocation: 'home' });
+        setCustomerForm({ name: '', email: '', phone: '', note: '', pickupLocation: 'home' });
       }, 3000);
     } catch (error) {
       console.error('❌ Order submission error:', error);
@@ -280,7 +277,7 @@ const Products: React.FC = () => {
         <div className="text-center mb-16 max-w-3xl mx-auto">
           <FadeIn>
             <span className="text-terracotta font-bold uppercase tracking-widest text-xs mb-3 block">Trenutno v Ponudbi</span>
-            <h2 className="font-serif text-4xl md:text-6xl text-olive-dark mb-6">Pridelki, polni življenjske energije</h2>
+            <h2 className="font-serif text-4xl md:text-5xl text-olive-dark mb-6">Pridelki, polni življenjske energije</h2>
             <p className="text-lg text-olive/60 font-light">
               Neposredno z njive v vašo kuhinjo. Izberite izdelke, mi pa jih pripravimo za prevzem ali pošiljanje.
             </p>
@@ -620,19 +617,6 @@ const Products: React.FC = () => {
                       </label>
                     </div>
                   </div>
-                </div>
-
-                <div className="flex items-start gap-3 pt-4">
-                  <input
-                    type="checkbox"
-                    id="newsletterSubscribe"
-                    checked={customerForm.newsletterSubscribe}
-                    onChange={e => setCustomerForm({ ...customerForm, newsletterSubscribe: e.target.checked })}
-                    className="mt-1 h-4 w-4 text-olive focus:ring-olive border-gray-300 rounded"
-                  />
-                  <label htmlFor="newsletterSubscribe" className="text-sm text-olive/70 leading-relaxed">
-                    Želim prejemati novice in obvestila o novih izdelkih ter dogodkih na kmetiji
-                  </label>
                 </div>
 
                 <div className="pt-4">

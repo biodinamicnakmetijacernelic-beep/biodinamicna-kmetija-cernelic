@@ -41,7 +41,7 @@ const VideoGallery: React.FC = () => {
                <FadeIn>
                   <div>
                      <span className="text-terracotta font-bold uppercase tracking-widest text-xs mb-3 block">Video Galerija</span>
-                     <h2 className="font-serif text-3xl md:text-6xl text-cream mb-4">Biodinamika v Gibanju</h2>
+                     <h2 className="font-serif text-3xl md:text-5xl text-cream mb-4">Biodinamika v Gibanju</h2>
                      <p className="text-cream/60 text-base md:text-lg font-light max-w-xl">
                         Skozi objektiv ujemamo predanost in delo, ki spoštuje naravo in njene cikle.
                      </p>
@@ -87,7 +87,7 @@ const VideoGallery: React.FC = () => {
                            </div>
 
                            <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                              <h3 className="font-serif text-base md:text-xl text-white leading-tight drop-shadow-md group-hover:text-terracotta transition-colors line-clamp-2">
+                              <h3 className="font-serif text-base md:text-lg text-white leading-tight drop-shadow-md group-hover:text-terracotta transition-colors line-clamp-2">
                                  {video.title}
                               </h3>
                            </div>

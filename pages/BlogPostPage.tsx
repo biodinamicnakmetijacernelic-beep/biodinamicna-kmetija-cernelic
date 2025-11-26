@@ -104,7 +104,7 @@ const BlogPostPage: React.FC = () => {
             </div>
 
             {/* Title */}
-            <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl text-olive-dark leading-[0.95] tracking-tight mb-6">
+            <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-olive-dark leading-[0.95] tracking-tight mb-6">
               {post.title}
             </h1>
           </FadeIn>
@@ -115,7 +115,7 @@ const BlogPostPage: React.FC = () => {
       {post.image && (
         <FadeIn delay={200}>
           <div className="container mx-auto px-6 max-w-4xl mb-16">
-            <div className="relative w-full h-[180px] md:h-[280px] lg:h-[320px] rounded-[1.75rem] overflow-hidden bg-gray-100 shadow-xl">
+            <div className="relative w-full h-48 md:h-64 lg:h-80 rounded-[1.75rem] overflow-hidden bg-gray-100 shadow-xl">
               <img
                 src={post.image}
                 alt={post.title}

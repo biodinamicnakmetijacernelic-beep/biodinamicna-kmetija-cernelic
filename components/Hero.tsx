@@ -52,7 +52,7 @@ const Hero: React.FC = () => {
       `}</style>
 
       {/* Content */}
-      <div className="relative z-10 text-center px-4 md:px-6 max-w-5xl mx-auto flex flex-col items-center justify-center flex-grow pt-20 pb-40 md:pb-48">
+      <div className="relative z-10 text-center px-4 md:px-6 max-w-5xl mx-auto flex flex-col items-center justify-center flex-grow pt-20 pb-32 sm:pb-40">
 
         {/* Demeter Badge */}
         <FadeIn delay={200} direction="up" blur={true}>
@@ -76,7 +76,7 @@ const Hero: React.FC = () => {
         </FadeIn>
 
         <FadeIn delay={400} direction="up" blur={true}>
-          <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl lg:text-8xl leading-[1.1] md:leading-none text-cream mb-6 md:mb-8 drop-shadow-2xl tracking-tight">
+          <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-tight md:leading-none text-cream mb-6 md:mb-8 drop-shadow-2xl tracking-tight">
             Kjer narava <br />
             <span className="italic text-terracotta relative inline-block px-2 md:px-4">
               <span className="relative z-10">sreča</span>
@@ -88,7 +88,7 @@ const Hero: React.FC = () => {
         </FadeIn>
 
         <FadeIn delay={600} direction="up" blur={true}>
-          <p className="font-sans text-base sm:text-lg md:text-2xl font-light text-cream/90 max-w-xl md:max-w-2xl mx-auto leading-relaxed mb-8 md:mb-12 drop-shadow-lg px-2">
+          <p className="font-sans text-lg md:text-xl font-light text-cream/90 max-w-xl md:max-w-2xl mx-auto leading-relaxed mb-10 md:mb-12 drop-shadow-lg px-2">
             {HERO_TEXT.subtitle}
           </p>
         </FadeIn>
@@ -129,42 +129,42 @@ const Hero: React.FC = () => {
           {/* VITALNOST */}
           <div className="flex flex-col items-center text-center group cursor-default">
             <div className="mb-2 md:mb-4 relative p-3 md:p-4 rounded-full bg-white/5 overflow-hidden group-hover:bg-white/10 transition-colors duration-500">
-              <Wheat size={24} className="md:w-8 md:h-8 text-white/80 group-hover:text-terracotta transition-colors relative z-10" strokeWidth={1} />
+              <Wheat size={24} className="w-6 h-6 md:w-8 md:h-8 text-white/80 group-hover:text-terracotta transition-colors relative z-10" strokeWidth={1} />
               {/* Shimmer overlay masked by rounded-full */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full shine-effect z-0"></div>
             </div>
-            <h4 className="text-white font-serif font-bold uppercase tracking-widest text-[10px] md:text-xs mb-1 group-hover:text-terracotta transition-colors">Vitalnost</h4>
-            <p className="text-white/40 text-[9px] md:text-[10px] uppercase tracking-wide group-hover:text-white/70 transition-colors hidden sm:block">Energija narave</p>
+            <h4 className="text-white font-serif font-bold uppercase tracking-widest text-xs md:text-sm mb-1 group-hover:text-terracotta transition-colors">Vitalnost</h4>
+            <p className="text-white/40 text-[10px] md:text-xs uppercase tracking-wide group-hover:text-white/70 transition-colors hidden sm:block">Energija narave</p>
           </div>
 
           {/* SOŽITJE */}
           <div className="flex flex-col items-center text-center group cursor-default">
             <div className="mb-2 md:mb-4 relative p-3 md:p-4 rounded-full bg-white/5 overflow-hidden group-hover:bg-white/10 transition-colors duration-500">
-              <Leaf size={24} className="md:w-8 md:h-8 text-white/80 group-hover:text-terracotta transition-colors relative z-10" strokeWidth={1} />
+              <Leaf size={24} className="w-6 h-6 md:w-8 md:h-8 text-white/80 group-hover:text-terracotta transition-colors relative z-10" strokeWidth={1} />
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full shine-effect z-0"></div>
             </div>
-            <h4 className="text-white font-serif font-bold uppercase tracking-widest text-[10px] md:text-xs mb-1 group-hover:text-terracotta transition-colors">Sožitje</h4>
-            <p className="text-white/40 text-[9px] md:text-[10px] uppercase tracking-wide group-hover:text-white/70 transition-colors hidden sm:block">Harmonija okolja</p>
+            <h4 className="text-white font-serif font-bold uppercase tracking-widest text-xs md:text-sm mb-1 group-hover:text-terracotta transition-colors">Sožitje</h4>
+            <p className="text-white/40 text-[10px] md:text-xs uppercase tracking-wide group-hover:text-white/70 transition-colors hidden sm:block">Harmonija okolja</p>
           </div>
 
           {/* TLA */}
           <div className="flex flex-col items-center text-center group cursor-default">
             <div className="mb-2 md:mb-4 relative p-3 md:p-4 rounded-full bg-white/5 overflow-hidden group-hover:bg-white/10 transition-colors duration-500">
-              <Layers size={24} className="md:w-8 md:h-8 text-white/80 group-hover:text-terracotta transition-colors relative z-10" strokeWidth={1} />
+              <Layers size={24} className="w-6 h-6 md:w-8 md:h-8 text-white/80 group-hover:text-terracotta transition-colors relative z-10" strokeWidth={1} />
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full shine-effect z-0"></div>
             </div>
-            <h4 className="text-white font-serif font-bold uppercase tracking-widest text-[10px] md:text-xs mb-1 group-hover:text-terracotta transition-colors">Tla</h4>
-            <p className="text-white/40 text-[9px] md:text-[10px] uppercase tracking-wide group-hover:text-white/70 transition-colors hidden sm:block">Temelj rodovitnosti</p>
+            <h4 className="text-white font-serif font-bold uppercase tracking-widest text-xs md:text-sm mb-1 group-hover:text-terracotta transition-colors">Tla</h4>
+            <p className="text-white/40 text-[10px] md:text-xs uppercase tracking-wide group-hover:text-white/70 transition-colors hidden sm:block">Temelj rodovitnosti</p>
           </div>
 
           {/* ODGOVORNOST */}
           <div className="flex flex-col items-center text-center group cursor-default">
             <div className="mb-2 md:mb-4 relative p-3 md:p-4 rounded-full bg-white/5 overflow-hidden group-hover:bg-white/10 transition-colors duration-500">
-              <ShieldCheck size={24} className="md:w-8 md:h-8 text-white/80 group-hover:text-terracotta transition-colors relative z-10" strokeWidth={1} />
+              <ShieldCheck size={24} className="w-6 h-6 md:w-8 md:h-8 text-white/80 group-hover:text-terracotta transition-colors relative z-10" strokeWidth={1} />
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full shine-effect z-0"></div>
             </div>
-            <h4 className="text-white font-serif font-bold uppercase tracking-widest text-[10px] md:text-xs mb-1 group-hover:text-terracotta transition-colors">Odgovornost</h4>
-            <p className="text-white/40 text-[9px] md:text-[10px] uppercase tracking-wide group-hover:text-white/70 transition-colors hidden sm:block">Demeter Standard</p>
+            <h4 className="text-white font-serif font-bold uppercase tracking-widest text-xs md:text-sm mb-1 group-hover:text-terracotta transition-colors">Odgovornost</h4>
+            <p className="text-white/40 text-[10px] md:text-xs uppercase tracking-wide group-hover:text-white/70 transition-colors hidden sm:block">Demeter Standard</p>
           </div>
 
         </div>

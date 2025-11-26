@@ -27,14 +27,14 @@ const About: React.FC = () => {
       {/* Header & Intro Quote */}
       <div className="pt-16 md:pt-24 pb-10 md:pb-16 container mx-auto px-6 max-w-7xl">
         <FadeIn delay={100} direction="up">
-          <h2 className="font-serif text-4xl sm:text-5xl md:text-7xl text-olive-dark text-center mb-10 md:mb-16 leading-[0.9]">
+          <h2 className="font-serif text-4xl sm:text-5xl md:text-6xl text-olive-dark text-center mb-10 md:mb-16 leading-[0.9]">
             {ABOUT_TEXT.title}
           </h2>
         </FadeIn>
 
         <FadeIn delay={300} direction="up" scale>
           <div className="max-w-4xl mx-auto text-center relative px-2">
-            <div className="absolute top-0 left-0 text-7xl md:text-9xl text-terracotta/10 font-serif transform -translate-x-4 md:-translate-x-12 -translate-y-4 md:-translate-y-8">"</div>
+            <div className="absolute top-0 left-0 text-6xl md:text-8xl text-terracotta/10 font-serif transform -translate-x-4 md:-translate-x-8 -translate-y-4 md:-translate-y-6">"</div>
             <p className="font-serif text-lg sm:text-2xl md:text-3xl text-olive leading-relaxed font-light italic relative z-10">
               {ABOUT_TEXT.quote}
             </p>
@@ -55,10 +55,10 @@ const About: React.FC = () => {
                     <span className="inline-block text-terracotta font-bold tracking-widest uppercase text-xs md:text-sm border-b border-terracotta/30 w-max pb-2">
                       {block.id === 'today' ? 'Sedanjost' : `Leto ${block.id}`}
                     </span>
-                    <h3 className="font-serif text-3xl md:text-4xl lg:text-5xl text-olive-dark leading-tight">
+                    <h3 className="font-serif text-3xl md:text-4xl text-olive-dark leading-tight">
                       {block.title}
                     </h3>
-                    <p className="font-sans text-base md:text-xl text-olive/70 leading-relaxed font-light">
+                    <p className="font-sans text-base md:text-lg text-olive/70 leading-relaxed font-light">
                       {block.content}
                     </p>
                   </div>
@@ -108,7 +108,7 @@ const About: React.FC = () => {
               <FadeIn key={award.id} delay={idx * 200} className="h-full">
                 <div
                   onClick={() => setSelectedAward(award)}
-                  className="group relative bg-[#2A3829] border border-white/5 rounded-[2rem] overflow-hidden shadow-2xl transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] aspect-[4/5] cursor-pointer"
+                  className="group relative bg-[#2A3829] border border-white/5 rounded-[2rem] overflow-hidden shadow-2xl transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] min-h-[450px] cursor-pointer flex flex-col"
                 >
 
                   {/* Glow Effect on Hover (White/Bright) */}
@@ -149,7 +149,7 @@ const About: React.FC = () => {
                         {award.highlight}
                       </span>
 
-                      <h3 className="font-serif text-2xl text-white leading-tight mb-2 drop-shadow-md">
+                      <h3 className="font-serif text-xl sm:text-2xl text-white leading-tight mb-2 drop-shadow-md">
                         {award.title}
                       </h3>
 
@@ -216,7 +216,7 @@ const About: React.FC = () => {
               <span className="text-terracotta uppercase tracking-widest text-xs font-bold mb-4 block">
                 {PHILOSOPHY_TEXT.subtitle}
               </span>
-              <h3 className="font-serif text-3xl md:text-5xl text-olive-dark mb-6 md:mb-8 leading-tight">
+              <h3 className="font-serif text-3xl md:text-4xl text-olive-dark mb-6 md:mb-8 leading-tight">
                 {PHILOSOPHY_TEXT.title}
               </h3>
               <p className="text-olive/70 text-base md:text-xl font-light leading-relaxed">

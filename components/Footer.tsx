@@ -43,20 +43,20 @@ const Footer: React.FC = () => {
                 <div className="p-2 bg-olive/5 rounded-full group-hover:bg-terracotta/10 transition-colors">
                   <Mail size={16} />
                 </div>
-                <span className="font-medium">ekocernelic@gmail.com</span>
+                <span className="font-medium text-sm md:text-base">ekocernelic@gmail.com</span>
               </a>
               <div className="flex items-center gap-3 text-olive/80 group">
                 <div className="p-2 bg-olive/5 rounded-full">
                   <Phone size={16} />
                 </div>
-                <span className="font-medium">+386 51 363 447</span>
+                <span className="font-medium text-sm md:text-base">+386 51 363 447</span>
               </div>
             </div>
           </div>
 
           {/* Social & Certs */}
           <div className="space-y-6">
-            <h4 className="text-terracotta text-xs font-bold uppercase tracking-widest">Povezave & Certifikati</h4>
+            <h4 className="text-terracotta text-xs font-bold uppercase tracking-widest">Povezave</h4>
             <div className="flex gap-3 mb-6">
               <a href="#" className="p-3 bg-olive/5 rounded-full hover:bg-[#1877F2] hover:text-white transition-all transform hover:-translate-y-1 text-olive">
                 <Facebook size={20} />
@@ -102,7 +102,7 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Copyright */}
-        <div className="flex flex-col md:flex-row justify-between items-center text-xs text-olive/40 pt-8 border-t border-olive/10">
+        <div className="flex flex-col md:flex-row justify-between items-center text-xs md:text-sm text-olive/40 pt-8 border-t border-olive/10">
           <p className="mb-4 md:mb-0">&copy; {new Date().getFullYear()} Kmetija Černelič. Vse pravice pridržane.</p>
           <div className="flex gap-6">
             <a href="#" className="hover:text-olive-dark transition-colors">Zasebnost</a>
