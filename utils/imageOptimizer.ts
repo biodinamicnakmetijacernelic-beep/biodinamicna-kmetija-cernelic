@@ -12,8 +12,11 @@ export async function compressImage(
     quality: number = 0.8,
     maxWidth: number = 1920
 ): Promise<File> {
+    console.log(`🖼️ Starting compression for: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
+
     // If it's not an image, return original
     if (!file.type.startsWith('image/')) {
+        console.warn('⚠️ File is not an image, skipping compression.');
         return file;
     }
 
@@ -22,6 +25,7 @@ export async function compressImage(
         const url = URL.createObjectURL(file);
 
         img.onload = () => {
+            console.log('🖼️ Image loaded into object, dimensions:', img.width, 'x', img.height);
             URL.revokeObjectURL(url);
 
             let width = img.width;
@@ -31,6 +35,7 @@ export async function compressImage(
             if (width > maxWidth) {
                 height = Math.round((height * maxWidth) / width);
                 width = maxWidth;
+                console.log(`🖼️ Resizing to: ${width}x${height}`);
             }
 
             const canvas = document.createElement('canvas');
@@ -39,6 +44,7 @@ export async function compressImage(
 
             const ctx = canvas.getContext('2d');
             if (!ctx) {
+                console.error('❌ Could not get canvas context');
                 reject(new Error('Could not get canvas context'));
                 return;
             }
@@ -50,9 +56,12 @@ export async function compressImage(
             canvas.toBlob(
                 (blob) => {
                     if (!blob) {
+                        console.error('❌ Canvas toBlob failed');
                         reject(new Error('Could not compress image'));
                         return;
                     }
+
+                    console.log(`✅ Compression successful. New size: ${(blob.size / 1024 / 1024).toFixed(2)} MB`);
 
                     // Create new File object
                     const newFileName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
@@ -68,7 +77,8 @@ export async function compressImage(
             );
         };
 
-        img.onerror = () => {
+        img.onerror = (err) => {
+            console.error('❌ Image load error:', err);
             URL.revokeObjectURL(url);
             reject(new Error('Failed to load image'));
         };
