@@ -168,12 +168,9 @@ const Gallery: React.FC<GalleryProps> = ({ images }) => {
                               </span>
                             )}
                           </div>
-                          <h3 className="text-white/90 font-serif text-xl md:text-2xl tracking-wide mb-2 md:mb-3 leading-tight">
-                            {images[selectedIndex].alt}
-                          </h3>
-                          {images[selectedIndex].description && (
-                            <p className="text-white/60 font-light text-sm md:text-base leading-relaxed line-clamp-3 md:line-clamp-none">
-                              {images[selectedIndex].description}
+                          {(images[selectedIndex].description || images[selectedIndex].alt) && (
+                            <p className="text-white/90 font-light text-sm md:text-base leading-relaxed line-clamp-3 md:line-clamp-none">
+                              {images[selectedIndex].description || images[selectedIndex].alt}
                             </p>
                           )}
                         </div>
