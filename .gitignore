@@ -41,3 +41,12 @@ coverage/
 # Temporary folders
 tmp/
 temp/
+
+# Deployment artifacts
+*.zip
+deploy-package.zip
+netlify-deploy.zip
+
+# Cache directories
+.npx-cache/
+.vercel/
