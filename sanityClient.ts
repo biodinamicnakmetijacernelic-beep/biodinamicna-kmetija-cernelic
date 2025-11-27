@@ -20,13 +20,14 @@ export function urlFor(source: any) {
 // Fetch Gallery Images
 export async function fetchGalleryImages(): Promise<GalleryItem[]> {
   try {
-    const query = `*[_type == "galleryImage"] | order(date desc) {
+    const query = `*[_type == "galleryImage"] | order(_createdAt desc) {
       _id,
       title,
       "src": coalesce(image.asset->url, null),
       category,
       date,
-      description
+      description,
+      _createdAt
     }`;
 
     const data = await client.fetch(query);
