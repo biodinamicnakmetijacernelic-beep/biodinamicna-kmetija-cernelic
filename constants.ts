@@ -236,3 +236,449 @@ export const LOGO_PATHS = {
 };
 
 export const FARM_LOGO = "https://cdn.sanity.io/images/swdrisve/production/49db8f4a224216924458f4aa46d7f900ebee1e9c-549x276.webp?w=2000&fit=max&auto=format&dpr=2";
+
+// Blog Posts Data (from existing website)
+export const BLOG_POSTS = [
+  {
+    title: "SEKEM",
+    slug: "sekem",
+    publishedAt: "2025-01-14T00:00:00.000Z",
+    image: null, // Will need to be uploaded to Sanity
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "Čudež biodinamike v egipčanski puščavi skozi oči kmeta"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "BIODINAMIČNA KMETIJA ČERNELIČ NA OBMOČJU KGZS",
+    slug: "biodinamicna-kmetija-cernelic-na-obmocju-kgzs",
+    publishedAt: "2024-08-01T00:00:00.000Z",
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "Biodinamika je način kmetovanja oziroma obdelovanja zemlje, ki poleg..."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "2 dnevno izobraževanje o osnovah",
+    slug: "2-dnevno-izobrazevanje-o-osnovah",
+    publishedAt: "2022-12-14T00:00:00.000Z",
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "biodinamične kmetijske pridelave za Direktorat za strokovno podporo razvoju..."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Obrazi nevladnikov: Zvone Černelič",
+    slug: "obrazi-nevladnikov-zvone-cernelic",
+    publishedAt: "2022-05-23T00:00:00.000Z",
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "Društvo za biološko-dinamično gospodarjenje Ajda Posavje – Dobre hrane ne vržeš proč"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Zdrava Zelena in Trajnostna Evropa",
+    slug: "zdrava-zelena-in-trajnostna-evropa",
+    publishedAt: "2022-01-07T00:00:00.000Z",
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "My Europe My Future. Ta video je bil predvajan tudi na Brdu ob lanskem Predsedovanju Slovenije Svetu Eu."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Posnemati kar je dobro, je modro!",
+    slug: "posnemati-kar-je-dobro-je-modro",
+    publishedAt: "2021-11-14T00:00:00.000Z",
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "Metoda, ki ohranja trajno plodnost tal, zagotavlja ekološko ravnotežje in omogoča pridelovanje..."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Upravljanje z zemljišči in tlemi",
+    slug: "upravljanje-z-zemljisci-in-tlemi",
+    publishedAt: "2021-08-01T00:00:00.000Z",
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "oddaja Ljudje in zemlja"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Evropska nagrada za upravljanje z zemljišči in tlemi",
+    slug: "evropska-nagrada-za-upravljanje-z-zemljisci-in-tlemi",
+    publishedAt: "2021-07-22T00:00:00.000Z",
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "Černeliču je čestital tudi evropski poslanec Franc Bogovič.V Dečno selo sta mu jo prišla izročit generalni sekretar ELO Thierry de L'Escaille in Emmanuelle Mikosz, ki je pri ELO zadolžena za..."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Priznanje najvišjega ranga na ravni Evrope",
+    slug: "priznanje-najvissjega-ranga-na-ravni-evrope",
+    publishedAt: "2021-07-22T12:00:00.000Z", // Slightly different time to avoid duplicate
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "Prejem priznanja najvišjega ranga na ravni Evrope ni mačji kašelj, sploh če je to že drugo priznanje v dveh letih. Biodinamična kmetija Černelič iz Dečnega sela pri Brežicah je letos prejela priznanje Evropskega združenja lastnikov zemljišč, lani pa je prejela največ glasov na evropskem natečaju Rural Inspiration Award (RIA) v kategoriji »glas ljudstva«."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Korak v Zeleno",
+    slug: "korak-v-zeleno",
+    publishedAt: "2021-07-21T00:00:00.000Z",
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "Biodinamično kmetovanje dokumentarno informativna oddaja"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Mednarodna nagrada za upravljanje z zemljišči in tlemi",
+    slug: "mednarodna-nagrada-za-upravljanje-z-zemljisci-in-tlemi",
+    publishedAt: "2021-03-17T00:00:00.000Z",
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "Evropska organizacija lastnikov zemljišč (ELO) je med devetnajstimi kandidati iz devetih držav biodinamični kmetiji Černelič podelila nagrado za njen izjemen prispevek k razvoju načina kmetovanja, ki..."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Učinkovitost biodinamičnega pristopa",
+    slug: "ucinkovitost-biodinamicnega-pristopa",
+    publishedAt: "2021-02-12T00:00:00.000Z",
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "pri regeneraciji zbitih nepropustnih tal pri hidroelektrarni Brežice"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Slovenija bi morala postati ekološka",
+    slug: "slovenija-bi-morala-postati-ekoloska",
+    publishedAt: "2020-11-20T00:00:00.000Z",
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "Če bi bili otroci v šolah, bi dobili tradicionalni slovenski zajtrk: kruh, maslo, med, mleko in jabolko. Zaradi šolanja na daljavo bodo namesto tega dve uri poslušali vsebine, ki poudarjajo prednosti lokalno pridelane, slovenske hrane. Ekološki in biodinamični kmet Zvone Černelič,"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Župan obiskal biodinamično kmetijo Černelič",
+    slug: "zupan-obiskal-biodinamicno-kmetijo-cernelic",
+    publishedAt: "2020-10-10T00:00:00.000Z",
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "Župan občine Brežice Ivan Molan je obiskal prejemnico nagrade evropske javnosti, Rural Inspiration Awards"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Evropsko priznanje za navdihujoče prakse v kmetijstvu",
+    slug: "evropsko-priznanje-za-navdihujoce-prakse-v-kmetijstvu",
+    publishedAt: "2020-09-29T00:00:00.000Z",
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "Državni sekretar na Ministrstvu za kmetijstvo, gozdarstvo in prehrano dr. Jože Podgoršek je v ponedeljek tudi uradno podelil priznanje Evropske komisije"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Državni sekretar dr. Podgoršek predal priznanje",
+    slug: "drzavni-sekretar-dr-podgorsek-predal-priznanje",
+    publishedAt: "2020-09-29T12:00:00.000Z", // Slightly different time
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "Biodinamični kmetiji Černelič, ki je na letošnjem evropskem natečaju »Rural Inspiration Awards 2020« prejela največ glasov javnosti ter zasedla prvo mesto v kategoriji »Popular vote«. Dogodek je organiziralo Društvo Ajda Posavje."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Michelinova zvezdica?",
+    slug: "michelinova-zvezdica",
+    publishedAt: "2020-09-25T00:00:00.000Z",
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "Je priznanje za vse,kar počnemo slovenski biodinamiki, in nagrada vsem, ki so me popeljali na to pot. Najprej bi se zahvalil Meti Vrhunc, ki je v Sloveniji začela biodinamično prakso,"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Strah ni dober življenjski sopotnik",
+    slug: "strah-ni-dober-zivljenjski-sopotnik",
+    publishedAt: "2020-09-25T12:00:00.000Z", // Slightly different time
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "Brez strahu na sojo potKo je bil star 11 let, so starši kupili prvi traktor. »Oče je na traktor namestil škropilnico in poškropil njivo s koruzo. Gledal sem, kako škropi"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Srce v košarici septembrskih jagod",
+    slug: "srce-v-kosarici-septembrskih-jagod",
+    publishedAt: "2020-07-16T00:00:00.000Z",
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "Zmagoviti nastop na evropskem natečaju – Zvone Černelič iz Dečnega sela z biodinamično metodo uspešno nad opustošeno zemljo pri hidroelektrarni Brežice Vesel, da so delo prepoznali v Ljubljani in Bruslju"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Samooskrba",
+    slug: "samooskrba",
+    publishedAt: "2020-04-03T00:00:00.000Z",
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "Anton Baznik v svojem sadovnjaku lani septembra. Narava ti ponudi marsikaj, če..."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Ekskurzija ajda posavje na štajersko",
+    slug: "ekskurzija-ajda-posavje-na-stajersko",
+    publishedAt: "2018-09-02T00:00:00.000Z",
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "Tudi v letošnjem septembru(2018) smo se člani Društva Ajda Posavje odpravili na..."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Ekološko kmetijstvo? priložnost ali modna muha?",
+    slug: "ekolosko-kmetijstvo-priloznost-ali-modna-muha",
+    publishedAt: "2017-06-02T00:00:00.000Z",
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "Vsekakor priložnost še posebej za današnje krizne čase."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Ekskurzija Društva Ajda Posavje v Avstrijo",
+    slug: "ekskurzija-drustva-ajda-posavje-v-avstrijo",
+    publishedAt: "2016-09-19T00:00:00.000Z",
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "Tudi letos smo se v našem društvu odpravili na ekskurzijo, tokrat v Avstrijo"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Zanimiv poiskus s kumaram",
+    slug: "zanimiv-poiskus-s-kumarami",
+    publishedAt: "2016-11-11T00:00:00.000Z",
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "Zgornjo sem kupil v trgovini, bila je slovenskega porekla, iz integrirane pridelave."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Ekskurzija ekoloških kmetov v Nemčijo",
+    slug: "ekskurzija-ekoloskih-kmetov-v-nemcijo",
+    publishedAt: "2012-06-25T00:00:00.000Z",
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "ZEK vsako leto organizira dve strokovni ekskurziji za svoje člane: eno v tujino in eno po Sloveniji"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Ekskurzija ekoloških kmetov v Nemčijo",
+    slug: "ekskurzija-ekoloskih-kmetov-v-nemcijo-2010",
+    publishedAt: "2010-06-18T00:00:00.000Z",
+    image: null,
+    body: [
+      {
+        _type: "block",
+        children: [
+          {
+            _type: "span",
+            text: "ZEK vsako leto organizira dve strokovni ekskurziji za svoje člane: eno v tujino in eno po Sloveniji"
+          }
+        ]
+      }
+    ]
+  }
+];

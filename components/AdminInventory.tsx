@@ -1,8 +1,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Save, Search, RefreshCw, ShoppingBag, ClipboardList, Bell, Image as ImageIcon, Upload, Trash2, Pencil, ArrowLeft, AlertTriangle, Plus, Lock, Send, Eye, EyeOff, FileText, Type, Video, Check, LogOut } from 'lucide-react';
+import { X, Save, Search, RefreshCw, ShoppingBag, ClipboardList, Bell, Image as ImageIcon, Upload, Trash2, Pencil, ArrowLeft, AlertTriangle, Plus, Lock, Send, Eye, EyeOff, FileText, Type, Video, Check, LogOut, Download } from 'lucide-react';
 import { GalleryItem, PreOrderItem, NewsItem, VideoGalleryItem, Order } from '../types';
-import { uploadImageToSanity, fetchProducts, updateProductStatus, createProduct, updateProduct, deleteProduct, createNewsPost, fetchAllNews, updateNewsPost, deleteNewsPost, fetchVideoGallery, createVideo, updateVideo, deleteVideo, fetchOrders, updateOrderStatus, deleteOrder, fetchGalleryImages, updateGalleryImage, deleteGalleryImage } from '../sanityClient';
+import { uploadImageToSanity, fetchProducts, updateProductStatus, createProduct, updateProduct, deleteProduct, createNewsPost, fetchAllNews, updateNewsPost, deleteNewsPost, fetchVideoGallery, createVideo, updateVideo, deleteVideo, fetchOrders, updateOrderStatus, deleteOrder, fetchGalleryImages, updateGalleryImage, deleteGalleryImage, createBlogPosts } from '../sanityClient';
 import { sendOrderStatusUpdateEmail } from '../utils/emailService';
 import { compressImage } from '../utils/imageOptimizer';
 
@@ -547,6 +547,30 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
     }
   };
 
+  const handleImportBlogPosts = async () => {
+    if (!sanityToken) {
+      setNotification("❌ Manjka Sanity token!");
+      return;
+    }
+
+    if (!confirm('Ali želite uvoziti vse novice iz stare spletne strani? To bo trajalo nekaj časa.')) return;
+
+    setIsUploading(true);
+    setNotification("🔄 Uvažam novice iz stare strani...");
+
+    try {
+      await createBlogPosts(sanityToken);
+      setNotification("✅ Vse novice uspešno uvožene!");
+      loadPosts(); // Reload the posts list
+    } catch (error) {
+      console.error("Import error:", error);
+      setNotification("❌ Napaka pri uvažanju novic.");
+    } finally {
+      setIsUploading(false);
+      setTimeout(() => setNotification(null), 5000);
+    }
+  };
+
   // --- Video Gallery Handlers ---
   const startEditVideo = (video: VideoGalleryItem) => {
     setEditingVideoId(video.id);
@@ -1009,7 +1033,12 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                 {/* News List */}
                 <div className="flex justify-between items-center mb-2 px-1">
                   <h3 className="font-serif text-lg text-olive-dark">Objavljene Novice</h3>
-                  <button onClick={() => { setIsEditingNews(true); loadPosts(); }} className="bg-olive text-white px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wide flex items-center gap-2 shadow-md"><Plus size={16} /> Nova</button>
+                  <div className="flex gap-2">
+                    <button onClick={handleImportBlogPosts} className="bg-terracotta text-white px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wide flex items-center gap-2 shadow-md hover:bg-terracotta-dark transition-colors">
+                      <Download size={16} /> Uvozi iz stare strani
+                    </button>
+                    <button onClick={() => { setIsEditingNews(true); loadPosts(); }} className="bg-olive text-white px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wide flex items-center gap-2 shadow-md"><Plus size={16} /> Nova</button>
+                  </div>
                 </div>
 
                 {isLoadingPosts ? (

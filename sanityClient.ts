@@ -151,6 +151,45 @@ export async function fetchNews(): Promise<NewsItem[]> {
   }
 }
 
+// Import blog posts data
+import { BLOG_POSTS } from './constants';
+
+// Function to create blog posts in Sanity (run once)
+export async function createBlogPosts(token: string) {
+  const authClient = createClient({
+    ...sanityConfig,
+    token: token,
+    ignoreBrowserTokenWarning: true
+  });
+
+  try {
+    const createdPosts = [];
+    for (const post of BLOG_POSTS) {
+      const doc = {
+        _type: 'post',
+        title: post.title,
+        slug: { _type: 'slug', current: post.slug },
+        publishedAt: post.publishedAt,
+        mainImage: post.image ? {
+          _type: 'image',
+          asset: { _type: 'reference', _ref: post.image }
+        } : null,
+        body: post.body
+      };
+
+      const createdDoc = await authClient.create(doc);
+      createdPosts.push(createdDoc);
+      console.log(`Created post: ${post.title}`);
+    }
+
+    console.log(`Successfully created ${createdPosts.length} blog posts`);
+    return createdPosts;
+  } catch (error) {
+    console.error("Failed to create blog posts:", error);
+    throw error;
+  }
+}
+
 export async function fetchAllNews(): Promise<NewsItem[]> {
   try {
     const query = `*[_type == "post"] | order(publishedAt desc) {
