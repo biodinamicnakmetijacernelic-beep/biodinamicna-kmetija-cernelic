@@ -237,20 +237,21 @@ export const LOGO_PATHS = {
 
 export const FARM_LOGO = "https://cdn.sanity.io/images/swdrisve/production/49db8f4a224216924458f4aa46d7f900ebee1e9c-549x276.webp?w=2000&fit=max&auto=format&dpr=2";
 
-// Blog Posts Data (from existing website)
+// Blog Posts Data (from existing website) - PLACEHOLDER CONTENT
+// TODO: Replace with actual full content from old website and upload images to Sanity
 export const BLOG_POSTS = [
   {
     title: "SEKEM",
     slug: "sekem",
     publishedAt: "2025-01-14T00:00:00.000Z",
-    image: null, // Will need to be uploaded to Sanity
+    image: null, // TODO: Upload actual image to Sanity and add reference
     body: [
       {
         _type: "block",
         children: [
           {
             _type: "span",
-            text: "Čudež biodinamike v egipčanski puščavi skozi oči kmeta"
+            text: "PLACEHOLDER: Čudež biodinamike v egipčanski puščavi skozi oči kmeta. [TODO: Dodajte polno vsebino iz stare spletne strani]"
           }
         ]
       }
