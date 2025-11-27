@@ -284,7 +284,7 @@ const Products: React.FC = () => {
           </FadeIn>
         </div>
 
-        <div className="flex flex-col xl:flex-row gap-8 lg:gap-12 relative">
+        <div className="flex flex-col xl:flex-row gap-8 lg:gap-12">
 
           {/* LEFT COLUMN: PRODUCTS (Expanded width) */}
           <div className="flex-1 min-w-0">
