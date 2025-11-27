@@ -136,6 +136,10 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
   const [isEditingNews, setIsEditingNews] = useState(false);
   const [editingNewsId, setEditingNewsId] = useState<string | null>(null);
 
+  // Bulk Selection State
+  const [selectedPosts, setSelectedPosts] = useState<Set<string>>(new Set());
+  const [selectAll, setSelectAll] = useState(false);
+
   // News Blocks State (Rich Editor)
   const [newsBlocks, setNewsBlocks] = useState<NewsBlock[]>([
     { id: '1', type: 'text', content: '' }
@@ -524,21 +528,39 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
     }
   };
 
-  const handleDeleteNews = async () => {
-    if (!editingNewsId || !sanityToken) return;
-    if (!confirm("Ste prepričani, da želite izbrisati to novico?")) return;
+  const handleDeleteNews = async (postId?: string) => {
+    const targetPostId = postId || editingNewsId;
+    if (!targetPostId || !sanityToken) return;
+
+    const confirmMessage = postId
+      ? "Ste prepričani, da želite izbrisati to novico?"
+      : "Ste prepričani, da želite izbrisati to novico?";
+
+    if (!confirm(confirmMessage)) return;
 
     setIsUploading(true);
     try {
-      await deleteNewsPost(editingNewsId, sanityToken);
+      await deleteNewsPost(targetPostId, sanityToken);
       setNotification("🗑️ Novica izbrisana.");
-      setIsEditingNews(false);
-      setEditingNewsId(null);
-      setNewsForm({ title: '', date: new Date().toISOString().split('T')[0] });
-      setNewsImageFile(null);
-      setNewsImagePreview(null);
-      setNewsBlocks([{ id: Date.now().toString(), type: 'text', content: '' }]);
-      loadPosts();
+
+      if (postId) {
+        // Individual delete - remove from selected posts if it was selected
+        setSelectedPosts(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(postId);
+          return newSet;
+        });
+        loadPosts();
+      } else {
+        // Edit mode delete
+        setIsEditingNews(false);
+        setEditingNewsId(null);
+        setNewsForm({ title: '', date: new Date().toISOString().split('T')[0] });
+        setNewsImageFile(null);
+        setNewsImagePreview(null);
+        setNewsBlocks([{ id: Date.now().toString(), type: 'text', content: '' }]);
+        loadPosts();
+      }
     } catch (e) {
       setNotification("❌ Napaka pri brisanju.");
     } finally {
@@ -561,13 +583,75 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
     try {
       await createBlogPosts(sanityToken);
       setNotification("✅ Vse novice uspešno uvožene!");
-      loadPosts(); // Reload the posts list
+
+      // Force reload all data
+      await Promise.all([
+        loadPosts(),
+        loadGallery(),
+        loadOrders()
+      ]);
+
+      // Clear any cached data
+      setSelectedPosts(new Set());
+      setSelectAll(false);
+
     } catch (error) {
       console.error("Import error:", error);
       setNotification("❌ Napaka pri uvažanju novic.");
     } finally {
       setIsUploading(false);
       setTimeout(() => setNotification(null), 5000);
+    }
+  };
+
+  // Bulk Selection Functions
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedPosts(new Set());
+      setSelectAll(false);
+    } else {
+      const allIds = new Set(posts.map(post => post.id));
+      setSelectedPosts(allIds);
+      setSelectAll(true);
+    }
+  };
+
+  const handleSelectPost = (postId: string) => {
+    const newSelected = new Set(selectedPosts);
+    if (newSelected.has(postId)) {
+      newSelected.delete(postId);
+    } else {
+      newSelected.add(postId);
+    }
+    setSelectedPosts(newSelected);
+    setSelectAll(newSelected.size === posts.length);
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedPosts.size === 0) {
+      setNotification("❌ Izberite novice za brisanje.");
+      return;
+    }
+
+    if (!confirm(`Ali ste prepričani, da želite izbrisati ${selectedPosts.size} novic?`)) return;
+
+    setIsUploading(true);
+    let deletedCount = 0;
+
+    try {
+      for (const postId of selectedPosts) {
+        await deleteNewsPost(postId, sanityToken);
+        deletedCount++;
+      }
+      setNotification(`✅ Izbrisano ${deletedCount} novic.`);
+      setSelectedPosts(new Set());
+      setSelectAll(false);
+      loadPosts();
+    } catch (error) {
+      setNotification("❌ Napaka pri brisanju novic.");
+    } finally {
+      setIsUploading(false);
+      setTimeout(() => setNotification(null), 3000);
     }
   };
 
@@ -1032,8 +1116,33 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
               <>
                 {/* News List */}
                 <div className="flex justify-between items-center mb-2 px-1">
-                  <h3 className="font-serif text-lg text-olive-dark">Objavljene Novice</h3>
+                  <div className="flex items-center gap-3">
+                    <h3 className="font-serif text-lg text-olive-dark">Objavljene Novice ({posts.length})</h3>
+                    {posts.length > 0 && (
+                      <label className="flex items-center gap-2 text-sm text-olive/70">
+                        <input
+                          type="checkbox"
+                          checked={selectAll}
+                          onChange={handleSelectAll}
+                          className="rounded border-olive/30 text-olive focus:ring-olive"
+                        />
+                        <span>Označi vse</span>
+                      </label>
+                    )}
+                    <button onClick={loadPosts} className="p-2 bg-white rounded-full shadow-sm hover:shadow-md text-olive transition-all">
+                      <RefreshCw size={16} className={isLoadingPosts ? "animate-spin" : ""} />
+                    </button>
+                  </div>
                   <div className="flex gap-2">
+                    {selectedPosts.size > 0 && (
+                      <button
+                        onClick={handleBulkDelete}
+                        className="bg-red-500 text-white px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wide flex items-center gap-2 shadow-md hover:bg-red-600 transition-colors"
+                        disabled={isUploading}
+                      >
+                        <Trash2 size={16} /> Izbriši ({selectedPosts.size})
+                      </button>
+                    )}
                     <button onClick={handleImportBlogPosts} className="bg-terracotta text-white px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wide flex items-center gap-2 shadow-md hover:bg-terracotta-dark transition-colors">
                       <Download size={16} /> Uvozi iz stare strani
                     </button>
@@ -1051,6 +1160,14 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                     .map((post) => (
                       <div key={post.id} className="bg-white p-4 rounded-2xl border border-black/5 flex flex-col gap-2 shadow-sm">
                         <div className="flex items-start gap-4">
+                          <div className="flex items-center mr-3 mt-1">
+                            <input
+                              type="checkbox"
+                              checked={selectedPosts.has(post.id)}
+                              onChange={() => handleSelectPost(post.id)}
+                              className="rounded border-olive/30 text-olive focus:ring-olive"
+                            />
+                          </div>
                           <div className="flex-1">
                             <h4 className="font-serif text-lg text-olive-dark leading-tight mb-1">{post.title}</h4>
                             <p className="text-xs text-olive/50 font-medium mb-2">{new Date(post.publishedAt).toLocaleDateString('sl-SI')}</p>
@@ -1058,7 +1175,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                               <button onClick={() => startEditNews(post)} className="inline-flex items-center gap-2 px-3 py-1 text-xs font-semibold text-olive/90 bg-olive/10 border border-olive/10 rounded-xl shadow-sm hover:bg-olive/20 transition-colors">
                                 <Pencil size={14} /> Uredi
                               </button>
-                              <button onClick={() => handleDeleteNews()} className="inline-flex items-center gap-2 px-3 py-1 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 rounded-xl shadow-sm hover:bg-red-100 transition-colors">
+                              <button onClick={() => handleDeleteNews(post.id)} className="inline-flex items-center gap-2 px-3 py-1 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 rounded-xl shadow-sm hover:bg-red-100 transition-colors">
                                 <Trash2 size={14} /> Izbriši
                               </button>
                             </div>
