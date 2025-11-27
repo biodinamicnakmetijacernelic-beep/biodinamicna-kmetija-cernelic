@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { PREORDER_PRODUCTS } from '../constants';
 import { PreOrderItem } from '../types';
 import FadeIn from './FadeIn';
@@ -11,6 +11,8 @@ const PreOrder: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
   const [orderSubmitted, setOrderSubmitted] = useState(false);
+  const [isProductsVisible, setIsProductsVisible] = useState(false);
+  const productsSectionRef = useRef<HTMLDivElement>(null);
 
   const handleQuantityChange = (id: string, delta: number) => {
     setQuantities(prev => {
@@ -62,6 +64,29 @@ const PreOrder: React.FC = () => {
     setOrderSubmitted(true);
     setShowCheckout(false);
   };
+
+  // Intersection Observer for products section
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsProductsVisible(entry.isIntersecting);
+      },
+      {
+        threshold: 0.1, // Trigger when 10% of the section is visible
+        rootMargin: '-100px 0px -100px 0px' // Offset for navbar and some buffer
+      }
+    );
+
+    if (productsSectionRef.current) {
+      observer.observe(productsSectionRef.current);
+    }
+
+    return () => {
+      if (productsSectionRef.current) {
+        observer.unobserve(productsSectionRef.current);
+      }
+    };
+  }, []);
 
   const ProductCard: React.FC<{ product: PreOrderItem }> = ({ product }) => {
     const isAvailable = product.status === 'available';
@@ -185,7 +210,7 @@ const PreOrder: React.FC = () => {
          </div>
 
          {/* BLOCK 1: Fresh (Grid Layout) */}
-         <div className="mb-20">
+         <div ref={productsSectionRef} className="mb-20">
             <FadeIn>
                <div className="flex items-center gap-3 mb-8 pb-4 border-b border-olive/10">
                   <div className="p-2 bg-olive/10 rounded-full text-olive">
@@ -232,7 +257,7 @@ const PreOrder: React.FC = () => {
 
          {/* Footer / CTA */}
          <FadeIn>
-            <div className="sticky bottom-6 z-40 bg-olive-dark/95 backdrop-blur-md p-4 rounded-3xl shadow-2xl border border-white/10 max-w-2xl mx-auto flex items-center justify-between">
+            <div className={`${isProductsVisible ? 'md:sticky md:bottom-6' : 'relative'} z-40 bg-olive-dark/95 backdrop-blur-md p-4 rounded-3xl shadow-2xl border border-white/10 max-w-2xl mx-auto flex items-center justify-between`}>
                <div className="flex flex-col px-4">
                   <span className="text-cream/50 text-xs uppercase tracking-widest">Skupaj izdelkov</span>
                   <span className="text-2xl text-white font-serif">

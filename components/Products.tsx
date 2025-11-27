@@ -356,7 +356,7 @@ const Products: React.FC = () => {
           </div>
 
           {/* RIGHT COLUMN: STICKY SMART CART (XL Desktop Only) */}
-          <div className="hidden xl:block w-80 xl:w-96 relative shrink-0">
+          <div className={`hidden xl:block w-80 xl:w-96 relative shrink-0 transition-opacity duration-500 ${showMobileCartBar ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
             <div className="sticky top-32">
               <div className="bg-white border border-black/5 rounded-[2rem] p-6 shadow-2xl shadow-olive/5 backdrop-blur-xl">
                 <div className="flex items-center justify-between mb-6 border-b border-black/5 pb-4">
