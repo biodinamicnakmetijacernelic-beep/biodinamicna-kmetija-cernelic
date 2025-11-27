@@ -41,7 +41,7 @@ const VideoModal: React.FC<VideoModalProps> = ({ isOpen, onClose, videoId }) => 
       </button>
 
       {/* Backdrop - Glass Effect */}
-      <div
+      <div 
         className="absolute inset-0 bg-black/60 backdrop-blur-xl animate-in fade-in duration-500"
         onClick={onClose}
       ></div>
@@ -49,7 +49,7 @@ const VideoModal: React.FC<VideoModalProps> = ({ isOpen, onClose, videoId }) => 
       {/* Modal Content */}
       <div className="relative w-full max-w-6xl aspect-video bg-black rounded-[2rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 border border-white/10 ring-1 ring-white/5 flex flex-col">
         {/* Close Button - Desktop Only */}
-        <button
+        <button 
           onClick={onClose}
           className="hidden md:block absolute top-6 right-6 z-20 p-3 bg-white/10 text-white rounded-full hover:bg-white hover:text-black transition-all backdrop-blur-md border border-white/10 group"
         >

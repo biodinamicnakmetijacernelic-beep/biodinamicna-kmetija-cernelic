@@ -1,8 +1,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Save, Search, RefreshCw, ShoppingBag, ClipboardList, Bell, Image as ImageIcon, Upload, Trash2, Pencil, ArrowLeft, AlertTriangle, Plus, Lock, Send, Eye, EyeOff, FileText, Type, Video, Check, LogOut, Download } from 'lucide-react';
+import { X, Save, Search, RefreshCw, ShoppingBag, ClipboardList, Bell, Image as ImageIcon, Upload, Trash2, Pencil, ArrowLeft, AlertTriangle, Plus, Lock, Send, Eye, EyeOff, FileText, Type, Video, Check, LogOut } from 'lucide-react';
 import { GalleryItem, PreOrderItem, NewsItem, VideoGalleryItem, Order } from '../types';
-import { uploadImageToSanity, fetchProducts, updateProductStatus, createProduct, updateProduct, deleteProduct, createNewsPost, fetchAllNews, updateNewsPost, deleteNewsPost, fetchVideoGallery, createVideo, updateVideo, deleteVideo, fetchOrders, updateOrderStatus, deleteOrder, fetchGalleryImages, updateGalleryImage, deleteGalleryImage, createBlogPosts } from '../sanityClient';
+import { uploadImageToSanity, fetchProducts, updateProductStatus, createProduct, updateProduct, deleteProduct, createNewsPost, fetchAllNews, updateNewsPost, deleteNewsPost, fetchVideoGallery, createVideo, updateVideo, deleteVideo, fetchOrders, updateOrderStatus, deleteOrder, fetchGalleryImages, updateGalleryImage, deleteGalleryImage } from '../sanityClient';
 import { sendOrderStatusUpdateEmail } from '../utils/emailService';
 import { compressImage } from '../utils/imageOptimizer';
 
@@ -396,8 +396,8 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
       setNewsBlocks(newsBlocks.map(b => b.id === id ? { ...b, file: compressedFile, preview } : b));
     } catch (error) {
       console.error("Error compressing block image:", error);
-      const preview = URL.createObjectURL(file);
-      setNewsBlocks(newsBlocks.map(b => b.id === id ? { ...b, file, preview } : b));
+    const preview = URL.createObjectURL(file);
+    setNewsBlocks(newsBlocks.map(b => b.id === id ? { ...b, file, preview } : b));
     }
   };
 
@@ -411,8 +411,8 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
       } catch (error) {
         console.error("Error compressing image:", error);
         // Fallback to original
-        setNewsImageFile(file);
-        setNewsImagePreview(URL.createObjectURL(file));
+      setNewsImageFile(file);
+      setNewsImagePreview(URL.createObjectURL(file));
       }
     }
   };
@@ -553,13 +553,13 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
         loadPosts();
       } else {
         // Edit mode delete
-        setIsEditingNews(false);
-        setEditingNewsId(null);
-        setNewsForm({ title: '', date: new Date().toISOString().split('T')[0] });
-        setNewsImageFile(null);
-        setNewsImagePreview(null);
-        setNewsBlocks([{ id: Date.now().toString(), type: 'text', content: '' }]);
-        loadPosts();
+      setIsEditingNews(false);
+      setEditingNewsId(null);
+      setNewsForm({ title: '', date: new Date().toISOString().split('T')[0] });
+      setNewsImageFile(null);
+      setNewsImagePreview(null);
+      setNewsBlocks([{ id: Date.now().toString(), type: 'text', content: '' }]);
+      loadPosts();
       }
     } catch (e) {
       setNotification("❌ Napaka pri brisanju.");
@@ -569,40 +569,6 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
     }
   };
 
-  const handleImportBlogPosts = async () => {
-    if (!sanityToken) {
-      setNotification("❌ Manjka Sanity token!");
-      return;
-    }
-
-    if (!confirm('Ali želite uvoziti vse novice iz stare spletne strani? To bo trajalo nekaj časa.')) return;
-
-    setIsUploading(true);
-    setNotification("🔄 Uvažam novice iz stare strani...");
-
-    try {
-      await createBlogPosts(sanityToken);
-      setNotification("✅ Vse novice uspešno uvožene!");
-
-      // Force reload all data
-      await Promise.all([
-        loadPosts(),
-        loadGallery(),
-        loadOrders()
-      ]);
-
-      // Clear any cached data
-      setSelectedPosts(new Set());
-      setSelectAll(false);
-
-    } catch (error) {
-      console.error("Import error:", error);
-      setNotification("❌ Napaka pri uvažanju novic.");
-    } finally {
-      setIsUploading(false);
-      setTimeout(() => setNotification(null), 5000);
-    }
-  };
 
   // Bulk Selection Functions
   const handleSelectAll = () => {
@@ -780,8 +746,8 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
         setEditImagePreview(URL.createObjectURL(compressedFile));
       } catch (error) {
         console.error("Error compressing image:", error);
-        setEditImageFile(file);
-        setEditImagePreview(URL.createObjectURL(file));
+      setEditImageFile(file);
+      setEditImagePreview(URL.createObjectURL(file));
       }
     }
   };
@@ -842,7 +808,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
           newUploads.push({ file: compressedFile, src, description: '', date: today });
         } catch (error) {
           console.error("Error compressing image:", error);
-          const src = URL.createObjectURL(file);
+        const src = URL.createObjectURL(file);
           newUploads.push({ file, src, description: '', date: today });
         }
       }
@@ -1143,10 +1109,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                         <Trash2 size={16} /> Izbriši ({selectedPosts.size})
                       </button>
                     )}
-                    <button onClick={handleImportBlogPosts} className="bg-terracotta text-white px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wide flex items-center gap-2 shadow-md hover:bg-terracotta-dark transition-colors">
-                      <Download size={16} /> Uvozi iz stare strani
-                    </button>
-                    <button onClick={() => { setIsEditingNews(true); loadPosts(); }} className="bg-olive text-white px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wide flex items-center gap-2 shadow-md"><Plus size={16} /> Nova</button>
+                  <button onClick={() => { setIsEditingNews(true); loadPosts(); }} className="bg-olive text-white px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wide flex items-center gap-2 shadow-md"><Plus size={16} /> Nova</button>
                   </div>
                 </div>
 
@@ -1424,8 +1387,8 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                             <p className="flex items-center gap-2"><span className="w-4"><Bell size={12} /></span> {order.customer.phone}</p>
                             <p className="flex items-center gap-2"><span className="w-4">📍</span>
                               {order.pickupLocation === 'home' ? 'Prevzem na kmetiji' :
-                                order.pickupLocation === 'market' ? 'Prevzem na tržnici Ljubljana' :
-                                  'Prevzem ni določen'}
+                               order.pickupLocation === 'market' ? 'Prevzem na tržnici Ljubljana' :
+                               'Prevzem ni določen'}
                             </p>
                           </div>
 
@@ -1642,24 +1605,24 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                       {pendingUploads.map((upload, idx) => (
                         <div key={idx} className="flex flex-col gap-2 bg-gray-50 p-3 rounded-xl">
                           <div className="flex items-center gap-3">
-                            <img src={upload.src} className="w-16 h-16 object-cover rounded-lg" alt="Preview" />
-                            <input
-                              type="text"
-                              placeholder="Naslov slike..."
-                              value={upload.description}
-                              onChange={(e) => {
-                                const updated = [...pendingUploads];
-                                updated[idx].description = e.target.value;
-                                setPendingUploads(updated);
-                              }}
-                              className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm"
-                            />
-                            <button
-                              onClick={() => setPendingUploads(prev => prev.filter((_, i) => i !== idx))}
-                              className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
-                            >
-                              <X size={16} />
-                            </button>
+                          <img src={upload.src} className="w-16 h-16 object-cover rounded-lg" alt="Preview" />
+                          <input
+                            type="text"
+                            placeholder="Naslov slike..."
+                            value={upload.description}
+                            onChange={(e) => {
+                              const updated = [...pendingUploads];
+                              updated[idx].description = e.target.value;
+                              setPendingUploads(updated);
+                            }}
+                            className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm"
+                          />
+                          <button
+                            onClick={() => setPendingUploads(prev => prev.filter((_, i) => i !== idx))}
+                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                          >
+                            <X size={16} />
+                          </button>
                           </div>
                           <input
                             type="date"
