@@ -29,20 +29,33 @@ if (!fs.existsSync(BLOG_POSTS_DIR)) {
   process.exit(1);
 }
 
-// Get all HTML files
-const htmlFiles = fs.readdirSync(BLOG_POSTS_DIR)
-  .filter(file => file.endsWith('.html'))
-  .sort();
+// Recursively get all HTML files from subfolders
+function getAllHtmlFiles(dirPath, arrayOfFiles = []) {
+  const files = fs.readdirSync(dirPath);
+
+  files.forEach(file => {
+    const fullPath = path.join(dirPath, file);
+    if (fs.statSync(fullPath).isDirectory()) {
+      arrayOfFiles = getAllHtmlFiles(fullPath, arrayOfFiles);
+    } else if (file.endsWith('.html')) {
+      arrayOfFiles.push(fullPath);
+    }
+  });
+
+  return arrayOfFiles;
+}
+
+const htmlFiles = getAllHtmlFiles(BLOG_POSTS_DIR).sort();
 
 console.log(`📁 Found ${htmlFiles.length} HTML files to process\n`);
 
 const processedPosts = [];
 
-htmlFiles.forEach((file, index) => {
-  const filePath = path.join(BLOG_POSTS_DIR, file);
+htmlFiles.forEach((filePath, index) => {
   const content = fs.readFileSync(filePath, 'utf8');
+  const relativePath = path.relative(BLOG_POSTS_DIR, filePath);
 
-  console.log(`${index + 1}. Processing: ${file}`);
+  console.log(`${index + 1}. Processing: ${relativePath}`);
 
   // Extract title (basic regex - you might need to adjust based on HTML structure)
   const titleMatch = content.match(/<title>(.*?)<\/title>/i) ||
@@ -78,7 +91,7 @@ htmlFiles.forEach((file, index) => {
         ]
       }
     ],
-    originalFile: file,
+    originalFile: relativePath,
     needsProcessing: true
   };
 

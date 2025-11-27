@@ -47,7 +47,10 @@ migration/old-website/
 ├── blog-posts/
 │   ├── sekem.html
 │   ├── biodinamicna-kmetija-cernelic.html
-│   └── ...
+│   ├── subfolder1/
+│   │   ├── post1.html
+│   │   └── post2.html
+│   └── ... (lahko tudi v podmapah)
 ├── images/
 │   ├── sekem-image.jpg
 │   ├── award-2020.jpg
