@@ -1,0 +1,8 @@
+# Migration files - don't commit large content
+old-website/
+processed/
+
+# Keep only scripts and documentation
+!scripts/
+!README.md
+!.gitignore
