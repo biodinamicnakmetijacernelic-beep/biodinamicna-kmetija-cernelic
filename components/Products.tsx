@@ -44,17 +44,7 @@ const ProductCard: React.FC<ProductItemProps> = ({ product, quantity, onQuantity
         {getStatusLabel(product.status)}
       </div>
 
-      {/* Stock Progress Bar (Visual Only) */}
-      {isAvailable && product.quantity !== undefined && product.maxQuantity !== undefined && product.maxQuantity > 0 && (
-        <div className="absolute top-4 right-4 z-10 w-24 h-1.5 bg-black/10 rounded-full overflow-hidden backdrop-blur-sm">
-          <div
-            className={`h-full rounded-full transition-all duration-500 ${(product.quantity / product.maxQuantity) < 0.2 ? 'bg-red-500' :
-              (product.quantity / product.maxQuantity) < 0.5 ? 'bg-yellow-500' : 'bg-green-500'
-              }`}
-            style={{ width: `${Math.min(100, Math.max(0, (product.quantity / product.maxQuantity) * 100))}%` }}
-          />
-        </div>
-      )}
+
 
       {/* Image */}
       <div className="h-40 sm:h-48 overflow-hidden bg-gray-50 relative shrink-0">
@@ -69,8 +59,26 @@ const ProductCard: React.FC<ProductItemProps> = ({ product, quantity, onQuantity
       {/* Content */}
       <div className="p-5 flex flex-col flex-grow">
         <div className="flex justify-between items-start mb-4">
-          <h4 className="font-serif text-lg text-olive-dark leading-tight">{product.name}</h4>
-          <div className="text-right">
+          <div className="flex-1 pr-2">
+            <h4 className="font-serif text-lg text-olive-dark leading-tight">{product.name}</h4>
+
+            {/* Stock Slider - Moved Here */}
+            {isAvailable && product.quantity !== undefined && product.maxQuantity !== undefined && product.maxQuantity > 0 && (
+              <div className="flex items-center gap-2 mt-2">
+                <span className="text-[9px] text-olive/40 font-bold uppercase tracking-wider">zaloga</span>
+                <div className="w-16 h-1 bg-black/5 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${(product.quantity / product.maxQuantity) < 0.2 ? 'bg-red-500' :
+                      (product.quantity / product.maxQuantity) < 0.5 ? 'bg-yellow-500' : 'bg-green-500'
+                      }`}
+                    style={{ width: `${Math.min(100, Math.max(0, (product.quantity / product.maxQuantity) * 100))}%` }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="text-right shrink-0">
             <span className="block font-bold text-terracotta text-base">{product.price.toFixed(2)}€</span>
             <span className="text-[9px] text-olive/40 uppercase font-bold">na {product.unit}</span>
           </div>
