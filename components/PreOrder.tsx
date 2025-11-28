@@ -11,6 +11,7 @@ const PreOrder: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
   const [orderSubmitted, setOrderSubmitted] = useState(false);
+  const [cartEnabled, setCartEnabled] = useState(true);
   const [isProductsVisible, setIsProductsVisible] = useState(false);
   const productsSectionRef = useRef<HTMLDivElement>(null);
 
@@ -64,6 +65,24 @@ const PreOrder: React.FC = () => {
     setOrderSubmitted(true);
     setShowCheckout(false);
   };
+
+  // Load cart enabled setting from localStorage
+  useEffect(() => {
+    const savedCartEnabled = localStorage.getItem('cartEnabled');
+    if (savedCartEnabled !== null) {
+      setCartEnabled(savedCartEnabled === 'true');
+    }
+
+    // Listen for changes in localStorage (from admin panel)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'cartEnabled') {
+        setCartEnabled(e.newValue === 'true');
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   // Intersection Observer for products section
   useEffect(() => {
@@ -193,6 +212,28 @@ const PreOrder: React.FC = () => {
       </div>
     );
   };
+
+  // If cart is disabled, show message instead
+  if (!cartEnabled) {
+    return (
+      <section id="narocilo" className="py-24 bg-cream border-t border-olive/5">
+        <div className="container mx-auto px-6 max-w-4xl text-center">
+          <div className="bg-white border border-gray-100 rounded-3xl p-12 shadow-lg">
+            <ShoppingBag size={48} className="text-olive/30 mx-auto mb-6" />
+            <h2 className="font-serif text-3xl text-olive-dark mb-4">
+              Naročila trenutno niso na voljo
+            </h2>
+            <p className="text-lg text-olive/60 mb-6">
+              Trenutno ni izdelkov na zalogi. Kontaktirajte nas za več informacij.
+            </p>
+            <div className="text-sm text-olive/40">
+              Za vprašanja nas pokličite: +386 51 363 447
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="narocilo" className="py-24 bg-cream border-t border-olive/5">

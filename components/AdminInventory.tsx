@@ -89,7 +89,22 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loginError, setLoginError] = useState('');
 
-  const [activeTab, setActiveTab] = useState<'inventory' | 'orders' | 'gallery' | 'news' | 'videos'>('inventory');
+  const [activeTab, setActiveTab] = useState<'inventory' | 'orders' | 'gallery' | 'news' | 'videos' | 'settings'>('inventory');
+  const [cartEnabled, setCartEnabled] = useState(true);
+
+  // Load settings from localStorage
+  useEffect(() => {
+    const savedCartEnabled = localStorage.getItem('cartEnabled');
+    if (savedCartEnabled !== null) {
+      setCartEnabled(savedCartEnabled === 'true');
+    }
+  }, []);
+
+  // Save cart setting to localStorage
+  const saveCartSetting = (enabled: boolean) => {
+    setCartEnabled(enabled);
+    localStorage.setItem('cartEnabled', enabled.toString());
+  };
 
   // Admin credentials (v produkciji shranite v environment variables!)
   const ADMIN_EMAIL = 'biodinamicnakmetijacernelic@gmail.com';
@@ -1003,6 +1018,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
           <button onClick={() => setActiveTab('news')} className={`flex-1 min-w-[80px] py-4 text-xs font-bold uppercase tracking-widest flex flex-col md:flex-row items-center gap-2 transition-colors ${activeTab === 'news' ? 'text-olive border-b-2 border-olive bg-olive/5' : 'text-olive/40'}`}><FileText size={16} />Novice</button>
           <button onClick={() => setActiveTab('videos')} className={`flex-1 min-w-[80px] py-4 text-xs font-bold uppercase tracking-widest flex flex-col md:flex-row items-center gap-2 transition-colors ${activeTab === 'videos' ? 'text-olive border-b-2 border-olive bg-olive/5' : 'text-olive/40'}`}><Video size={16} />Video</button>
           <button onClick={() => setActiveTab('gallery')} className={`flex-1 min-w-[80px] py-4 text-xs font-bold uppercase tracking-widest flex flex-col md:flex-row items-center gap-2 transition-colors ${activeTab === 'gallery' ? 'text-olive border-b-2 border-olive bg-olive/5' : 'text-olive/40'}`}><ImageIcon size={16} />Galerija</button>
+          <button onClick={() => setActiveTab('settings')} className={`flex-1 min-w-[80px] py-4 text-xs font-bold uppercase tracking-widest flex flex-col md:flex-row items-center gap-2 transition-colors ${activeTab === 'settings' ? 'text-olive border-b-2 border-olive bg-olive/5' : 'text-olive/40'}`}><Pencil size={16} />Nastavitve</button>
         </div>
 
         {/* Notification Toast */}
@@ -1754,6 +1770,60 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
 
 
 
+
+        {/* --- SETTINGS TAB --- */}
+        {activeTab === 'settings' && (
+          <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-24">
+            <div className="max-w-2xl mx-auto">
+              <h2 className="font-serif text-2xl text-olive-dark mb-6 flex items-center gap-3">
+                <Pencil size={24} />
+                Nastavitve Spletne Strani
+              </h2>
+
+              <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm">
+                <h3 className="font-serif text-lg text-olive-dark mb-4 flex items-center gap-2">
+                  <ShoppingBag size={20} />
+                  Košarica in Naročila
+                </h3>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-cream/50 rounded-2xl">
+                    <div>
+                      <label className="font-medium text-olive-dark text-sm">
+                        Omogoči košarico na spletni strani
+                      </label>
+                      <p className="text-xs text-olive/60 mt-1">
+                        Če je izklopljeno, se sekcija naročil ne bo prikazovala
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => saveCartSetting(!cartEnabled)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                        cartEnabled ? 'bg-olive' : 'bg-gray-200'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          cartEnabled ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  <div className="text-sm text-olive/60 bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle size={16} className="text-yellow-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <strong>Nasvet:</strong> Izklopi košarico kadar ni ničesar na zalogi ali med vzdrževanjem.
+                        Obiskovalci bodo videli samo kontaktne podatke.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
     </div>
