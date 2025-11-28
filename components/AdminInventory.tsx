@@ -104,6 +104,8 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
   const saveCartSetting = (enabled: boolean) => {
     setCartEnabled(enabled);
     localStorage.setItem('cartEnabled', enabled.toString());
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new CustomEvent('cartSettingChanged', { detail: { cartEnabled: enabled } }));
   };
 
   // Admin credentials (v produkciji shranite v environment variables!)

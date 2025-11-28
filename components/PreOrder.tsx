@@ -73,15 +73,13 @@ const PreOrder: React.FC = () => {
       setCartEnabled(savedCartEnabled === 'true');
     }
 
-    // Listen for changes in localStorage (from admin panel)
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'cartEnabled') {
-        setCartEnabled(e.newValue === 'true');
-      }
+    // Listen for cart setting changes from admin panel
+    const handleCartSettingChange = (e: CustomEvent) => {
+      setCartEnabled(e.detail.cartEnabled);
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('cartSettingChanged', handleCartSettingChange as EventListener);
+    return () => window.removeEventListener('cartSettingChanged', handleCartSettingChange as EventListener);
   }, []);
 
   // Intersection Observer for products section
