@@ -321,6 +321,27 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
     }
   };
 
+  // Helper to check stock availability for an order
+  const checkOrderStock = (orderItems: any[]) => {
+    let allAvailable = true;
+    const itemsWithStock = orderItems.map(item => {
+      const product = products.find(p => p.name === item.name);
+      const currentStock = product?.quantity !== undefined ? product.quantity : 0;
+      const isEnough = currentStock >= item.quantity;
+
+      if (!isEnough) allAvailable = false;
+
+      return {
+        ...item,
+        currentStock,
+        isEnough,
+        productFound: !!product
+      };
+    });
+
+    return { allAvailable, itemsWithStock };
+  };
+
   const handleOrderStatus = async (orderId: string, newStatus: string) => {
     try {
       const token = import.meta.env.VITE_SANITY_TOKEN;
@@ -1478,140 +1499,152 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                     const matchesLocation = pickupLocationFilter === 'all' || order.pickupLocation === pickupLocationFilter;
                     return matchesStatus && matchesLocation;
                   })
-                  .map((order) => (
-                    <div key={order.id} className="bg-white rounded-[2rem] p-6 border border-black/5 shadow-sm hover:shadow-md transition-all">
-                      <div className="flex flex-col md:flex-row justify-between gap-6">
-                        {/* Order Header & Customer Info */}
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-4">
-                            <span className="font-mono text-xs font-bold bg-gray-100 px-2 py-1 rounded text-gray-500">{order.orderNumber}</span>
-                            <span className="text-xs text-olive/40 uppercase tracking-widest font-bold">
-                              {new Date(order.createdAt).toLocaleString('sl-SI')}
-                            </span>
-                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${order.status === 'pending' ? 'bg-yellow-50 text-yellow-600 border-yellow-200' :
-                              order.status === 'in-preparation' ? 'bg-green-50 text-green-600 border-green-200' :
-                                order.status === 'rejected' ? 'bg-red-50 text-red-600 border-red-200' :
-                                  order.status === 'ready-for-pickup' ? 'bg-cyan-50 text-cyan-600 border-cyan-200' :
-                                    'bg-emerald-50 text-emerald-600 border-emerald-200'
-                              }`}>
-                              {order.status === 'pending' ? 'V čakanju' :
-                                order.status === 'in-preparation' ? 'V pripravi' :
-                                  order.status === 'rejected' ? 'Zavrnjeno' :
-                                    order.status === 'ready-for-pickup' ? 'Pripravljeno' : 'Zaključeno'}
-                            </span>
-                          </div>
+                  .map((order) => {
+                    // Calculate stock status for this order
+                    const { allAvailable, itemsWithStock } = checkOrderStock(order.items);
 
-                          <h3 className="font-serif text-xl text-olive-dark mb-1">{order.customer.name}</h3>
-                          <div className="text-sm text-olive/60 space-y-1 mb-4">
-                            <p className="flex items-center gap-2"><span className="w-4"><Send size={12} /></span> {order.customer.email}</p>
-                            <p className="flex items-center gap-2"><span className="w-4"><Bell size={12} /></span> {order.customer.phone}</p>
-                            <p className="flex items-center gap-2"><span className="w-4">📍</span>
-                              {order.pickupLocation === 'home' ? 'Prevzem na kmetiji' :
-                                order.pickupLocation === 'market' ? 'Prevzem na tržnici Ljubljana' :
-                                  'Prevzem ni določen'}
-                            </p>
-                          </div>
+                    return (
+                      <div key={order.id} className="bg-white rounded-[2rem] p-6 border border-black/5 shadow-sm hover:shadow-md transition-all">
+                        <div className="flex flex-col md:flex-row justify-between gap-6">
+                          {/* Order Header & Customer Info */}
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-4">
+                              <span className="font-mono text-xs font-bold bg-gray-100 px-2 py-1 rounded text-gray-500">{order.orderNumber}</span>
+                              <span className="text-xs text-olive/40 uppercase tracking-widest font-bold">
+                                {new Date(order.createdAt).toLocaleString('sl-SI')}
+                              </span>
+                              <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${order.status === 'pending' ? 'bg-yellow-50 text-yellow-600 border-yellow-200' :
+                                order.status === 'in-preparation' ? 'bg-green-50 text-green-600 border-green-200' :
+                                  order.status === 'rejected' ? 'bg-red-50 text-red-600 border-red-200' :
+                                    order.status === 'ready-for-pickup' ? 'bg-cyan-50 text-cyan-600 border-cyan-200' :
+                                      'bg-emerald-50 text-emerald-600 border-emerald-200'
+                                }`}>
+                                {order.status === 'pending' ? 'V čakanju' :
+                                  order.status === 'in-preparation' ? 'V pripravi' :
+                                    order.status === 'rejected' ? 'Zavrnjeno' :
+                                      order.status === 'ready-for-pickup' ? 'Pripravljeno' : 'Zaključeno'}
+                              </span>
 
-                          {order.note && (
-                            <div className="bg-cream/50 p-3 rounded-xl text-sm text-olive/80 italic border border-olive/5">
-                              "{order.note}"
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Order Items */}
-                        <div className="flex-1 border-t md:border-t-0 md:border-l border-gray-100 pt-4 md:pt-0 md:pl-6">
-                          <h4 className="text-xs font-bold uppercase tracking-widest text-olive/40 mb-3">Naročeno</h4>
-                          <div className="space-y-2 mb-4">
-                            {order.items.map((item, idx) => (
-                              <div key={idx} className="flex justify-between text-sm">
-                                <span className="text-olive-dark">
-                                  <span className="font-bold text-terracotta mr-2">{item.quantity}x</span>
-                                  {item.name}
+                              {/* Stock Availability Badge (Only for Pending orders) */}
+                              {order.status === 'pending' && (
+                                <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold uppercase border ${allAvailable ? 'bg-green-50 text-green-600 border-green-200' : 'bg-red-50 text-red-600 border-red-200'}`}>
+                                  {allAvailable ? <Check size={12} /> : <AlertTriangle size={12} />}
+                                  {allAvailable ? 'Zaloga OK' : 'Ni zaloge'}
                                 </span>
-                                <span className="text-olive/60">{(item.price * item.quantity).toFixed(2)}€</span>
-                              </div>
-                            ))}
-                          </div>
-                          <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-                            <span className="font-bold text-olive-dark">Skupaj</span>
-                            <span className="font-serif text-xl text-olive-dark">{order.total.toFixed(2)}€</span>
-                          </div>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex flex-row md:flex-col justify-end gap-2 border-t md:border-t-0 md:border-l border-gray-100 pt-4 md:pt-0 md:pl-6 min-w-[180px]">
-                          {/* Pending: Can approve or reject */}
-                          {order.status === 'pending' && (
-                            <>
-                              <button
-                                onClick={() => handleOrderStatus(order.id, 'in-preparation')}
-                                className="flex-1 bg-green-50 text-green-700 hover:bg-green-100 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
-                              >
-                                <Check size={14} /> Potrdi
-                              </button>
-                              <button
-                                onClick={() => handleOrderStatus(order.id, 'rejected')}
-                                className="flex-1 bg-red-50 text-red-700 hover:bg-red-100 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
-                              >
-                                <X size={14} /> Zavrni
-                              </button>
-                            </>
-                          )}
-
-                          {/* In Preparation: Can mark ready or reject */}
-                          {order.status === 'in-preparation' && (
-                            <>
-                              <button
-                                onClick={() => handleOrderStatus(order.id, 'ready-for-pickup')}
-                                className="w-full bg-cyan-50 text-cyan-700 hover:bg-cyan-100 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
-                              >
-                                📦 Pripravljeno
-                              </button>
-                              <button
-                                onClick={() => handleOrderStatus(order.id, 'rejected')}
-                                className="w-full bg-red-50 text-red-700 hover:bg-red-100 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
-                              >
-                                <X size={14} /> Zavrni
-                              </button>
-                            </>
-                          )}
-
-                          {/* Ready for Pickup: Can complete or go back to preparation */}
-                          {order.status === 'ready-for-pickup' && (
-                            <>
-                              <button
-                                onClick={() => handleOrderStatus(order.id, 'completed')}
-                                className="w-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
-                              >
-                                ✅ Zaključi
-                              </button>
-                              <button
-                                onClick={() => handleOrderStatus(order.id, 'in-preparation')}
-                                className="w-full bg-gray-50 text-gray-700 hover:bg-gray-100 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
-                              >
-                                ← V pripravo
-                              </button>
-                            </>
-                          )}
-
-                          {/* Final statuses: No actions */}
-                          {(order.status === 'rejected' || order.status === 'completed') && (
-                            <div className="text-center text-xs text-olive/40 italic py-2">
-                              {order.status === 'rejected' ? 'Zavrnjeno' : 'Zaključeno'}
+                              )}
                             </div>
-                          )}
-                          <button
-                            onClick={() => handleDeleteOrder(order.id)}
-                            className="w-full bg-gray-50 text-gray-600 hover:bg-red-50 hover:text-red-600 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
-                            title="Izbriši naročilo"
-                          >
-                            <Trash2 size={14} /> Izbriši
-                          </button>
+
+                            <h3 className="font-serif text-xl text-olive-dark mb-1">{order.customer.name}</h3>
+                            <div className="text-sm text-olive/60 space-y-1 mb-4">
+                              <p className="flex items-center gap-2"><span className="w-4"><Send size={12} /></span> {order.customer.email}</p>
+                              <p className="flex items-center gap-2"><span className="w-4"><Bell size={12} /></span> {order.customer.phone}</p>
+                              <p className="flex items-center gap-2"><span className="w-4">📍</span>
+                                {order.pickupLocation === 'home' ? 'Prevzem na kmetiji' :
+                                  order.pickupLocation === 'market' ? 'Prevzem na tržnici Ljubljana' :
+                                    'Prevzem ni določen'}
+                              </p>
+                            </div>
+
+                            {order.note && (
+                              <div className="bg-cream/50 p-3 rounded-xl text-sm text-olive/80 italic border border-olive/5">
+                                "{order.note}"
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Order Items */}
+                          <div className="flex-1 border-t md:border-t-0 md:border-l border-gray-100 pt-4 md:pt-0 md:pl-6">
+                            <h4 className="text-xs font-bold uppercase tracking-widest text-olive/40 mb-3">Naročeno</h4>
+                            <div className="space-y-2 mb-4">
+                              {itemsWithStock.map((item, idx) => (
+                                <div key={idx} className="flex justify-between text-sm">
+                                  <span className="text-olive-dark flex items-center gap-2">
+                                    <span className="font-bold text-terracotta">{item.quantity}x</span>
+                                    <span>{item.name}</span>
+                                    {/* Stock Info */}
+                                    {order.status === 'pending' && (
+                                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${item.isEnough ? 'bg-gray-100 text-gray-500' : 'bg-red-100 text-red-600'}`}>
+                                        (Zaloga: {item.currentStock} {item.unit})
+                                      </span>
+                                    )}
+                                  </span>
+                                  <span className="text-olive/60">{(item.price * item.quantity).toFixed(2)}€</span>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="flex justify-between items-center pt-3 border-t border-gray-100">
+                              <span className="font-bold text-olive-dark">Skupaj</span>
+                              <span className="font-serif text-xl text-olive-dark">{order.total.toFixed(2)}€</span>
+                            </div>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex flex-row md:flex-col justify-end gap-2 border-t md:border-t-0 md:border-l border-gray-100 pt-4 md:pt-0 md:pl-6 min-w-[180px]">
+                            {/* Pending: Can approve or reject */}
+                            {order.status === 'pending' && (
+                              <>
+                                <button
+                                  onClick={() => handleOrderStatus(order.id, 'in-preparation')}
+                                  className="flex-1 bg-green-50 text-green-700 hover:bg-green-100 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
+                                >
+                                  <Check size={14} /> Potrdi
+                                </button>
+                                <button
+                                  onClick={() => handleOrderStatus(order.id, 'rejected')}
+                                  className="flex-1 bg-red-50 text-red-700 hover:bg-red-100 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
+                                >
+                                  <X size={14} /> Zavrni
+                                </button>
+                              </>
+                            )}
+
+                            {/* In Preparation: Can mark ready or reject */}
+                            {order.status === 'in-preparation' && (
+                              <>
+                                <button
+                                  onClick={() => handleOrderStatus(order.id, 'ready-for-pickup')}
+                                  className="w-full bg-cyan-50 text-cyan-700 hover:bg-cyan-100 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
+                                >
+                                  📦 Pripravljeno
+                                </button>
+                                <button
+                                  onClick={() => handleOrderStatus(order.id, 'rejected')}
+                                  className="w-full bg-red-50 text-red-700 hover:bg-red-100 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
+                                >
+                                  <X size={14} /> Zavrni
+                                </button>
+                              </>
+                            )}
+
+                            {/* Ready for Pickup: Can complete or go back to preparation */}
+                            {order.status === 'ready-for-pickup' && (
+                              <>
+                                <button
+                                  onClick={() => handleOrderStatus(order.id, 'completed')}
+                                  className="w-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
+                                >
+                                  ✅ Zaključi
+                                </button>
+                                <button
+                                  onClick={() => handleOrderStatus(order.id, 'in-preparation')}
+                                  className="w-full bg-gray-50 text-gray-700 hover:bg-gray-100 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
+                                >
+                                  ← V pripravo
+                                </button>
+                              </>
+                            )}
+
+                            {/* Final statuses: No actions */}
+                            {(order.status === 'rejected' || order.status === 'completed') && (
+                              <div className="text-center text-xs text-olive/40 italic py-2">
+                                {order.status === 'rejected' ? 'Zavrnjeno' : 'Zaključeno'}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
               </div>
             )}
           </div>
