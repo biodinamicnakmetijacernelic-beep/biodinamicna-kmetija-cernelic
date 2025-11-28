@@ -112,8 +112,14 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
   const ADMIN_EMAIL = 'biodinamicnakmetijacernelic@gmail.com';
   const ADMIN_PASSWORD = 'Landini174*'; // Admin geslo za dostop
 
-  // Sanity token from environment variables
-  const sanityToken = import.meta.env.VITE_SANITY_TOKEN;
+  // Sanity token from environment variables or localStorage
+  const [sanityToken, setSanityToken] = useState(import.meta.env.VITE_SANITY_TOKEN || localStorage.getItem('sanityToken') || '');
+
+  // Update token when it changes in settings
+  const handleTokenChange = (newToken: string) => {
+    setSanityToken(newToken);
+    localStorage.setItem('sanityToken', newToken);
+  };
 
   // Inventory State
   const [products, setProducts] = useState<PreOrderItem[]>([]);
@@ -413,8 +419,8 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
       setNewsBlocks(newsBlocks.map(b => b.id === id ? { ...b, file: compressedFile, preview } : b));
     } catch (error) {
       console.error("Error compressing block image:", error);
-    const preview = URL.createObjectURL(file);
-    setNewsBlocks(newsBlocks.map(b => b.id === id ? { ...b, file, preview } : b));
+      const preview = URL.createObjectURL(file);
+      setNewsBlocks(newsBlocks.map(b => b.id === id ? { ...b, file, preview } : b));
     }
   };
 
@@ -428,8 +434,8 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
       } catch (error) {
         console.error("Error compressing image:", error);
         // Fallback to original
-      setNewsImageFile(file);
-      setNewsImagePreview(URL.createObjectURL(file));
+        setNewsImageFile(file);
+        setNewsImagePreview(URL.createObjectURL(file));
       }
     }
   };
@@ -570,13 +576,13 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
         loadPosts();
       } else {
         // Edit mode delete
-      setIsEditingNews(false);
-      setEditingNewsId(null);
-      setNewsForm({ title: '', date: new Date().toISOString().split('T')[0] });
-      setNewsImageFile(null);
-      setNewsImagePreview(null);
-      setNewsBlocks([{ id: Date.now().toString(), type: 'text', content: '' }]);
-      loadPosts();
+        setIsEditingNews(false);
+        setEditingNewsId(null);
+        setNewsForm({ title: '', date: new Date().toISOString().split('T')[0] });
+        setNewsImageFile(null);
+        setNewsImagePreview(null);
+        setNewsBlocks([{ id: Date.now().toString(), type: 'text', content: '' }]);
+        loadPosts();
       }
     } catch (e) {
       setNotification("❌ Napaka pri brisanju.");
@@ -763,8 +769,8 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
         setEditImagePreview(URL.createObjectURL(compressedFile));
       } catch (error) {
         console.error("Error compressing image:", error);
-      setEditImageFile(file);
-      setEditImagePreview(URL.createObjectURL(file));
+        setEditImageFile(file);
+        setEditImagePreview(URL.createObjectURL(file));
       }
     }
   };
@@ -825,7 +831,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
           newUploads.push({ file: compressedFile, src, description: '', date: today });
         } catch (error) {
           console.error("Error compressing image:", error);
-        const src = URL.createObjectURL(file);
+          const src = URL.createObjectURL(file);
           newUploads.push({ file, src, description: '', date: today });
         }
       }
@@ -1127,7 +1133,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                         <Trash2 size={16} /> Izbriši ({selectedPosts.size})
                       </button>
                     )}
-                  <button onClick={() => { setIsEditingNews(true); loadPosts(); }} className="bg-olive text-white px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wide flex items-center gap-2 shadow-md"><Plus size={16} /> Nova</button>
+                    <button onClick={() => { setIsEditingNews(true); loadPosts(); }} className="bg-olive text-white px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wide flex items-center gap-2 shadow-md"><Plus size={16} /> Nova</button>
                   </div>
                 </div>
 
@@ -1405,8 +1411,8 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                             <p className="flex items-center gap-2"><span className="w-4"><Bell size={12} /></span> {order.customer.phone}</p>
                             <p className="flex items-center gap-2"><span className="w-4">📍</span>
                               {order.pickupLocation === 'home' ? 'Prevzem na kmetiji' :
-                               order.pickupLocation === 'market' ? 'Prevzem na tržnici Ljubljana' :
-                               'Prevzem ni določen'}
+                                order.pickupLocation === 'market' ? 'Prevzem na tržnici Ljubljana' :
+                                  'Prevzem ni določen'}
                             </p>
                           </div>
 
@@ -1623,24 +1629,24 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                       {pendingUploads.map((upload, idx) => (
                         <div key={idx} className="flex flex-col gap-2 bg-gray-50 p-3 rounded-xl">
                           <div className="flex items-center gap-3">
-                          <img src={upload.src} className="w-16 h-16 object-cover rounded-lg" alt="Preview" />
-                          <input
-                            type="text"
-                            placeholder="Naslov slike..."
-                            value={upload.description}
-                            onChange={(e) => {
-                              const updated = [...pendingUploads];
-                              updated[idx].description = e.target.value;
-                              setPendingUploads(updated);
-                            }}
-                            className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm"
-                          />
-                          <button
-                            onClick={() => setPendingUploads(prev => prev.filter((_, i) => i !== idx))}
-                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
-                          >
-                            <X size={16} />
-                          </button>
+                            <img src={upload.src} className="w-16 h-16 object-cover rounded-lg" alt="Preview" />
+                            <input
+                              type="text"
+                              placeholder="Naslov slike..."
+                              value={upload.description}
+                              onChange={(e) => {
+                                const updated = [...pendingUploads];
+                                updated[idx].description = e.target.value;
+                                setPendingUploads(updated);
+                              }}
+                              className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm"
+                            />
+                            <button
+                              onClick={() => setPendingUploads(prev => prev.filter((_, i) => i !== idx))}
+                              className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                            >
+                              <X size={16} />
+                            </button>
                           </div>
                           <input
                             type="date"
@@ -1800,14 +1806,12 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                     </div>
                     <button
                       onClick={() => saveCartSetting(!cartEnabled)}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        cartEnabled ? 'bg-olive' : 'bg-gray-200'
-                      }`}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${cartEnabled ? 'bg-olive' : 'bg-gray-200'
+                        }`}
                     >
                       <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          cartEnabled ? 'translate-x-6' : 'translate-x-1'
-                        }`}
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${cartEnabled ? 'translate-x-6' : 'translate-x-1'
+                          }`}
                       />
                     </button>
                   </div>
@@ -1820,6 +1824,37 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                         Obiskovalci bodo videli samo kontaktne podatke.
                       </div>
                     </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* API Settings */}
+              <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm mt-6">
+                <h3 className="font-serif text-lg text-olive-dark mb-4 flex items-center gap-2">
+                  <Lock size={20} />
+                  API Povezava
+                </h3>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="font-medium text-olive-dark text-sm block mb-2">
+                      Sanity API Token
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="password"
+                        value={sanityToken}
+                        onChange={(e) => handleTokenChange(e.target.value)}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta pr-10"
+                        placeholder="sk-..."
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-olive/40">
+                        {sanityToken ? <Check size={16} className="text-green-500" /> : <AlertTriangle size={16} className="text-yellow-500" />}
+                      </div>
+                    </div>
+                    <p className="text-xs text-olive/60 mt-2">
+                      Token je potreben za urejanje zaloge in nalaganje slik. Če je polje prazno, se uporabi sistemska nastavitev.
+                    </p>
                   </div>
                 </div>
               </div>

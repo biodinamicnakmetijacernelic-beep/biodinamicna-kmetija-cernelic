@@ -121,7 +121,29 @@ const Products: React.FC = () => {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [isCartModalOpen, setIsCartModalOpen] = useState(false);
   const [showMobileCartBar, setShowMobileCartBar] = useState(false);
+  const [isCartEnabled, setIsCartEnabled] = useState(true);
   const sectionRef = useRef<HTMLElement>(null);
+
+  // Check cart setting on mount and listen for changes
+  useEffect(() => {
+    const checkCartSetting = () => {
+      const savedCartEnabled = localStorage.getItem('cartEnabled');
+      if (savedCartEnabled !== null) {
+        setIsCartEnabled(savedCartEnabled === 'true');
+      }
+    };
+
+    checkCartSetting();
+
+    const handleCartSettingChange = (e: CustomEvent) => {
+      setIsCartEnabled(e.detail.cartEnabled);
+    };
+
+    window.addEventListener('cartSettingChanged', handleCartSettingChange as EventListener);
+    return () => {
+      window.removeEventListener('cartSettingChanged', handleCartSettingChange as EventListener);
+    };
+  }, []);
 
   // LIVE PRODUCTS STATE
   const [displayProducts, setDisplayProducts] = useState<PreOrderItem[]>(PREORDER_PRODUCTS);
@@ -356,98 +378,102 @@ const Products: React.FC = () => {
           </div>
 
           {/* RIGHT COLUMN: STICKY SMART CART (XL Desktop Only) */}
-          <div className={`hidden xl:block w-80 xl:w-96 relative shrink-0 transition-opacity duration-500 ${showMobileCartBar ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-            <div className="sticky top-32">
-              <div className="bg-white border border-black/5 rounded-[2rem] p-6 shadow-2xl shadow-olive/5 backdrop-blur-xl">
-                <div className="flex items-center justify-between mb-6 border-b border-black/5 pb-4">
-                  <h3 className="font-serif text-xl text-olive-dark">Vaša Košarica</h3>
-                  <div className="relative">
-                    <ShoppingCart size={22} className="text-olive" />
-                    {totalItems > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-terracotta text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold animate-bounce">
-                        {totalItems}
-                      </span>
-                    )}
+          {isCartEnabled && (
+            <div className={`hidden xl:block w-80 xl:w-96 relative shrink-0 transition-opacity duration-500 ${showMobileCartBar ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+              <div className="sticky top-32">
+                <div className="bg-white border border-black/5 rounded-[2rem] p-6 shadow-2xl shadow-olive/5 backdrop-blur-xl">
+                  <div className="flex items-center justify-between mb-6 border-b border-black/5 pb-4">
+                    <h3 className="font-serif text-xl text-olive-dark">Vaša Košarica</h3>
+                    <div className="relative">
+                      <ShoppingCart size={22} className="text-olive" />
+                      {totalItems > 0 && (
+                        <span className="absolute -top-2 -right-2 bg-terracotta text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold animate-bounce">
+                          {totalItems}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                {totalItems === 0 ? (
-                  <div className="text-center py-12 text-olive/40">
-                    <ShoppingBag size={48} className="mx-auto mb-4 opacity-20" />
-                    <p>Košarica je prazna.</p>
-                    <p className="text-xs mt-2">Izberite pridelke seznama.</p>
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    <div className="max-h-[50vh] overflow-y-auto pr-2 space-y-4 custom-scrollbar">
-                      {cartItemsList.map(p => (
-                        <div key={p.id} className="flex justify-between items-center text-sm group">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-gray-100 overflow-hidden shrink-0"><img src={p.image} className="w-full h-full object-cover" /></div>
-                            <div className="flex flex-col">
-                              <span className="text-olive-dark font-medium leading-tight">{p.name}</span>
-                              <span className="text-olive/50 text-[10px]">x{quantities[p.id]} {p.unit}</span>
+                  {totalItems === 0 ? (
+                    <div className="text-center py-12 text-olive/40">
+                      <ShoppingBag size={48} className="mx-auto mb-4 opacity-20" />
+                      <p>Košarica je prazna.</p>
+                      <p className="text-xs mt-2">Izberite pridelke seznama.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      <div className="max-h-[50vh] overflow-y-auto pr-2 space-y-4 custom-scrollbar">
+                        {cartItemsList.map(p => (
+                          <div key={p.id} className="flex justify-between items-center text-sm group">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-lg bg-gray-100 overflow-hidden shrink-0"><img src={p.image} className="w-full h-full object-cover" /></div>
+                              <div className="flex flex-col">
+                                <span className="text-olive-dark font-medium leading-tight">{p.name}</span>
+                                <span className="text-olive/50 text-[10px]">x{quantities[p.id]} {p.unit}</span>
+                              </div>
+                            </div>
+                            <div className="flex flex-col items-end">
+                              <span className="font-bold text-olive-dark">{(p.price * (quantities[p.id] || 0)).toFixed(2)}€</span>
+                              <button onClick={() => setQuantities(prev => ({ ...prev, [p.id]: 0 }))} className="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Trash2 size={12} />
+                              </button>
                             </div>
                           </div>
-                          <div className="flex flex-col items-end">
-                            <span className="font-bold text-olive-dark">{(p.price * (quantities[p.id] || 0)).toFixed(2)}€</span>
-                            <button onClick={() => setQuantities(prev => ({ ...prev, [p.id]: 0 }))} className="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <Trash2 size={12} />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="border-t border-black/5 pt-4">
-                      <div className="flex justify-between items-end mb-2">
-                        <span className="text-olive/60 text-sm uppercase tracking-widest">Skupaj</span>
-                        <span className="text-2xl font-serif text-olive-dark">{totalPrice.toFixed(2)}€</span>
+                        ))}
                       </div>
-                      <p className="text-[10px] text-olive/40 text-right mb-6">* DDV je vključen</p>
 
-                      <button
-                        onClick={() => setIsCheckoutModalOpen(true)}
-                        className="w-full bg-olive text-white py-3 rounded-xl font-bold uppercase tracking-widest hover:bg-olive-dark transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center justify-center gap-2 text-sm"
-                      >
-                        <span>Oddaj Povpraševanje</span>
-                        <Check size={16} />
-                      </button>
+                      <div className="border-t border-black/5 pt-4">
+                        <div className="flex justify-between items-end mb-2">
+                          <span className="text-olive/60 text-sm uppercase tracking-widest">Skupaj</span>
+                          <span className="text-2xl font-serif text-olive-dark">{totalPrice.toFixed(2)}€</span>
+                        </div>
+                        <p className="text-[10px] text-olive/40 text-right mb-6">* DDV je vključen</p>
+
+                        <button
+                          onClick={() => setIsCheckoutModalOpen(true)}
+                          className="w-full bg-olive text-white py-3 rounded-xl font-bold uppercase tracking-widest hover:bg-olive-dark transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center justify-center gap-2 text-sm"
+                        >
+                          <span>Oddaj Povpraševanje</span>
+                          <Check size={16} />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
         </div>
       </div>
 
       {/* MOBILE/TABLET FLOATING BAR (Visible below XL) */}
-      <div
-        className={`xl:hidden fixed bottom-6 left-4 right-4 z-40 transition-all duration-500 transform ${showMobileCartBar ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'}`}
-      >
-        <button
-          onClick={() => setIsCartModalOpen(true)}
-          className="w-full bg-olive-dark text-cream p-4 rounded-[2rem] shadow-2xl flex items-center justify-between border border-white/10 backdrop-blur-md active:scale-95 transition-transform"
+      {isCartEnabled && (
+        <div
+          className={`xl:hidden fixed bottom-6 left-4 right-4 z-40 transition-all duration-500 transform ${showMobileCartBar ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'}`}
         >
-          <div className="flex items-center gap-3">
-            <div className="bg-terracotta p-2 rounded-full text-white relative">
-              <ShoppingCart size={18} />
-              {totalItems > 0 && <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border border-olive-dark"></span>}
+          <button
+            onClick={() => setIsCartModalOpen(true)}
+            className="w-full bg-olive-dark text-cream p-4 rounded-[2rem] shadow-2xl flex items-center justify-between border border-white/10 backdrop-blur-md active:scale-95 transition-transform"
+          >
+            <div className="flex items-center gap-3">
+              <div className="bg-terracotta p-2 rounded-full text-white relative">
+                <ShoppingCart size={18} />
+                {totalItems > 0 && <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border border-olive-dark"></span>}
+              </div>
+              <div className="flex flex-col items-start">
+                <span className="text-[10px] text-white/50 uppercase tracking-widest">Moja Košarica</span>
+                <span className="text-lg font-serif text-white leading-none">{totalItems} artiklov</span>
+              </div>
             </div>
-            <div className="flex flex-col items-start">
-              <span className="text-[10px] text-white/50 uppercase tracking-widest">Moja Košarica</span>
-              <span className="text-lg font-serif text-white leading-none">{totalItems} artiklov</span>
-            </div>
-          </div>
 
-          <div className="flex items-center gap-3">
-            <span className="font-bold text-lg">{totalPrice.toFixed(2)} €</span>
-            <ChevronUp size={20} className="text-white/50" />
-          </div>
-        </button>
-      </div>
+            <div className="flex items-center gap-3">
+              <span className="font-bold text-lg">{totalPrice.toFixed(2)} €</span>
+              <ChevronUp size={20} className="text-white/50" />
+            </div>
+          </button>
+        </div>
+      )}
 
       {/* MOBILE CART MODAL (Popup) */}
       {isCartModalOpen && (

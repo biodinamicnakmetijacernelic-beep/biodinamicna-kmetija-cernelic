@@ -1,20 +1,82 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# 🌱 Biodinamična kmetija Černelič
 
-# Run and deploy your AI Studio app
+Spletna stran za biodinamično kmetijo Černelič - ekološko in biodinamično kmetovanje v Sloveniji.
 
-This contains everything you need to run your app locally.
+## 🚀 Hitri začetek
 
-View your app in AI Studio: https://ai.studio/apps/drive/1iqP7qYwq8I7IoUw32KOWzWhkdaGEt9u9
+**Predpogoji:** Node.js 18+
 
-## Run Locally
+### Lokalni razvoj
+1. Namesti odvisnosti:
+   ```bash
+   npm install
+   ```
 
-**Prerequisites:**  Node.js
+2. Zaženi razvojni strežnik:
+   ```bash
+   npm run dev
+   ```
 
+3. Odpri [http://localhost:5173](http://localhost:5173) v brskalniku
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### Produkcijska gradnja
+```bash
+npm run build
+```
+
+## 🚀 Avtomatski deploy na Netlify
+
+### Nastavitev GitHub Actions
+1. Pojdite na vaš GitHub repozitorij
+2. Kliknite **Settings** → **Secrets and variables** → **Actions**
+3. Dodajte naslednje skrivnosti:
+   - `NETLIFY_AUTH_TOKEN`: Vaš Netlify Personal Access Token
+   - `NETLIFY_SITE_ID`: ID vaše Netlify strani
+
+### Kako dobiti Netlify podatke:
+1. **NETLIFY_AUTH_TOKEN:**
+   - Pojdite na: https://app.netlify.com/user/applications#personal-access-tokens
+   - Ustvarite nov Personal Access Token
+   - Kopirajte token
+
+2. **NETLIFY_SITE_ID:**
+   - Pojdite na vašo Netlify stran
+   - Kliknite **Site settings** → **General** → **Site details**
+   - Kopirajte **Site ID**
+
+### Kako deluje avtomatski deploy:
+- Vsak push na `main` branch sproži avtomatski deploy
+- GitHub Actions gradi projekt in deploya na Netlify
+- Pull requesti prav tako sprožijo deploy (preview)
+
+## 📦 Ročni deploy
+Če želite deployati ročno:
+```bash
+bash deploy-netlify.sh
+```
+
+Ali pa:
+1. Pojdite na https://app.netlify.com/drop
+2. Povlecite `netlify-deploy.zip` datoteko
+
+## 🛠️ Tehnologije
+- **React 19** - Frontend framework
+- **TypeScript** - Tipiziran JavaScript
+- **Vite** - Build orodje
+- **Sanity CMS** - Content management
+- **Netlify** - Hosting in deployment
+- **Tailwind CSS** - Styling (če uporabljate)
+
+## 📄 Struktura projekta
+```
+├── components/          # React komponente
+├── pages/              # Strani aplikacije
+├── public/             # Statične datoteke
+├── netlify/            # Netlify funkcije
+├── utils/              # Pomožne funkcije
+├── .github/            # GitHub Actions
+└── dist/               # Produkcijska gradnja
+```
+
+## 📧 Kontakt
+Za vprašanja glede projekta kontaktirajte vzdrževalca.
