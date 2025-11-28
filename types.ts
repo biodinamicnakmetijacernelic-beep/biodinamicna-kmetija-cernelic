@@ -48,6 +48,9 @@ export interface PreOrderItem {
   unit: string;
   image: string;
   status: ProductStatus;
+  quantity?: number;      // Current stock quantity
+  maxQuantity?: number;   // Maximum/Initial stock quantity for progress bar
+  _updatedAt?: string;    // Last update timestamp from Sanity
 }
 
 export interface NewsItem {

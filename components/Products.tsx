@@ -44,6 +44,18 @@ const ProductCard: React.FC<ProductItemProps> = ({ product, quantity, onQuantity
         {getStatusLabel(product.status)}
       </div>
 
+      {/* Stock Progress Bar (Visual Only) */}
+      {isAvailable && product.quantity !== undefined && product.maxQuantity !== undefined && product.maxQuantity > 0 && (
+        <div className="absolute top-4 right-4 z-10 w-24 h-1.5 bg-black/10 rounded-full overflow-hidden backdrop-blur-sm">
+          <div
+            className={`h-full rounded-full transition-all duration-500 ${(product.quantity / product.maxQuantity) < 0.2 ? 'bg-red-500' :
+              (product.quantity / product.maxQuantity) < 0.5 ? 'bg-yellow-500' : 'bg-green-500'
+              }`}
+            style={{ width: `${Math.min(100, Math.max(0, (product.quantity / product.maxQuantity) * 100))}%` }}
+          />
+        </div>
+      )}
+
       {/* Image */}
       <div className="h-40 sm:h-48 overflow-hidden bg-gray-50 relative shrink-0">
         <img
@@ -79,7 +91,8 @@ const ProductCard: React.FC<ProductItemProps> = ({ product, quantity, onQuantity
 
             <button
               onClick={() => onQuantityChange(product.id, 1)}
-              className="w-6 h-6 rounded-full bg-olive text-white shadow-md flex items-center justify-center hover:bg-olive-dark transition-transform active:scale-90"
+              className="w-6 h-6 rounded-full bg-olive text-white shadow-md flex items-center justify-center hover:bg-olive-dark transition-transform active:scale-90 disabled:opacity-50 disabled:bg-gray-300 disabled:cursor-not-allowed"
+              disabled={product.quantity !== undefined && quantity >= product.quantity}
             >
               <Plus size={12} />
             </button>
@@ -191,6 +204,15 @@ const Products: React.FC = () => {
   const handleQuantityChange = (id: string, delta: number) => {
     setQuantities(prev => {
       const current = prev[id] || 0;
+      const product = displayProducts.find(p => p.id === id);
+
+      // If adding (delta > 0) and product has stock limit
+      if (delta > 0 && product?.quantity !== undefined) {
+        if (current >= product.quantity) {
+          return prev; // Don't increase if limit reached
+        }
+      }
+
       const next = Math.max(0, current + delta);
       return { ...prev, [id]: next };
     });
@@ -300,7 +322,7 @@ const Products: React.FC = () => {
           <FadeIn>
             <span className="text-terracotta font-bold uppercase tracking-widest text-xs mb-3 block">Trenutno v Ponudbi</span>
             <h2 className="font-serif text-4xl md:text-5xl text-olive-dark mb-6">Pridelki, polni življenjske energije</h2>
-            <p className="text-lg text-olive/60 font-light">
+            <p className="text-lg text-olive/60 font-light mb-4">
               Neposredno z njive v vašo kuhinjo. Izberite izdelke, mi pa jih pripravimo za prevzem ali pošiljanje.
             </p>
           </FadeIn>
@@ -320,7 +342,29 @@ const Products: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-serif text-2xl md:text-3xl text-olive-dark">Vrtnine in Sadje</h3>
-                    <p className="text-[10px] text-olive/50 uppercase tracking-widest font-bold mt-1">Sveže nabrano • Osebni prevzem</p>
+                    <div className="flex flex-col md:flex-row md:items-center gap-2 mt-1">
+                      <p className="text-[10px] text-olive/50 uppercase tracking-widest font-bold">Sveže nabrano • Osebni prevzem</p>
+
+                      {/* Last Updated Label - Moved Here */}
+                      {displayProducts.length > 0 && (
+                        <div className="hidden md:flex items-center gap-1.5 px-2 py-0.5 bg-olive/5 rounded-full">
+                          <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                          <span className="text-[9px] text-olive/60 font-medium whitespace-nowrap">
+                            Stanje zaloge osveženo: {new Date(Math.max(...displayProducts.map(p => p._updatedAt ? new Date(p._updatedAt).getTime() : 0))).toLocaleDateString('sl-SI', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Mobile Only Last Updated Label */}
+                    {displayProducts.length > 0 && (
+                      <div className="md:hidden flex items-center gap-1.5 mt-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                        <span className="text-[9px] text-olive/60 font-medium">
+                          Osveženo: {new Date(Math.max(...displayProducts.map(p => p._updatedAt ? new Date(p._updatedAt).getTime() : 0))).toLocaleDateString('sl-SI', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </FadeIn>

@@ -131,7 +131,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
   // Inventory CRUD State
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState({ name: '', price: '', unit: '', category: 'fresh', status: 'available' });
+  const [editForm, setEditForm] = useState({ name: '', price: '', unit: '', category: 'fresh', status: 'available', quantity: '', maxQuantity: '' });
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
   const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
   const editImageRef = useRef<HTMLInputElement>(null);
@@ -343,6 +343,54 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
       if (!success) {
         alert('Napaka pri posodabljanju statusa.');
         return;
+      }
+
+      // AUTO-DEDUCT STOCK LOGIC
+      // If status changes to 'in-preparation' (usually meaning confirmed), deduct stock
+      if (newStatus === 'in-preparation' && oldStatus !== 'in-preparation') {
+        console.log('📉 Auto-deducting stock for order:', orderId);
+        try {
+          // We need to iterate through items and update products
+          // Note: This requires products to be loaded in state (which they are)
+          for (const item of currentOrder.items) {
+            // Find product by name (since order items might not have IDs stored directly, but usually we match by name or ID)
+            // Ideally order items should have product ID. Let's check if we can match by name if ID is missing.
+            const product = products.find(p => p.name === item.name);
+
+            if (product && product.id && product.quantity !== undefined) {
+              const currentQty = product.quantity;
+              const deductQty = item.quantity;
+              const newQty = Math.max(0, currentQty - deductQty);
+
+              // Determine new status
+              let newProductStatus = product.status;
+              if (newQty <= 0) newProductStatus = 'sold-out';
+
+              console.log(`📉 Updating ${product.name}: ${currentQty} -> ${newQty}`);
+
+              // Update in Sanity
+              await updateProduct(product.id, {
+                name: product.name,
+                price: product.price,
+                unit: product.unit,
+                category: product.category,
+                quantity: newQty,
+                maxQuantity: product.maxQuantity
+              }, null, token);
+
+              // Also update status if needed
+              if (newProductStatus !== product.status) {
+                await updateProductStatus(product.id, newProductStatus, token);
+              }
+            }
+          }
+          // Reload inventory to reflect changes
+          loadInventory();
+          setNotification('📉 Zaloga je bila samodejno zmanjšana.');
+        } catch (stockError) {
+          console.error('Failed to auto-deduct stock:', stockError);
+          setNotification('⚠️ Status posodobljen, a napaka pri zmanjšanju zaloge.');
+        }
       }
 
       // Send email notification to customer
@@ -740,7 +788,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
 
   const startAddProduct = () => {
     setEditingId(null);
-    setEditForm({ name: '', price: '', unit: 'kg', category: 'fresh', status: 'available' });
+    setEditForm({ name: '', price: '', unit: 'kg', category: 'fresh', status: 'available', quantity: '', maxQuantity: '' });
     setEditImageFile(null);
     setEditImagePreview(null);
     setIsEditing(true);
@@ -753,7 +801,9 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
       price: product.price.toString(),
       unit: product.unit,
       category: product.category,
-      status: product.status
+      status: product.status,
+      quantity: product.quantity ? product.quantity.toString() : '',
+      maxQuantity: product.maxQuantity ? product.maxQuantity.toString() : ''
     });
     setEditImageFile(null);
     setEditImagePreview(product.image);
@@ -782,11 +832,30 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
     setIsUploading(true);
     try {
       const priceNum = parseFloat(editForm.price.replace(',', '.'));
+      const quantityNum = editForm.quantity ? parseFloat(editForm.quantity) : undefined;
+      const maxQuantityNum = editForm.maxQuantity ? parseFloat(editForm.maxQuantity) : undefined;
+
+      // Auto-update status based on quantity
+      let statusToSave = editForm.status;
+      if (quantityNum !== undefined && quantityNum <= 0) {
+        statusToSave = 'sold-out';
+      } else if (quantityNum !== undefined && quantityNum > 0 && editForm.status === 'sold-out') {
+        statusToSave = 'available';
+      }
+
+      const productDataToSave = {
+        ...editForm,
+        price: priceNum,
+        status: statusToSave,
+        quantity: quantityNum,
+        maxQuantity: maxQuantityNum
+      };
+
       if (editingId) {
-        await updateProduct(editingId, { ...editForm, price: priceNum }, editImageFile, sanityToken);
+        await updateProduct(editingId, productDataToSave, editImageFile, sanityToken);
         setNotification("✅ Izdelek posodobljen!");
       } else {
-        await createProduct({ ...editForm, price: priceNum }, editImageFile, sanityToken);
+        await createProduct(productDataToSave, editImageFile, sanityToken);
         setNotification("✅ Nov izdelek ustvarjen!");
       }
       setIsEditing(false);
@@ -1088,6 +1157,33 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                       <option value="pack">paket</option>
                     </select>
                   </div>
+
+                  <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-100">
+                    <div>
+                      <label className="text-[10px] font-bold uppercase text-olive/50 mb-1 block">Trenutna Zaloga</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3"
+                        value={editForm.quantity}
+                        onChange={e => setEditForm({ ...editForm, quantity: e.target.value })}
+                        placeholder="npr. 50"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold uppercase text-olive/50 mb-1 block">Max / Začetna Zaloga</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3"
+                        value={editForm.maxQuantity}
+                        onChange={e => setEditForm({ ...editForm, maxQuantity: e.target.value })}
+                        placeholder="npr. 100"
+                      />
+                      <p className="text-[9px] text-olive/40 mt-1">Za prikaz drsnika na strani</p>
+                    </div>
+                  </div>
+
                   <div className="flex gap-2">
                     {editingId && <button onClick={handleDeleteProduct} className="p-4 bg-red-50 text-red-500 rounded-xl"><Trash2 size={20} /></button>}
                     <button onClick={handleSaveProduct} className="px-8 py-4 bg-olive text-white rounded-xl font-bold uppercase" style={{ minWidth: '120px' }} disabled={isUploading}>Shrani</button>

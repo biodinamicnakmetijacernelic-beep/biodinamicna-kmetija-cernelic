@@ -97,6 +97,9 @@ export async function fetchProducts(): Promise<PreOrderItem[]> {
       price,
       unit,
       status,
+      quantity,
+      maxQuantity,
+      _updatedAt,
       "image": coalesce(image.asset->url, null)
     }`;
 
@@ -111,6 +114,9 @@ export async function fetchProducts(): Promise<PreOrderItem[]> {
       price: item.price || 0,
       unit: item.unit || 'kos',
       status: item.status || 'available',
+      quantity: item.quantity,
+      maxQuantity: item.maxQuantity,
+      _updatedAt: item._updatedAt,
       image: item.image || 'https://images.unsplash.com/photo-1595855709920-4538602b186c?auto=format&fit=crop&q=80&w=400' // Fallback image
     }));
   } catch (error) {
@@ -456,7 +462,7 @@ export async function updateProductStatus(id: string, status: string, token: str
 
 // Create New Product
 export async function createProduct(
-  productData: { name: string; price: number; unit: string; category: string; status: string },
+  productData: { name: string; price: number; unit: string; category: string; status: string; quantity?: number; maxQuantity?: number },
   imageFile: File | null,
   token: string
 ) {
@@ -482,6 +488,8 @@ export async function createProduct(
       unit: productData.unit,
       category: productData.category,
       status: productData.status,
+      quantity: productData.quantity,
+      maxQuantity: productData.maxQuantity,
       image: imageAssetId ? {
         _type: 'image',
         asset: { _type: 'reference', _ref: imageAssetId }
@@ -499,7 +507,7 @@ export async function createProduct(
 // Update Existing Product
 export async function updateProduct(
   id: string,
-  productData: { name: string; price: number; unit: string; category: string },
+  productData: { name: string; price: number; unit: string; category: string; quantity?: number; maxQuantity?: number },
   imageFile: File | null,
   token: string
 ) {
@@ -526,6 +534,11 @@ export async function updateProduct(
         }
       });
     }
+
+    patch = patch.set({
+      quantity: productData.quantity,
+      maxQuantity: productData.maxQuantity
+    });
 
     await patch.commit();
     return true;
