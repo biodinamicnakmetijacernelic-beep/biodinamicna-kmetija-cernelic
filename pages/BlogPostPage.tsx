@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useLocation, Link } from 'react-router-dom';
-import { fetchNewsBySlug } from '../sanityClient';
+import { fetchNewsBySlug, updateNewsPost } from '../sanityClient';
 import { NewsItem } from '../types';
 import { renderPortableText } from '../utils/newsHelpers';
 import { ArrowLeft, Calendar, Share2 } from 'lucide-react';
@@ -19,6 +19,166 @@ const BlogPostPage: React.FC = () => {
   const [editedTitle, setEditedTitle] = useState('');
   const [editedContent, setEditedContent] = useState('');
   const location = useLocation();
+
+  // Helper function to convert HTML content to Portable Text
+  const convertToPortableText = (htmlContent: string): any[] => {
+    if (!htmlContent.trim()) return [];
+
+    // Split by paragraphs (double line breaks)
+    const paragraphs = htmlContent.split('\n\n').filter(p => p.trim());
+
+    return paragraphs.map((paragraph, index) => ({
+      _type: 'block',
+      _key: `block-${Date.now()}-${index}`,
+      style: 'normal',
+      children: [{
+        _type: 'span',
+        _key: `span-${Date.now()}-${index}`,
+        text: paragraph.trim(),
+        marks: []
+      }]
+    }));
+  };
+
+  // Formatting functions for the toolbar
+  const formatText = (command: string) => {
+    const editor = document.getElementById('editor') as HTMLElement;
+    if (!editor) return;
+
+    editor.focus();
+
+    switch (command) {
+      case 'bold':
+        document.execCommand('bold', false);
+        break;
+      case 'italic':
+        document.execCommand('italic', false);
+        break;
+      case 'h2':
+        document.execCommand('formatBlock', false, 'h2');
+        break;
+      case 'h3':
+        document.execCommand('formatBlock', false, 'h3');
+        break;
+    }
+
+    // Update the state with the new content
+    setEditedContent(editor.innerHTML);
+  };
+
+  const insertLink = () => {
+    const editor = document.getElementById('editor') as HTMLElement;
+    if (!editor) return;
+
+    const url = prompt('Vnesite URL povezave:');
+    if (url) {
+      const text = prompt('Vnesite besedilo povezave:', 'povezava') || 'povezava';
+      const linkHtml = `<a href="${url}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+      document.execCommand('insertHTML', false, linkHtml);
+      setEditedContent(editor.innerHTML);
+    }
+  };
+
+  const insertImage = () => {
+    const editor = document.getElementById('editor') as HTMLElement;
+    if (!editor) return;
+
+    const url = prompt('Vnesite URL slike:');
+    if (url) {
+      const alt = prompt('Vnesite opis slike:', 'Slika') || 'Slika';
+      const imageHtml = `<div class="my-10 rounded-2xl overflow-hidden shadow-lg"><img src="${url}" alt="${alt}" class="w-full h-auto object-cover cursor-pointer hover:scale-[1.02] transition-transform duration-500" /></div>`;
+      document.execCommand('insertHTML', false, imageHtml);
+      setEditedContent(editor.innerHTML);
+    }
+  };
+
+  const insertYouTube = () => {
+    const editor = document.getElementById('editor') as HTMLElement;
+    if (!editor) return;
+
+    const url = prompt('Vnesite YouTube URL ali video ID:');
+    if (url) {
+      // Extract video ID from URL
+      const videoId = extractYouTubeId(url);
+      if (videoId) {
+        const embedHtml = `<div class="my-10 relative w-full" style="padding-bottom: 56.25%"><iframe src="https://www.youtube.com/embed/${videoId}" class="absolute top-0 left-0 w-full h-full rounded-2xl shadow-lg" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+        document.execCommand('insertHTML', false, embedHtml);
+        setEditedContent(editor.innerHTML);
+      } else {
+        alert('Neveljaven YouTube URL');
+      }
+    }
+  };
+
+  // Helper function to extract YouTube video ID
+  const extractYouTubeId = (input: string): string | null => {
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+      /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
+      /youtube\.com\/v\/([a-zA-Z0-9_-]{11})/
+    ];
+
+    for (const pattern of patterns) {
+      const match = input.match(pattern);
+      if (match && match[1]) {
+        return match[1];
+      }
+    }
+
+    // If it's already just an ID (11 characters)
+    if (/^[a-zA-Z0-9_-]{11}$/.test(input.trim())) {
+      return input.trim();
+    }
+
+    return null;
+  };
+
+  // Helper function to convert Portable Text back to HTML for editing
+  const renderPortableTextToHTML = (body: any[]): string => {
+    if (!Array.isArray(body)) return '';
+
+    return body.map((block) => {
+      if (block._type === 'block') {
+        const style = block.style || 'normal';
+        let tag = 'p';
+
+        switch (style) {
+          case 'h2':
+            tag = 'h2';
+            break;
+          case 'h3':
+            tag = 'h3';
+            break;
+          case 'h4':
+            tag = 'h4';
+            break;
+          case 'blockquote':
+            tag = 'blockquote';
+            break;
+        }
+
+        const childrenHTML = block.children?.map((child: any) => {
+          let content = child.text || '';
+
+          // Apply marks
+          if (child.marks && child.marks.length > 0) {
+            if (child.marks.includes('strong')) {
+              content = `<strong>${content}</strong>`;
+            }
+            if (child.marks.includes('em')) {
+              content = `<em>${content}</em>`;
+            }
+          }
+
+          return content;
+        }).join('') || '';
+
+        return `<${tag}>${childrenHTML}</${tag}>`;
+      }
+
+      return '';
+    }).join('\n\n');
+  };
 
   useEffect(() => {
     const loadPost = async () => {
@@ -239,7 +399,9 @@ const BlogPostPage: React.FC = () => {
                 onClick={() => {
                   setIsEditMode(true);
                   setEditedTitle(post.title);
-                  setEditedContent(post.body.map(b => b.children?.map((c: any) => c.text).join('') || '').join('\n\n'));
+                  // Convert Portable Text to HTML for editing
+                  const htmlContent = renderPortableTextToHTML(post.body);
+                  setEditedContent(htmlContent);
                 }}
                 className="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-olive text-white rounded-xl font-semibold hover:bg-olive-dark transition-colors"
               >
@@ -255,8 +417,39 @@ const BlogPostPage: React.FC = () => {
               <div className="mb-6 flex gap-3">
                 <button
                   onClick={async () => {
-                    // Save logic will be implemented
-                    alert('Shranjevanje...');
+                    if (!post) return;
+
+                    try {
+                      const token = import.meta.env.VITE_SANITY_TOKEN;
+                      if (!token) {
+                        alert('Napaka: Manjka Sanity token');
+                        return;
+                      }
+
+                      // Convert edited content to Portable Text format
+                      const portableTextBody = convertToPortableText(editedContent);
+
+                      await updateNewsPost(
+                        post.id,
+                        {
+                          title: editedTitle,
+                          body: portableTextBody,
+                          date: post.publishedAt,
+                          link: post.link
+                        },
+                        null, // No new image file for now
+                        token
+                      );
+
+                      alert('Objava uspešno posodobljena!');
+                      setIsEditMode(false);
+
+                      // Refresh the page to show updated content
+                      window.location.reload();
+                    } catch (error) {
+                      console.error('Error updating post:', error);
+                      alert('Napaka pri shranjevanju objave');
+                    }
                   }}
                   className="inline-flex items-center gap-2 px-6 py-3 bg-terracotta text-white rounded-xl font-semibold hover:bg-terracotta-dark transition-colors"
                 >
@@ -297,18 +490,66 @@ const BlogPostPage: React.FC = () => {
         </FadeIn>
       )} */}
 
-      {/* Content - Apple Typography */}
+            {/* Content - Apple Typography */}
       <FadeIn>
         <div className="container mx-auto px-6 max-w-3xl pb-24">
           <div className="prose max-w-none">
             {isEditMode ? (
-              <div
-                contentEditable
-                suppressContentEditableWarning
-                className="w-full bg-gray-50 border-2 border-terracotta rounded-xl px-6 py-4 min-h-[400px] focus:outline-none focus:border-terracotta-dark text-base leading-relaxed"
-                onInput={(e) => setEditedContent(e.currentTarget.textContent || '')}
-                dangerouslySetInnerHTML={{ __html: editedContent }}
-              />
+              <div>
+                {/* Formatting Toolbar */}
+                <div className="flex flex-wrap gap-1 mb-2 p-2 bg-gray-100 rounded-lg border border-gray-200">
+                  <button onClick={() => formatText('bold')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Krepko">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
+                    </svg>
+                  </button>
+                  <button onClick={() => formatText('italic')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Ležeče">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 4h-9m4 16h6M4 20l6.3-6.3a5.5 5.5 0 0 0 0-7.8L4 4" />
+                    </svg>
+                  </button>
+                  <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
+                  <button onClick={() => formatText('h2')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Naslov 2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 4h12M6 4v16M6 20h12M14 8H8" />
+                    </svg>
+                  </button>
+                  <button onClick={() => formatText('h3')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Naslov 3">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 4h12M6 4v16M6 20h12M14 8H8M14 12H8" />
+                    </svg>
+                  </button>
+                  <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
+                  <button onClick={() => insertLink()} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi povezavo">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                    </svg>
+                  </button>
+                  <button onClick={() => insertImage()} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi sliko">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <rect x={3} y={3} width={18} height={18} rx={2} ry={2} />
+                      <circle cx={9} cy={9} r={2} />
+                      <path d="M21 15l-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                    </svg>
+                  </button>
+                  <button onClick={() => insertYouTube()} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi video (YouTube)">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0 1 21 8.618v6.764a1 1 0 0 1-1.447.894L15 14M5 18h8a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div
+                  id="editor"
+                  contentEditable
+                  suppressContentEditableWarning
+                  className="w-full bg-gray-50 border-2 border-terracotta rounded-xl px-6 py-4 min-h-[400px] focus:outline-none focus:border-terracotta-dark text-base leading-relaxed"
+                  onInput={(e) => setEditedContent(e.currentTarget.innerHTML)}
+                  dangerouslySetInnerHTML={{ __html: editedContent }}
+                />
+              </div>
             ) : (
               renderPortableText(post.body, (src) => setLightboxImage(src), (url) => setLinkPopupUrl(url))
             )}
