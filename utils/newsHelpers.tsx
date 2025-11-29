@@ -19,7 +19,7 @@ export const getPreviewText = (body: any[], maxLength = 160) => {
   return combined.length > maxLength ? `${combined.slice(0, maxLength)}…` : combined;
 };
 
-export const renderPortableText = (body: any[], onImageClick?: (src: string) => void) => {
+export const renderPortableText = (body: any[], onImageClick?: (src: string) => void, onLinkClick?: (url: string) => void) => {
   if (!Array.isArray(body)) {
     return <p className="text-base md:text-lg leading-relaxed mb-6 font-light text-olive-dark break-words whitespace-pre-wrap">{String(body || '')}</p>;
   }
@@ -139,17 +139,36 @@ export const renderPortableText = (body: any[], onImageClick?: (src: string) => 
                   if (fullMatch.startsWith('[')) {
                     const linkMatch = fullMatch.match(/\[([^\]]+)\]\(([^)]+)\)/);
                     if (linkMatch) {
-                      currentChildren.push(
-                        <a
-                          key={`link-${cursor}`}
-                          href={linkMatch[2]}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-terracotta hover:text-olive-dark transition-colors border-b border-terracotta/30 hover:border-olive-dark font-medium"
-                        >
-                          {linkMatch[1]}
-                        </a>
-                      );
+                      const linkText = linkMatch[1];
+                      const linkUrl = linkMatch[2];
+
+                      if (onLinkClick) {
+                        currentChildren.push(
+                          <a
+                            key={`link-${cursor}`}
+                            href={linkUrl}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              onLinkClick(linkUrl);
+                            }}
+                            className="text-terracotta hover:text-olive-dark transition-colors border-b border-terracotta/30 hover:border-olive-dark font-medium cursor-pointer"
+                          >
+                            {linkText}
+                          </a>
+                        );
+                      } else {
+                        currentChildren.push(
+                          <a
+                            key={`link-${cursor}`}
+                            href={linkUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-terracotta hover:text-olive-dark transition-colors border-b border-terracotta/30 hover:border-olive-dark font-medium"
+                          >
+                            {linkText}
+                          </a>
+                        );
+                      }
                     }
                     cursor = matchIndex + fullMatch.length;
                     continue;
@@ -341,16 +360,31 @@ export const renderPortableText = (body: any[], onImageClick?: (src: string) => 
               if (linkMark) {
                 const linkDef = block.markDefs.find((def: any) => def._key === linkMark);
                 if (linkDef) {
-                  content = (
-                    <a
-                      href={linkDef.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-terracotta hover:text-olive-dark transition-colors border-b border-terracotta/30 hover:border-olive-dark"
-                    >
-                      {content}
-                    </a>
-                  );
+                  if (onLinkClick) {
+                    content = (
+                      <a
+                        href={linkDef.href}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          onLinkClick(linkDef.href);
+                        }}
+                        className="text-terracotta hover:text-olive-dark transition-colors border-b border-terracotta/30 hover:border-olive-dark cursor-pointer"
+                      >
+                        {content}
+                      </a>
+                    );
+                  } else {
+                    content = (
+                      <a
+                        href={linkDef.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-terracotta hover:text-olive-dark transition-colors border-b border-terracotta/30 hover:border-olive-dark"
+                      >
+                        {content}
+                      </a>
+                    );
+                  }
                 }
               }
 
