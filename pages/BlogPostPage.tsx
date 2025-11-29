@@ -5,11 +5,13 @@ import { NewsItem } from '../types';
 import { renderPortableText } from '../utils/newsHelpers';
 import { ArrowLeft, Calendar, Share2 } from 'lucide-react';
 import FadeIn from '../components/FadeIn';
+import Lightbox from '../components/Lightbox';
 
 const BlogPostPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [post, setPost] = useState<NewsItem | null>(null);
   const [loading, setLoading] = useState(true);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   useEffect(() => {
     const loadPost = async () => {
@@ -131,8 +133,10 @@ const BlogPostPage: React.FC = () => {
       <FadeIn>
         <div className="container mx-auto px-6 max-w-3xl pb-24">
           <div className="prose max-w-none">
-            {renderPortableText(post.body)}
+            {renderPortableText(post.body, (src) => setLightboxImage(src))}
           </div>
+
+          <Lightbox image={lightboxImage} onClose={() => setLightboxImage(null)} />
 
           {/* Back to Blog CTA */}
           <div className="mt-16 pt-12 border-t border-black/5">

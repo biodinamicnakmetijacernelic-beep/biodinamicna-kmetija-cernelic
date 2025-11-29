@@ -19,7 +19,7 @@ export const getPreviewText = (body: any[], maxLength = 160) => {
   return combined.length > maxLength ? `${combined.slice(0, maxLength)}…` : combined;
 };
 
-export const renderPortableText = (body: any[]) => {
+export const renderPortableText = (body: any[], onImageClick?: (src: string) => void) => {
   if (!Array.isArray(body)) {
     return <p className="text-base md:text-lg leading-relaxed mb-6 font-light text-olive-dark break-words whitespace-pre-wrap">{String(body || '')}</p>;
   }
@@ -162,9 +162,18 @@ export const renderPortableText = (body: any[]) => {
       const imageUrl = urlFor(block.asset).width(1200).url();
       return (
         <div key={block._key || index} className="my-10 rounded-2xl overflow-hidden shadow-lg">
-          <a href={imageUrl} target="_blank" rel="noopener noreferrer" className="cursor-zoom-in block">
-            <img src={imageUrl} alt="Slika v novici" className="w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-500" />
-          </a>
+          {onImageClick ? (
+            <div
+              onClick={() => onImageClick(imageUrl)}
+              className="cursor-zoom-in block"
+            >
+              <img src={imageUrl} alt="Slika v novici" className="w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-500" />
+            </div>
+          ) : (
+            <a href={imageUrl} target="_blank" rel="noopener noreferrer" className="cursor-zoom-in block">
+              <img src={imageUrl} alt="Slika v novici" className="w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-500" />
+            </a>
+          )}
         </div>
       );
     }

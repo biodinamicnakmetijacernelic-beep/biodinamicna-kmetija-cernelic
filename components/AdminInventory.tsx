@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Save, Search, RefreshCw, MousePointerClick, ShoppingBag, ClipboardList, Bell, Image as ImageIcon, Upload, Trash2, Pencil, ArrowLeft, AlertTriangle, Plus, Lock, Send, Eye, EyeOff, FileText, Type, Video, Check, LogOut } from 'lucide-react';
+import { X, Save, Search, RefreshCw, MousePointerClick, ShoppingBag, ClipboardList, Bell, Image as ImageIcon, Upload, Trash2, Pencil, ArrowLeft, AlertTriangle, Plus, Lock, Send, Eye, EyeOff, FileText, Type, Video, Check, LogOut, Link as LinkIcon } from 'lucide-react';
 import { GalleryItem, PreOrderItem, NewsItem, VideoGalleryItem, Order } from '../types';
 import { uploadImageToSanity, fetchProducts, updateProductStatus, createProduct, updateProduct, deleteProduct, createNewsPost, fetchAllNews, updateNewsPost, deleteNewsPost, fetchVideoGallery, createVideo, updateVideo, deleteVideo, fetchOrders, updateOrderStatus, deleteOrder, fetchGalleryImages, updateGalleryImage, deleteGalleryImage } from '../sanityClient';
 import { sendOrderStatusUpdateEmail } from '../utils/emailService';
@@ -489,6 +489,28 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
 
   const updateButtonBlock = (id: string, field: 'text' | 'url', value: string) => {
     setNewsBlocks(newsBlocks.map(b => b.id === id ? { ...b, [field]: value } : b));
+  };
+
+  const insertLink = (blockId: string) => {
+    const block = newsBlocks.find(b => b.id === blockId);
+    if (!block || block.type !== 'text') return;
+
+    // We need to access the textarea to get selection.
+    // Since we map blocks, we can try to find the element by ID if we set IDs on textareas.
+    const textarea = document.getElementById(`textarea-${blockId}`) as HTMLTextAreaElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = block.content || '';
+    const selectedText = text.substring(start, end);
+
+    const url = prompt("Vnesite URL povezavo:", "https://");
+    if (url) {
+      const linkText = selectedText || "povezava";
+      const newText = text.substring(0, start) + `[${linkText}](${url})` + text.substring(end);
+      updateBlockContent(blockId, newText);
+    }
   };
 
   const handleBlockImageSelect = async (id: string, file: File) => {
@@ -1378,14 +1400,25 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
 
                     {newsBlocks.map((block, index) => (
                       <div key={block.id} className="relative group">
-                        {block.type === 'text' ? (
-                          <textarea
-                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta min-h-[100px] resize-y"
-                            value={block.content}
-                            onChange={e => updateBlockContent(block.id, e.target.value)}
-                            placeholder="Napišite odstavek..."
-                          />
-                        ) : (
+                        {block.type === 'text' && (
+                          <div className="relative">
+                            <textarea
+                              id={`textarea-${block.id}`}
+                              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta font-serif min-h-[150px]"
+                              value={block.content}
+                              onChange={(e) => updateBlockContent(block.id, e.target.value)}
+                              placeholder="Vnesite besedilo..."
+                            />
+                            <button
+                              onClick={() => insertLink(block.id)}
+                              className="absolute top-2 right-2 p-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-olive/60 hover:text-olive transition-colors"
+                              title="Vstavi povezavo"
+                            >
+                              <LinkIcon size={16} />
+                            </button>
+                          </div>
+                        )}
+                        {block.type !== 'text' && (
                           <div className="relative bg-gray-100 rounded-xl p-4 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center">
                             {block.preview ? (
                               <img src={block.preview} className="max-h-40 rounded-lg object-contain" />
