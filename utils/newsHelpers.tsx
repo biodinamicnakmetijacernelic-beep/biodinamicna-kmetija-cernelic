@@ -59,9 +59,53 @@ export const renderPortableText = (body: any[]) => {
           {block.children?.map((child: any, childIndex: number) => {
             let content: React.ReactNode = child.text;
 
-            // Apply marks
+            // Handle Markdown-style links [text](url)
+            if (typeof content === 'string') {
+              const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+              const parts = [];
+              let lastIndex = 0;
+              let match;
+
+              while ((match = linkRegex.exec(content)) !== null) {
+                // Add text before the link
+                if (match.index > lastIndex) {
+                  parts.push(content.slice(lastIndex, match.index));
+                }
+
+                // Add the link
+                parts.push(
+                  <a
+                    key={`link-${match.index}`}
+                    href={match[2]}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-terracotta hover:text-olive-dark transition-colors border-b border-terracotta/30 hover:border-olive-dark font-medium"
+                  >
+                    {match[1]}
+                  </a>
+                );
+
+                lastIndex = match.index + match[0].length;
+              }
+
+              // Add remaining text
+              if (lastIndex < content.length) {
+                parts.push(content.slice(lastIndex));
+              }
+
+              if (parts.length > 0) {
+                content = <>{parts}</>;
+              }
+            }
+
+            // Apply marks (existing logic)
             if (child.marks && child.marks.length > 0) {
-              // 1. Handle Link
+              // ... existing mark logic ...
+              // Note: If we already parsed markdown links, marks might wrap the whole thing or parts.
+              // Ideally, we should handle marks first or carefully combine.
+              // For simplicity, let's assume markdown links are used in plain text blocks mostly.
+
+              // 1. Handle Link (Sanity native)
               const linkMark = child.marks.find((mark: string) =>
                 block.markDefs?.some((def: any) => def._key === mark && def._type === 'link')
               );
@@ -99,11 +143,28 @@ export const renderPortableText = (body: any[]) => {
       );
     }
 
+    if (block._type === 'button') {
+      return (
+        <div key={block._key || index} className="my-8 flex justify-center">
+          <a
+            href={block.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center px-8 py-4 bg-terracotta text-white font-serif text-lg rounded-full hover:bg-terracotta-dark transition-all transform hover:scale-105 shadow-lg hover:shadow-xl"
+          >
+            {block.text}
+          </a>
+        </div>
+      );
+    }
+
     if (block._type === 'image' && block.asset) {
       const imageUrl = urlFor(block.asset).width(1200).url();
       return (
         <div key={block._key || index} className="my-10 rounded-2xl overflow-hidden shadow-lg">
-          <img src={imageUrl} alt="Slika v novici" className="w-full h-auto object-cover" />
+          <a href={imageUrl} target="_blank" rel="noopener noreferrer" className="cursor-zoom-in block">
+            <img src={imageUrl} alt="Slika v novici" className="w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-500" />
+          </a>
         </div>
       );
     }

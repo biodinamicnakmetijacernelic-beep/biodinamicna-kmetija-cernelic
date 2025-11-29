@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Save, Search, RefreshCw, ShoppingBag, ClipboardList, Bell, Image as ImageIcon, Upload, Trash2, Pencil, ArrowLeft, AlertTriangle, Plus, Lock, Send, Eye, EyeOff, FileText, Type, Video, Check, LogOut } from 'lucide-react';
+import { X, Save, Search, RefreshCw, MousePointerClick, ShoppingBag, ClipboardList, Bell, Image as ImageIcon, Upload, Trash2, Pencil, ArrowLeft, AlertTriangle, Plus, Lock, Send, Eye, EyeOff, FileText, Type, Video, Check, LogOut } from 'lucide-react';
 import { GalleryItem, PreOrderItem, NewsItem, VideoGalleryItem, Order } from '../types';
 import { uploadImageToSanity, fetchProducts, updateProductStatus, createProduct, updateProduct, deleteProduct, createNewsPost, fetchAllNews, updateNewsPost, deleteNewsPost, fetchVideoGallery, createVideo, updateVideo, deleteVideo, fetchOrders, updateOrderStatus, deleteOrder, fetchGalleryImages, updateGalleryImage, deleteGalleryImage } from '../sanityClient';
 import { sendOrderStatusUpdateEmail } from '../utils/emailService';
@@ -75,10 +75,12 @@ interface PendingUpload {
 
 interface NewsBlock {
   id: string;
-  type: 'text' | 'image';
+  type: 'text' | 'image' | 'button';
   content?: string;
   file?: File;
   preview?: string;
+  url?: string; // For button
+  text?: string; // For button
 }
 
 const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onAddImage, onDeleteImage }) => {
@@ -473,12 +475,20 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
     setNewsBlocks([...newsBlocks, { id: Date.now().toString(), type: 'image' }]);
   };
 
+  const addButtonBlock = () => {
+    setNewsBlocks([...newsBlocks, { id: Date.now().toString(), type: 'button', text: 'Klikni me', url: 'https://' }]);
+  };
+
   const removeBlock = (id: string) => {
     setNewsBlocks(newsBlocks.filter(b => b.id !== id));
   };
 
   const updateBlockContent = (id: string, content: string) => {
     setNewsBlocks(newsBlocks.map(b => b.id === id ? { ...b, content } : b));
+  };
+
+  const updateButtonBlock = (id: string, field: 'text' | 'url', value: string) => {
+    setNewsBlocks(newsBlocks.map(b => b.id === id ? { ...b, [field]: value } : b));
   };
 
   const handleBlockImageSelect = async (id: string, file: File) => {
@@ -531,6 +541,13 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
             type: 'image',
             preview: block.asset ? '' : undefined // We can't easily get the URL here
           });
+        } else if (block._type === 'button') {
+          blocks.push({
+            id: block._key || `btn-${index}`,
+            type: 'button',
+            text: block.text || 'Gumb',
+            url: block.url || 'https://'
+          });
         }
       });
     }
@@ -579,6 +596,13 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
             _type: 'image',
             _key: block.id,
             asset: { _type: 'reference', _ref: asset._id }
+          });
+        } else if (block.type === 'button') {
+          finalBody.push({
+            _type: 'button',
+            _key: block.id,
+            text: block.text,
+            url: block.url
           });
         }
       }
@@ -1380,6 +1404,31 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                             <X size={14} />
                           </button>
                         )}
+
+                        {block.type === 'button' && (
+                          <div className="flex gap-4">
+                            <div className="flex-1">
+                              <label className="text-xs font-bold uppercase text-olive/50 mb-1 block">Besedilo gumba</label>
+                              <input
+                                type="text"
+                                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-terracotta"
+                                value={block.text}
+                                onChange={(e) => updateButtonBlock(block.id, 'text', e.target.value)}
+                                placeholder="npr. Preberi več"
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <label className="text-xs font-bold uppercase text-olive/50 mb-1 block">Povezava (URL)</label>
+                              <input
+                                type="text"
+                                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-terracotta"
+                                value={block.url}
+                                onChange={(e) => updateButtonBlock(block.id, 'url', e.target.value)}
+                                placeholder="https://..."
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ))}
 
@@ -1390,6 +1439,9 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                       </button>
                       <button onClick={addImageBlock} className="flex-1 py-2 border border-olive/20 rounded-xl text-olive/70 text-xs font-bold uppercase hover:bg-olive/5 flex items-center justify-center gap-2">
                         <ImageIcon size={14} /> Dodaj Sliko
+                      </button>
+                      <button onClick={addButtonBlock} className="flex-1 py-2 border border-olive/20 rounded-xl text-olive/70 text-xs font-bold uppercase hover:bg-olive/5 flex items-center justify-center gap-2">
+                        <MousePointerClick size={14} /> Dodaj Gumb
                       </button>
                     </div>
                   </div>
