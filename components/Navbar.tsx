@@ -1,12 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Plus, List } from 'lucide-react';
 import { FARM_LOGO } from '../constants';
 import { Link, useLocation } from 'react-router-dom';
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showAdminMenu, setShowAdminMenu] = useState(false);
+  const [showDesktopAdminMenu, setShowDesktopAdminMenu] = useState(false);
   const location = useLocation();
 
   // Check if we're on homepage
@@ -20,6 +23,26 @@ const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    // Check if admin is logged in
+    const adminSession = localStorage.getItem('admin_session');
+    setIsAdmin(!!adminSession);
+  }, []);
+
+  // Close dropdown menus when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest('.admin-dropdown')) {
+        setShowDesktopAdminMenu(false);
+        setShowAdminMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const navLinks = [
     { name: 'Domov', href: '/', isSection: false },
     { name: 'O Nas', href: '#o-nas', isSection: true },
@@ -28,6 +51,11 @@ const Navbar: React.FC = () => {
     { name: 'Galerija', href: '#galerija', isSection: true },
     { name: 'Novice', href: '/blog-novice', isSection: false },
     { name: 'Kontakt', href: '#kontakt', isSection: true },
+  ];
+
+  const adminActions = [
+    { name: 'Dodaj novico', action: 'new_post' },
+    { name: 'Uredi novice', action: 'edit_posts' },
   ];
 
   return (
@@ -79,10 +107,82 @@ const Navbar: React.FC = () => {
               {link.name}
             </Link>
           ))}
+
+          {/* Admin Menu Button */}
+          {isAdmin && (
+            <div className="relative admin-dropdown">
+              <button
+                onClick={() => setShowDesktopAdminMenu(!showDesktopAdminMenu)}
+                className="flex items-center justify-center w-8 h-8 bg-terracotta text-white rounded-full shadow-lg hover:shadow-xl hover:bg-terracotta-dark transition-all duration-300 hover:scale-110"
+              >
+                <Plus size={16} />
+              </button>
+
+              {/* Admin Dropdown Menu */}
+              {showDesktopAdminMenu && (
+                <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[9999]">
+                  {adminActions.map((action) => (
+                    <button
+                      key={action.action}
+                      onClick={() => {
+                        setShowDesktopAdminMenu(false);
+                        if (action.action === 'new_post') {
+                          window.dispatchEvent(new CustomEvent('admin-new-post'));
+                        } else if (action.action === 'edit_posts') {
+                          window.dispatchEvent(new CustomEvent('admin-edit-posts'));
+                        }
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-olive-dark hover:bg-olive/10 transition-colors flex items-center gap-3"
+                    >
+                      <Plus size={16} className={action.action === 'edit_posts' ? 'hidden' : ''} />
+                      <List size={16} className={action.action === 'new_post' ? 'hidden' : ''} />
+                      {action.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Mobile Controls */}
         <div className="md:hidden flex items-center gap-3">
+          {/* Admin Button (only for admin users) */}
+          {isAdmin && (
+            <div className="relative admin-dropdown">
+              <button
+                onClick={() => setShowAdminMenu(!showAdminMenu)}
+                className="flex items-center justify-center w-10 h-10 bg-terracotta text-white rounded-full shadow-lg hover:shadow-xl hover:bg-terracotta-dark transition-all duration-300 hover:scale-110 focus:outline-none"
+              >
+                <Plus size={20} className={showAdminMenu ? 'rotate-45' : ''} />
+              </button>
+
+              {/* Mobile Admin Dropdown */}
+              {showAdminMenu && (
+                <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[9999]">
+                  {adminActions.map((action) => (
+                    <button
+                      key={action.action}
+                      onClick={() => {
+                        setShowAdminMenu(false);
+                        if (action.action === 'new_post') {
+                          window.dispatchEvent(new CustomEvent('admin-new-post'));
+                        } else if (action.action === 'edit_posts') {
+                          window.dispatchEvent(new CustomEvent('admin-edit-posts'));
+                        }
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-olive-dark hover:bg-olive/10 transition-colors flex items-center gap-3"
+                    >
+                      <Plus size={16} className={action.action === 'edit_posts' ? 'hidden' : ''} />
+                      <List size={16} className={action.action === 'new_post' ? 'hidden' : ''} />
+                      {action.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Menu Toggle */}
           <button
             className={`focus:outline-none transition-colors ${(isScrolled || !isHomePage) ? 'text-olive' : 'text-cream'}`}
@@ -119,8 +219,10 @@ const Navbar: React.FC = () => {
               {link.name}
             </Link>
           ))}
+
         </div>
       </div>
+
     </nav>
   );
 };
