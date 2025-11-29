@@ -216,35 +216,77 @@ const BlogPostPage: React.FC = () => {
     tempDiv.innerHTML = html;
 
     // Odstrani nevarne elemente
-    const dangerousElements = tempDiv.querySelectorAll('script, style, iframe, object, embed, form, input, button, meta, link');
+    const dangerousElements = tempDiv.querySelectorAll('script, style, iframe, object, embed, form, input, button, meta, link, head, html, body, title');
     dangerousElements.forEach(element => element.remove());
 
-    // Odstrani nevarne atribute
-    const allElements = tempDiv.querySelectorAll('*');
-    allElements.forEach(element => {
-      // Odstrani event handlerje in javascript
+    // Dovoljeni elementi in njihovi atributi
+    const allowedElements = {
+      'p': ['style', 'class'],
+      'br': [],
+      'a': ['href', 'target', 'rel', 'style', 'class'],
+      'strong': ['style', 'class'],
+      'b': ['style', 'class'],
+      'em': ['style', 'class'],
+      'i': ['style', 'class'],
+      'u': ['style', 'class'],
+      'span': ['style', 'class'],
+      'div': ['style', 'class']
+    };
+
+    // Funkcija za čiščenje elementa
+    const cleanElement = (element: Element) => {
+      const tagName = element.tagName.toLowerCase();
+
+      // Če element ni dovoljen, ga odstrani
+      if (!allowedElements[tagName]) {
+        element.remove();
+        return;
+      }
+
+      // Odstrani nevarne atribute
       Array.from(element.attributes).forEach(attr => {
-        if (attr.name.startsWith('on') || attr.value.toLowerCase().includes('javascript:')) {
+        // Odstrani event handlerje in javascript
+        if (attr.name.startsWith('on') ||
+            attr.value.toLowerCase().includes('javascript:') ||
+            attr.value.toLowerCase().includes('vbscript:') ||
+            attr.value.toLowerCase().includes('data:') ||
+            attr.name.includes('data-')) {
           element.removeAttribute(attr.name);
         }
-      });
 
-      // Dovoli samo varne atribute za linke
-      if (element.tagName.toLowerCase() === 'a') {
-        const allowedAttrs = ['href', 'target', 'rel'];
-        Array.from(element.attributes).forEach(attr => {
+        // Za linke: dovoli samo varne atribute
+        if (tagName === 'a') {
+          const allowedAttrs = ['href', 'target', 'rel', 'style', 'class'];
           if (!allowedAttrs.includes(attr.name)) {
             element.removeAttribute(attr.name);
           }
-        });
-
-        // Zagotovi target="_blank" in rel="noopener noreferrer" za varnost
-        if (element.hasAttribute('href')) {
-          element.setAttribute('target', '_blank');
-          element.setAttribute('rel', 'noopener noreferrer');
         }
+
+        // Za druge elemente: dovoli samo style in class
+        if (tagName !== 'a') {
+          const allowedAttrs = ['style', 'class'];
+          if (!allowedAttrs.includes(attr.name)) {
+            element.removeAttribute(attr.name);
+          }
+        }
+      });
+
+      // Posebna obravnava za linke
+      if (tagName === 'a' && element.hasAttribute('href')) {
+        element.setAttribute('target', '_blank');
+        element.setAttribute('rel', 'noopener noreferrer');
       }
-    });
+
+      // Rekurzivno očisti podrejene elemente
+      Array.from(element.children).forEach(cleanElement);
+    };
+
+    // Očisti vse elemente
+    Array.from(tempDiv.children).forEach(cleanElement);
+
+    // Odstrani prazne elemente
+    const emptyElements = tempDiv.querySelectorAll('p:empty, div:empty, span:empty');
+    emptyElements.forEach(element => element.remove());
 
     return tempDiv.innerHTML;
   };
@@ -255,6 +297,10 @@ const BlogPostPage: React.FC = () => {
     const clipboardData = e.clipboardData;
     const editor = e.currentTarget as HTMLElement;
 
+    // Sharni trenutno pozicijo cursora
+    const selection = window.getSelection();
+    const range = selection?.getRangeAt(0);
+
     // Najprej poskusi dobiti HTML content
     let htmlContent = clipboardData.getData('text/html');
 
@@ -262,16 +308,22 @@ const BlogPostPage: React.FC = () => {
       // Očisti HTML content
       htmlContent = sanitizeHtml(htmlContent);
 
-      // Vstavi očiščeni HTML
-      document.execCommand('insertHTML', false, htmlContent);
+      if (htmlContent.trim()) {
+        // Vstavi očiščeni HTML na trenutno pozicijo cursora
+        document.execCommand('insertHTML', false, htmlContent);
+      }
     } else {
       // Če ni HTML-ja, uporabi plain text
       const textContent = clipboardData.getData('text/plain');
-      document.execCommand('insertText', false, textContent);
+      if (textContent.trim()) {
+        document.execCommand('insertText', false, textContent);
+      }
     }
 
-    // Posodobi state
-    setEditedContent(editor.innerHTML);
+    // Posodobi state po kratkem timeout da se DOM posodobi
+    setTimeout(() => {
+      setEditedContent(editor.innerHTML);
+    }, 0);
   };
 
   // Helper function to extract YouTube video ID
@@ -747,6 +799,12 @@ const BlogPostPage: React.FC = () => {
                 contentEditable
                 suppressContentEditableWarning
                 className="w-full bg-gray-50 border-2 border-terracotta rounded-xl px-6 py-4 min-h-[400px] focus:outline-none focus:border-terracotta-dark text-base leading-relaxed"
+                  style={{
+                    cursor: 'text',
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    outline: 'none'
+                  }}
                   onInput={(e) => setEditedContent(e.currentTarget.innerHTML)}
                   onPaste={handlePaste}
                 dangerouslySetInnerHTML={{ __html: editedContent }}
@@ -784,4 +842,5 @@ const BlogPostPage: React.FC = () => {
 };
 
 export default BlogPostPage;
+
 
