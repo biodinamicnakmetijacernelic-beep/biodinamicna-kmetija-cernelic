@@ -211,82 +211,29 @@ const BlogPostPage: React.FC = () => {
   };
 
   const sanitizeHtml = (html: string): string => {
-    // Ustvari začasni div za parsing HTML-ja
+    // Preprost pristop - samo odstrani nevarne elemente
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = html;
 
     // Odstrani nevarne elemente
-    const dangerousElements = tempDiv.querySelectorAll('script, style, iframe, object, embed, form, input, button, meta, link, head, html, body, title');
-    dangerousElements.forEach(element => element.remove());
+    const dangerous = tempDiv.querySelectorAll('script, style, iframe, object, embed, form, input, button, meta, link');
+    dangerous.forEach(el => el.remove());
 
-    // Dovoljeni elementi in njihovi atributi
-    const allowedElements = {
-      'p': ['style', 'class'],
-      'br': [],
-      'a': ['href', 'target', 'rel', 'style', 'class'],
-      'strong': ['style', 'class'],
-      'b': ['style', 'class'],
-      'em': ['style', 'class'],
-      'i': ['style', 'class'],
-      'u': ['style', 'class'],
-      'span': ['style', 'class'],
-      'div': ['style', 'class']
-    };
-
-    // Funkcija za čiščenje elementa
-    const cleanElement = (element: Element) => {
-      const tagName = element.tagName.toLowerCase();
-
-      // Če element ni dovoljen, ga odstrani
-      if (!allowedElements[tagName]) {
-        element.remove();
-        return;
-      }
-
-      // Odstrani nevarne atribute
-      Array.from(element.attributes).forEach(attr => {
-        // Odstrani event handlerje in javascript
-        if (attr.name.startsWith('on') ||
-            attr.value.toLowerCase().includes('javascript:') ||
-            attr.value.toLowerCase().includes('vbscript:') ||
-            attr.value.toLowerCase().includes('data:') ||
-            attr.name.includes('data-')) {
-          element.removeAttribute(attr.name);
-        }
-
-        // Za linke: dovoli samo varne atribute
-        if (tagName === 'a') {
-          const allowedAttrs = ['href', 'target', 'rel', 'style', 'class'];
-          if (!allowedAttrs.includes(attr.name)) {
-            element.removeAttribute(attr.name);
-          }
-        }
-
-        // Za druge elemente: dovoli samo style in class
-        if (tagName !== 'a') {
-          const allowedAttrs = ['style', 'class'];
-          if (!allowedAttrs.includes(attr.name)) {
-            element.removeAttribute(attr.name);
-          }
+    // Odstrani event handlerje iz vseh elementov
+    const allElements = tempDiv.querySelectorAll('*');
+    allElements.forEach(el => {
+      Array.from(el.attributes).forEach(attr => {
+        if (attr.name.startsWith('on') || attr.value.includes('javascript:') || attr.value.includes('vbscript:')) {
+          el.removeAttribute(attr.name);
         }
       });
 
-      // Posebna obravnava za linke
-      if (tagName === 'a' && element.hasAttribute('href')) {
-        element.setAttribute('target', '_blank');
-        element.setAttribute('rel', 'noopener noreferrer');
+      // Za linke dodaj varnostne atribute
+      if (el.tagName.toLowerCase() === 'a' && el.hasAttribute('href')) {
+        el.setAttribute('target', '_blank');
+        el.setAttribute('rel', 'noopener noreferrer');
       }
-
-      // Rekurzivno očisti podrejene elemente
-      Array.from(element.children).forEach(cleanElement);
-    };
-
-    // Očisti vse elemente
-    Array.from(tempDiv.children).forEach(cleanElement);
-
-    // Odstrani prazne elemente
-    const emptyElements = tempDiv.querySelectorAll('p:empty, div:empty, span:empty');
-    emptyElements.forEach(element => element.remove());
+    });
 
     return tempDiv.innerHTML;
   };
@@ -295,35 +242,16 @@ const BlogPostPage: React.FC = () => {
     e.preventDefault();
 
     const clipboardData = e.clipboardData;
-    const editor = e.currentTarget as HTMLElement;
-
-    // Sharni trenutno pozicijo cursora
-    const selection = window.getSelection();
-    const range = selection?.getRangeAt(0);
-
-    // Najprej poskusi dobiti HTML content
-    let htmlContent = clipboardData.getData('text/html');
+    const htmlContent = clipboardData.getData('text/html');
 
     if (htmlContent) {
-      // Očisti HTML content
-      htmlContent = sanitizeHtml(htmlContent);
-
-      if (htmlContent.trim()) {
-        // Vstavi očiščeni HTML na trenutno pozicijo cursora
-        document.execCommand('insertHTML', false, htmlContent);
-      }
+      // Vstavi HTML direktno (sanitizeHtml bo očistil nevarne elemente)
+      document.execCommand('insertHTML', false, sanitizeHtml(htmlContent));
     } else {
-      // Če ni HTML-ja, uporabi plain text
+      // Plain text
       const textContent = clipboardData.getData('text/plain');
-      if (textContent.trim()) {
-        document.execCommand('insertText', false, textContent);
-      }
+      document.execCommand('insertText', false, textContent);
     }
-
-    // Posodobi state po kratkem timeout da se DOM posodobi
-    setTimeout(() => {
-      setEditedContent(editor.innerHTML);
-    }, 0);
   };
 
   // Helper function to extract YouTube video ID
@@ -799,12 +727,6 @@ const BlogPostPage: React.FC = () => {
                 contentEditable
                 suppressContentEditableWarning
                 className="w-full bg-gray-50 border-2 border-terracotta rounded-xl px-6 py-4 min-h-[400px] focus:outline-none focus:border-terracotta-dark text-base leading-relaxed"
-                  style={{
-                    cursor: 'text',
-                    whiteSpace: 'pre-wrap',
-                    wordBreak: 'break-word',
-                    outline: 'none'
-                  }}
                   onInput={(e) => setEditedContent(e.currentTarget.innerHTML)}
                   onPaste={handlePaste}
                 dangerouslySetInnerHTML={{ __html: editedContent }}
