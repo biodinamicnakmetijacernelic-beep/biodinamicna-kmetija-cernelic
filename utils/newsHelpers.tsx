@@ -119,9 +119,8 @@ export const renderPortableText = (body: any[], onImageClick?: (src: string) => 
                 let cursor = 0;
                 let currentChildren = result; // This is the array we're building
                 while (cursor < text.length) {
-                  // Find next start token
-                  const nextToken = text.slice(cursor).match(/(\[([^\]]+)\]\(([^)]+)\))|(\*\*)|(\*)|(<(div|span)([^>]*)>)|(<\/(div|span)>)/);
-
+                  // Find next start token - updated to include img, iframe, button
+                  const nextToken = text.slice(cursor).match(/(\[([^\]]+)\]\(([^)]+)\))|(\*\*)|(\*)|(<(div|span|img|iframe|button)([^>]*)>)|(<\/(div|span|iframe|button)>)/);
                   if (!nextToken) {
                     currentChildren.push(text.slice(cursor));
                     break;
@@ -190,10 +189,75 @@ export const renderPortableText = (body: any[], onImageClick?: (src: string) => 
                       // But let's try to find the matching closing tag counting depth.
                     } else {
                       // Opening tag
-                      const tagName = nextToken[7]; // div or span
+                      const tagName = nextToken[7]; // div, span, img, iframe, or button
                       const attributes = nextToken[8];
 
-                      // Parse attributes
+                      // Handle self-closing img tag
+                      if (tagName === 'img') {
+                        const srcMatch = attributes.match(/src="([^"]+)"/);
+                        const altMatch = attributes.match(/alt="([^"]+)"/);
+                        if (srcMatch) {
+                          currentChildren.push(
+                            <div key={`img-${cursor}`} className="my-10 rounded-2xl overflow-hidden shadow-lg">
+                              <img
+                                src={srcMatch[1]}
+                                alt={altMatch ? altMatch[1] : "Slika"}
+                                className="w-full h-auto object-cover cursor-pointer hover:scale-[1.02] transition-transform duration-500"
+                                onClick={() => onImageClick && onImageClick(srcMatch[1])}
+                              />
+                            </div>
+                          );
+                        }
+                        cursor = matchIndex + fullMatch.length;
+                        continue;
+                      }
+
+                      // Handle iframe (YouTube)
+                      if (tagName === 'iframe') {
+                        const srcMatch = attributes.match(/src="([^"]+)"/);
+                        if (srcMatch) {
+                          currentChildren.push(
+                            <div key={`iframe-${cursor}`} className="my-10 relative w-full" style={{ paddingBottom: '56.25%' }}>
+                              <iframe
+                                src={srcMatch[1]}
+                                className="absolute top-0 left-0 w-full h-full rounded-2xl shadow-lg"
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                              />
+                            </div>
+                          );
+                        }
+                        // Find closing tag
+                        const closeIframe = text.indexOf('</iframe>', matchIndex);
+                        cursor = closeIframe !== -1 ? closeIframe + '</iframe>'.length : matchIndex + fullMatch.length;
+                        continue;
+                      }
+
+                      // Handle button
+                      if (tagName === 'button') {
+                        const urlMatch = attributes.match(/data-url="([^"]+)"/);
+                        const closeButton = text.indexOf('</button>', matchIndex);
+                        if (closeButton !== -1 && urlMatch) {
+                          const buttonText = text.slice(matchIndex + fullMatch.length, closeButton);
+                          currentChildren.push(
+                            <div key={`btn-${cursor}`} className="my-8 flex justify-center">
+                              <a
+                                href={urlMatch[1]}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center justify-center px-8 py-4 bg-terracotta text-white font-serif text-lg rounded-full hover:bg-terracotta-dark transition-all transform hover:scale-105 shadow-lg hover:shadow-xl"
+                              >
+                                {buttonText}
+                              </a>
+                            </div>
+                          );
+                          cursor = closeButton + '</button>'.length;
+                          continue;
+                        }
+                      }
+
+                      // Parse attributes for div/span
                       let className = "";
                       let style: React.CSSProperties = {};
 

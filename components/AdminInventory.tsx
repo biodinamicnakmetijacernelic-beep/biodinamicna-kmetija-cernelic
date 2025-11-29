@@ -536,6 +536,66 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
     }
   };
 
+  const insertImageAtCursor = (blockId: string) => {
+    const block = newsBlocks.find(b => b.id === blockId);
+    if (!block || block.type !== 'text') return;
+
+    const textarea = document.getElementById(`textarea-${blockId}`) as HTMLTextAreaElement;
+    if (!textarea) return;
+
+    const url = prompt("Vnesite URL slike:", "https://");
+    if (url) {
+      const cursor = textarea.selectionStart;
+      const text = block.content || '';
+      const newText = text.substring(0, cursor) + `\n<img src="${url}" alt="Slika" />\n` + text.substring(cursor);
+      updateBlockContent(blockId, newText);
+    }
+  };
+
+  const insertVideoAtCursor = (blockId: string) => {
+    const block = newsBlocks.find(b => b.id === blockId);
+    if (!block || block.type !== 'text') return;
+
+    const textarea = document.getElementById(`textarea-${blockId}`) as HTMLTextAreaElement;
+    if (!textarea) return;
+
+    const url = prompt("Vnesite YouTube URL:", "https://www.youtube.com/watch?v=");
+    if (url) {
+      // Extract video ID from YouTube URL
+      let videoId = '';
+      const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+      if (match) videoId = match[1];
+
+      if (videoId) {
+        const cursor = textarea.selectionStart;
+        const text = block.content || '';
+        const newText = text.substring(0, cursor) + `\n<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>\n` + text.substring(cursor);
+        updateBlockContent(blockId, newText);
+      } else {
+        alert("Neveljaven YouTube URL");
+      }
+    }
+  };
+
+  const insertButtonAtCursor = (blockId: string) => {
+    const block = newsBlocks.find(b => b.id === blockId);
+    if (!block || block.type !== 'text') return;
+
+    const textarea = document.getElementById(`textarea-${blockId}`) as HTMLTextAreaElement;
+    if (!textarea) return;
+
+    const text = prompt("Besedilo gumba:", "Klikni tukaj");
+    if (text) {
+      const url = prompt("URL gumba:", "https://");
+      if (url) {
+        const cursor = textarea.selectionStart;
+        const content = block.content || '';
+        const newText = content.substring(0, cursor) + `\n<button data-url="${url}">${text}</button>\n` + content.substring(cursor);
+        updateBlockContent(blockId, newText);
+      }
+    }
+  };
+
   const handleBlockImageSelect = async (id: string, file: File) => {
     try {
       const compressedFile = await compressImage(file);
@@ -1406,17 +1466,6 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                     />
                   </div>
 
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs font-bold uppercase text-olive/50 ml-1">Povezava (URL) - opcijsko</label>
-                    <input
-                      type="text"
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta font-sans"
-                      value={newsForm.link}
-                      onChange={e => setNewsForm({ ...newsForm, link: e.target.value })}
-                      placeholder="https://..."
-                    />
-                  </div>
-
                   {/* Block Editor Area */}
                   <div className="space-y-3">
                     <label className="text-xs font-bold uppercase text-olive/50 block">Vsebina</label>
@@ -1481,6 +1530,16 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                                 <option value="font-serif">Serif</option>
                                 <option value="font-mono">Mono</option>
                               </select>
+                              <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
+                              <button onClick={() => insertImageAtCursor(block.id)} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi sliko">
+                                <ImageIcon size={14} />
+                              </button>
+                              <button onClick={() => insertVideoAtCursor(block.id)} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi video (YouTube)">
+                                <Video size={14} />
+                              </button>
+                              <button onClick={() => insertButtonAtCursor(block.id)} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi gumb">
+                                <MousePointerClick size={14} />
+                              </button>
                             </div>
 
                             <textarea
@@ -1538,19 +1597,6 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                         )}
                       </div>
                     ))}
-
-                    {/* Add Block Buttons */}
-                    <div className="flex gap-2 pt-2">
-                      <button onClick={addTextBlock} className="flex-1 py-2 border border-olive/20 rounded-xl text-olive/70 text-xs font-bold uppercase hover:bg-olive/5 flex items-center justify-center gap-2">
-                        <Type size={14} /> Dodaj Besedilo
-                      </button>
-                      <button onClick={addImageBlock} className="flex-1 py-2 border border-olive/20 rounded-xl text-olive/70 text-xs font-bold uppercase hover:bg-olive/5 flex items-center justify-center gap-2">
-                        <ImageIcon size={14} /> Dodaj Sliko
-                      </button>
-                      <button onClick={addButtonBlock} className="flex-1 py-2 border border-olive/20 rounded-xl text-olive/70 text-xs font-bold uppercase hover:bg-olive/5 flex items-center justify-center gap-2">
-                        <MousePointerClick size={14} /> Dodaj Gumb
-                      </button>
-                    </div>
                   </div>
 
                   <div className="flex gap-2 mt-6">
