@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Plus, List } from 'lucide-react';
+import { Menu, X, Plus, List, Image as ImageIcon, Video } from 'lucide-react';
 import { FARM_LOGO } from '../constants';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -56,6 +56,8 @@ const Navbar: React.FC = () => {
   const adminActions = [
     { name: 'Dodaj novico', action: 'new_post' },
     { name: 'Uredi novice', action: 'edit_posts' },
+    { name: 'Dodaj slike', action: 'manage_gallery' },
+    { name: 'Dodaj videje', action: 'manage_videos' },
   ];
 
   return (
@@ -130,12 +132,18 @@ const Navbar: React.FC = () => {
                           window.dispatchEvent(new CustomEvent('admin-new-post'));
                         } else if (action.action === 'edit_posts') {
                           window.dispatchEvent(new CustomEvent('admin-edit-posts'));
+                        } else if (action.action === 'manage_gallery') {
+                          window.dispatchEvent(new CustomEvent('admin-manage-gallery'));
+                        } else if (action.action === 'manage_videos') {
+                          window.dispatchEvent(new CustomEvent('admin-manage-videos'));
                         }
                       }}
                       className="w-full text-left px-4 py-2 text-sm text-olive-dark hover:bg-olive/10 transition-colors flex items-center gap-3"
                     >
-                      <Plus size={16} className={action.action === 'edit_posts' ? 'hidden' : ''} />
-                      <List size={16} className={action.action === 'new_post' ? 'hidden' : ''} />
+                      <Plus size={16} className={action.action !== 'new_post' ? 'hidden' : ''} />
+                      <List size={16} className={action.action !== 'edit_posts' ? 'hidden' : ''} />
+                      <ImageIcon size={16} className={action.action !== 'manage_gallery' ? 'hidden' : ''} />
+                      <Video size={16} className={action.action !== 'manage_videos' ? 'hidden' : ''} />
                       {action.name}
                     </button>
                   ))}
@@ -169,12 +177,18 @@ const Navbar: React.FC = () => {
                           window.dispatchEvent(new CustomEvent('admin-new-post'));
                         } else if (action.action === 'edit_posts') {
                           window.dispatchEvent(new CustomEvent('admin-edit-posts'));
+                        } else if (action.action === 'manage_gallery') {
+                          window.dispatchEvent(new CustomEvent('admin-manage-gallery'));
+                        } else if (action.action === 'manage_videos') {
+                          window.dispatchEvent(new CustomEvent('admin-manage-videos'));
                         }
                       }}
                       className="w-full text-left px-4 py-2 text-sm text-olive-dark hover:bg-olive/10 transition-colors flex items-center gap-3"
                     >
-                      <Plus size={16} className={action.action === 'edit_posts' ? 'hidden' : ''} />
-                      <List size={16} className={action.action === 'new_post' ? 'hidden' : ''} />
+                      <Plus size={16} className={action.action !== 'new_post' ? 'hidden' : ''} />
+                      <List size={16} className={action.action !== 'edit_posts' ? 'hidden' : ''} />
+                      <ImageIcon size={16} className={action.action !== 'manage_gallery' ? 'hidden' : ''} />
+                      <Video size={16} className={action.action !== 'manage_videos' ? 'hidden' : ''} />
                       {action.name}
                     </button>
                   ))}

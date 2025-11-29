@@ -61,6 +61,7 @@ import { sanityConfig } from '../sanityConfig';
 
 interface AdminProps {
   onClose: () => void;
+  initialTab?: 'inventory' | 'orders' | 'gallery' | 'news' | 'videos' | 'settings';
   currentImages?: GalleryItem[];
   onAddImage?: (img: GalleryItem) => void;
   onDeleteImage?: (id: string) => void;
@@ -83,7 +84,7 @@ interface NewsBlock {
   text?: string; // For button
 }
 
-const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onAddImage, onDeleteImage }) => {
+const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory', currentImages = [], onAddImage, onDeleteImage }) => {
   // Authentication State
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('admin_session'));
   const [loginEmail, setLoginEmail] = useState('');
@@ -91,7 +92,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loginError, setLoginError] = useState('');
 
-  const [activeTab, setActiveTab] = useState<'inventory' | 'orders' | 'gallery' | 'news' | 'videos' | 'settings'>('inventory');
+  const [activeTab, setActiveTab] = useState<'inventory' | 'orders' | 'gallery' | 'news' | 'videos' | 'settings'>(initialTab);
   const [cartEnabled, setCartEnabled] = useState(true);
 
   // Load settings from localStorage

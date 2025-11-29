@@ -71,6 +71,7 @@ const App: React.FC = () => {
 
   // Admin UI State
   const [showAdmin, setShowAdmin] = useState(false);
+  const [adminInitialTab, setAdminInitialTab] = useState<'inventory' | 'orders' | 'gallery' | 'news' | 'videos' | 'settings'>('inventory');
   const [isAdminMode, setIsAdminMode] = useState(true); // Always visible for user convenience now
 
   // Fetch images from Sanity on mount
@@ -83,6 +84,25 @@ const App: React.FC = () => {
       }
     };
     loadImages();
+  }, []);
+
+  const openAdminWithTab = (tab: 'inventory' | 'orders' | 'gallery' | 'news' | 'videos' | 'settings') => {
+    setAdminInitialTab(tab);
+    setShowAdmin(true);
+  };
+
+  // Listen for admin menu events from navbar
+  useEffect(() => {
+    const handleManageGallery = () => openAdminWithTab('gallery');
+    const handleManageVideos = () => openAdminWithTab('videos');
+
+    window.addEventListener('admin-manage-gallery', handleManageGallery);
+    window.addEventListener('admin-manage-videos', handleManageVideos);
+
+    return () => {
+      window.removeEventListener('admin-manage-gallery', handleManageGallery);
+      window.removeEventListener('admin-manage-videos', handleManageVideos);
+    };
   }, []);
 
   return (
@@ -105,6 +125,7 @@ const App: React.FC = () => {
       {showAdmin && (
         <AdminInventory
           onClose={() => setShowAdmin(false)}
+          initialTab={adminInitialTab}
         />
       )}
     </div>
