@@ -327,19 +327,85 @@ const BlogPostPage: React.FC = () => {
     const pastedText = e.clipboardData.getData('text/plain');
 
     let contentToInsert = '';
+    
     if (pastedHtml && pastedHtml.length > 0) {
-      // Basic sanitization: remove <meta>, <style>, <script> tags
-      const sanitizedHtml = pastedHtml
-        .replace(/<meta[^>]*>/g, '')
-        .replace(/<style[^>]*>[\s\S]*?<\/style>/g, '')
-        .replace(/<script[^>]*>[\s\S]*?<\/script>/g, '');
-      contentToInsert = sanitizedHtml;
+      // Parse HTML and extract only links and paragraphs
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(pastedHtml, 'text/html');
+      
+      // Function to extract text and links from a node
+      const extractContent = (node: Node): string => {
+        if (node.nodeType === 3) { // Text node
+          return node.textContent || '';
+        }
+        
+        if (node.nodeType === 1) { // Element node
+          const element = node as HTMLElement;
+          const tagName = element.tagName.toLowerCase();
+          
+          if (tagName === 'a') {
+            // Keep links with their href
+            const href = element.getAttribute('href') || '';
+            const text = element.textContent || '';
+            return `<a href="${href}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+          }
+          
+          if (tagName === 'p' || tagName === 'div') {
+            // Extract content from paragraph/div
+            const children = Array.from(element.childNodes)
+              .map(child => extractContent(child))
+              .join('');
+            return children.trim() ? `<p>${children}</p>` : '';
+          }
+          
+          if (tagName === 'br') {
+            return '<br>';
+          }
+          
+          // For other tags, just extract their text content (no formatting)
+          return Array.from(element.childNodes)
+            .map(child => extractContent(child))
+            .join('');
+        }
+        
+        return '';
+      };
+      
+      // Extract content from body
+      const bodyContent = Array.from(doc.body.childNodes)
+        .map(node => extractContent(node))
+        .filter(content => content.trim())
+        .join('');
+      
+      contentToInsert = bodyContent;
+      
+      // If no paragraphs found, wrap in paragraph
+      if (contentToInsert && !contentToInsert.includes('<p>')) {
+        contentToInsert = `<p>${contentToInsert}</p>`;
+      }
     } else {
-      contentToInsert = pastedText.replace(/\n/g, '<br>');
+      // Plain text: convert double newlines to paragraphs, single to <br>
+      const paragraphs = pastedText
+        .split(/\n\n+/)
+        .map(para => para.trim())
+        .filter(para => para);
+      
+      if (paragraphs.length > 0) {
+        contentToInsert = paragraphs
+          .map(para => `<p>${para.replace(/\n/g, '<br>')}</p>`)
+          .join('');
+      } else {
+        // Single paragraph with line breaks
+        contentToInsert = `<p>${pastedText.replace(/\n/g, '<br>')}</p>`;
+      }
     }
 
     if (contentToInsert) {
-      document.execCommand('insertHTML', false, contentToInsert);
+      const editor = document.getElementById('editor') as HTMLElement;
+      if (editor) {
+        document.execCommand('insertHTML', false, contentToInsert);
+        setEditedContent(editor.innerHTML);
+      }
     }
   };
 
