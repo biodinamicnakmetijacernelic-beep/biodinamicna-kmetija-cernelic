@@ -47,11 +47,11 @@ export const renderPortableText = (body: any[]) => {
           break;
         case 'blockquote':
           Component = 'blockquote';
-          className += " border-l-4 border-terracotta pl-6 py-2 my-8 italic text-lg md:text-xl text-olive/80 bg-cream/30 rounded-r-lg";
+          className += " border-l-4 border-terracotta pl-6 py-2 my-8 italic text-lg md:text-xl text-olive/80 bg-cream/30 rounded-r-lg whitespace-pre-wrap";
           break;
         default:
           Component = 'p';
-          className += " text-base md:text-lg leading-relaxed mb-6 font-light";
+          className += " text-base md:text-lg leading-relaxed mb-6 font-light whitespace-pre-wrap";
       }
 
       return (
@@ -111,6 +111,7 @@ export const renderPortableText = (body: any[]) => {
     return null;
   });
 };
+
 
 
 
