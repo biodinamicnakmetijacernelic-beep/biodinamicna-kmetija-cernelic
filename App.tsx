@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import AdminInventory from './components/AdminInventory';
+import AllPostsPopup from './components/AllPostsPopup';
+import NewPostPopup from './components/NewPostPopup';
 import { GALLERY_IMAGES } from './constants';
 import { GalleryItem } from './types';
 import { fetchGalleryImages } from './sanityClient';
@@ -73,6 +75,8 @@ const App: React.FC = () => {
   const [showAdmin, setShowAdmin] = useState(false);
   const [adminInitialTab, setAdminInitialTab] = useState<'inventory' | 'orders' | 'gallery' | 'news' | 'videos' | 'settings'>('inventory');
   const [isAdminMode, setIsAdminMode] = useState(true); // Always visible for user convenience now
+  const [showAllPostsPopup, setShowAllPostsPopup] = useState(false);
+  const [showNewPostPopup, setShowNewPostPopup] = useState(false);
 
   // Fetch images from Sanity on mount
   useEffect(() => {
@@ -93,13 +97,19 @@ const App: React.FC = () => {
 
   // Listen for admin menu events from navbar
   useEffect(() => {
+    const handleNewPost = () => setShowNewPostPopup(true);
+    const handleEditPosts = () => setShowAllPostsPopup(true);
     const handleManageGallery = () => openAdminWithTab('gallery');
     const handleManageVideos = () => openAdminWithTab('videos');
 
+    window.addEventListener('admin-new-post', handleNewPost);
+    window.addEventListener('admin-edit-posts', handleEditPosts);
     window.addEventListener('admin-manage-gallery', handleManageGallery);
     window.addEventListener('admin-manage-videos', handleManageVideos);
 
     return () => {
+      window.removeEventListener('admin-new-post', handleNewPost);
+      window.removeEventListener('admin-edit-posts', handleEditPosts);
       window.removeEventListener('admin-manage-gallery', handleManageGallery);
       window.removeEventListener('admin-manage-videos', handleManageVideos);
     };
@@ -126,6 +136,20 @@ const App: React.FC = () => {
         <AdminInventory
           onClose={() => setShowAdmin(false)}
           initialTab={adminInitialTab}
+        />
+      )}
+
+      {/* Admin News Popups - Available on all pages */}
+      {showAllPostsPopup && (
+        <AllPostsPopup onClose={() => setShowAllPostsPopup(false)} />
+      )}
+      {showNewPostPopup && (
+        <NewPostPopup
+          onClose={() => setShowNewPostPopup(false)}
+          onSuccess={() => {
+            setShowNewPostPopup(false);
+            // Optionally refresh the current page or show success message
+          }}
         />
       )}
     </div>

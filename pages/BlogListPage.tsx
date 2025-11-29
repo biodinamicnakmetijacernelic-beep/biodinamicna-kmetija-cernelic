@@ -5,16 +5,12 @@ import { NewsItem } from '../types';
 import { Calendar, ArrowRight } from 'lucide-react';
 import FadeIn from '../components/FadeIn';
 import { getPreviewText } from '../utils/newsHelpers';
-import AllPostsPopup from '../components/AllPostsPopup';
-import NewPostPopup from '../components/NewPostPopup';
 import AdminInventory from '../components/AdminInventory';
 import { useNavigate } from 'react-router-dom';
 
 const BlogListPage: React.FC = () => {
   const [posts, setPosts] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showAllPostsPopup, setShowAllPostsPopup] = useState(false);
-  const [showNewPostPopup, setShowNewPostPopup] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
@@ -28,19 +24,6 @@ const BlogListPage: React.FC = () => {
     setIsAdmin(!!adminSession);
   }, []);
 
-  // Listen for admin menu events from navbar
-  useEffect(() => {
-    const handleNewPost = () => setShowNewPostPopup(true);
-    const handleEditPosts = () => setShowAllPostsPopup(true);
-
-    window.addEventListener('admin-new-post', handleNewPost);
-    window.addEventListener('admin-edit-posts', handleEditPosts);
-
-    return () => {
-      window.removeEventListener('admin-new-post', handleNewPost);
-      window.removeEventListener('admin-edit-posts', handleEditPosts);
-    };
-  }, []);
 
   useEffect(() => {
     const loadPosts = async () => {
@@ -189,23 +172,6 @@ const BlogListPage: React.FC = () => {
         )}
       </div>
 
-      {/* Admin Popups */}
-      {isAdmin && (
-        <>
-          {showAllPostsPopup && (
-            <AllPostsPopup onClose={() => setShowAllPostsPopup(false)} />
-          )}
-          {showNewPostPopup && (
-            <NewPostPopup
-              onClose={() => setShowNewPostPopup(false)}
-              onSuccess={() => {
-                // Reload posts after successful creation
-                window.location.reload();
-              }}
-            />
-          )}
-        </>
-      )}
     </section>
   );
 };
