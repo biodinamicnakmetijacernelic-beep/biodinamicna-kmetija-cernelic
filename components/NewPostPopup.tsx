@@ -16,6 +16,7 @@ const NewPostPopup: React.FC<NewPostPopupProps> = ({ onClose, onSuccess }) => {
     const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
     const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
+    const [showColorPicker, setShowColorPicker] = useState(false);
     const editorRef = useRef<HTMLDivElement>(null);
     const thumbnailInputRef = useRef<HTMLInputElement>(null);
 
@@ -207,7 +208,113 @@ const NewPostPopup: React.FC<NewPostPopupProps> = ({ onClose, onSuccess }) => {
         const editor = editorRef.current;
         if (!editor) return;
         editor.focus();
-        document.execCommand(command, false);
+        
+        if (command === 'h2') {
+            document.execCommand('formatBlock', false, '<h2>');
+        } else if (command === 'h3') {
+            document.execCommand('formatBlock', false, '<h3>');
+        } else {
+            document.execCommand(command, false);
+        }
+        setContent(editor.innerHTML);
+    };
+
+    const changeTextColor = (color: string) => {
+        const editor = editorRef.current;
+        if (!editor) return;
+        editor.focus();
+        document.execCommand('foreColor', false, color);
+        setContent(editor.innerHTML);
+        setShowColorPicker(false);
+    };
+
+    const changeFontSize = (size: string) => {
+        const editor = editorRef.current;
+        if (!editor) return;
+
+        if (size && size.trim()) {
+            let execSize = size;
+            if (size.endsWith('px')) {
+                const px = parseInt(size);
+                if (px <= 12) execSize = '1';
+                else if (px <= 14) execSize = '2';
+                else if (px <= 16) execSize = '3';
+                else if (px <= 18) execSize = '4';
+                else if (px <= 24) execSize = '5';
+                else if (px <= 32) execSize = '6';
+                else execSize = '7';
+            }
+            editor.focus();
+            document.execCommand('fontSize', false, execSize);
+            setContent(editor.innerHTML);
+        }
+    };
+
+    const changeFontFamily = (family: string) => {
+        const editor = editorRef.current;
+        if (!editor || !family) return;
+        editor.focus();
+        document.execCommand('fontName', false, family);
+        setContent(editor.innerHTML);
+    };
+
+    const insertLink = () => {
+        const editor = editorRef.current;
+        if (!editor) return;
+        
+        const url = prompt('Vnesite URL povezave:');
+        if (url) {
+            editor.focus();
+            document.execCommand('createLink', false, url);
+            setContent(editor.innerHTML);
+        }
+    };
+
+    const insertYouTube = () => {
+        const editor = editorRef.current;
+        if (!editor) return;
+        
+        const url = prompt('Vnesite YouTube URL ali video ID:');
+        if (url) {
+            // Extract video ID from URL
+            const patterns = [
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+                /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
+                /youtube\.com\/v\/([a-zA-Z0-9_-]{11})/
+            ];
+            
+            let videoId = null;
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match && match[1]) {
+                    videoId = match[1];
+                    break;
+                }
+            }
+            
+            // If it's already just an ID
+            if (!videoId && /^[a-zA-Z0-9_-]{11}$/.test(url.trim())) {
+                videoId = url.trim();
+            }
+            
+            if (videoId) {
+                const embedHtml = `<div class="relative w-full" style="padding-bottom: 56.25%"><iframe src="https://www.youtube.com/embed/${videoId}" class="absolute top-0 left-0 w-full h-full rounded-2xl" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+                document.execCommand('insertHTML', false, embedHtml);
+                setContent(editor.innerHTML);
+            } else {
+                alert('Neveljaven YouTube URL');
+            }
+        }
+    };
+
+    const insertButton = () => {
+        const editor = editorRef.current;
+        if (!editor) return;
+        
+        const text = prompt('Vnesite besedilo gumba:', 'Preberi več') || 'Preberi več';
+        const url = prompt('Vnesite URL povezave:', 'https://') || 'https://';
+        const buttonHtml = `<div class="my-6 text-center"><a href="${url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-3 bg-terracotta text-white rounded-xl font-semibold hover:bg-terracotta-dark transition-colors">${text}</a></div>`;
+        document.execCommand('insertHTML', false, buttonHtml);
         setContent(editor.innerHTML);
     };
 
@@ -408,7 +515,7 @@ const NewPostPopup: React.FC<NewPostPopupProps> = ({ onClose, onSuccess }) => {
                         </label>
                         
                         {/* Toolbar */}
-                        <div className="flex flex-wrap gap-1 mb-2 p-2 bg-gray-100 rounded-lg border border-gray-200">
+                        <div className="flex flex-wrap gap-1 mb-2 p-2 bg-white rounded-lg border border-gray-200 shadow-md">
                             <button onClick={() => formatText('bold')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Krepko">
                                 <Bold size={14} />
                             </button>
@@ -416,15 +523,75 @@ const NewPostPopup: React.FC<NewPostPopupProps> = ({ onClose, onSuccess }) => {
                                 <Italic size={14} />
                             </button>
                             <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
-                            <button onClick={() => formatText('formatBlock')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Naslov 2">
+                            <button onClick={() => formatText('h2')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Naslov 2">
                                 <Heading2 size={14} />
                             </button>
-                            <button onClick={() => formatText('formatBlock')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Naslov 3">
+                            <button onClick={() => formatText('h3')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Naslov 3">
                                 <Heading3 size={14} />
                             </button>
                             <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
+                            <button onClick={() => formatText('left')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Poravnava levo">
+                                <AlignLeft size={14} />
+                            </button>
+                            <button onClick={() => formatText('center')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Sredinsko">
+                                <AlignCenter size={14} />
+                            </button>
+                            <button onClick={() => formatText('right')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Poravnava desno">
+                                <AlignRight size={14} />
+                            </button>
+                            <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
+                            <div className="relative">
+                                <button onClick={() => setShowColorPicker(!showColorPicker)} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Barva besedila">
+                                    <Palette size={14} />
+                                </button>
+                                {showColorPicker && (
+                                    <>
+                                        <div
+                                            className="fixed inset-0 z-40"
+                                            onClick={() => setShowColorPicker(false)}
+                                        />
+                                        <div className="absolute top-full mt-2 left-0 z-50 bg-white rounded-xl shadow-xl border border-gray-200 p-3">
+                                            <input
+                                                type="color"
+                                                onChange={(e) => changeTextColor(e.target.value)}
+                                                className="w-12 h-8 border border-gray-300 rounded cursor-pointer"
+                                                title="Izberi barvo"
+                                            />
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                            <button onClick={() => insertLink()} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi povezavo">
+                                <LinkIcon size={14} />
+                            </button>
+                            <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
+                            <input
+                                type="text"
+                                placeholder="Velikost (px)"
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        changeFontSize(e.currentTarget.value);
+                                        e.currentTarget.value = '';
+                                    }
+                                }}
+                                className="text-xs bg-transparent border-none focus:ring-0 text-olive/70 font-medium cursor-pointer w-16 placeholder:text-olive/50"
+                                title="Vnesite velikost v px (npr. 14px) ali številko 1-7"
+                            />
+                            <select onChange={(e) => changeFontFamily(e.target.value)} className="text-xs bg-transparent border-none focus:ring-0 text-olive/70 font-medium cursor-pointer">
+                                <option value="">Pisava</option>
+                                <option value="font-sans">Sans-Serif</option>
+                                <option value="font-serif">Serif</option>
+                                <option value="font-mono">Mono</option>
+                            </select>
+                            <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
                             <button onClick={() => insertImage()} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi sliko">
                                 <ImageIcon size={14} />
+                            </button>
+                            <button onClick={() => insertYouTube()} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi video (YouTube)">
+                                <Video size={14} />
+                            </button>
+                            <button onClick={() => insertButton()} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi gumb">
+                                <MousePointerClick size={14} />
                             </button>
                         </div>
 
@@ -435,6 +602,84 @@ const NewPostPopup: React.FC<NewPostPopupProps> = ({ onClose, onSuccess }) => {
                             suppressContentEditableWarning
                             className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl px-6 py-4 min-h-[300px] focus:outline-none focus:border-terracotta text-base leading-relaxed overflow-auto"
                             onInput={(e) => setContent((e.target as HTMLElement).innerHTML)}
+                            onPaste={(e) => {
+                                e.preventDefault();
+                                const pastedHtml = e.clipboardData.getData('text/html');
+                                const pastedText = e.clipboardData.getData('text/plain');
+
+                                let contentToInsert = '';
+                                
+                                if (pastedHtml && pastedHtml.length > 0) {
+                                    const parser = new DOMParser();
+                                    const doc = parser.parseFromString(pastedHtml, 'text/html');
+                                    
+                                    const extractContent = (node: Node): string => {
+                                        if (node.nodeType === 3) {
+                                            return node.textContent || '';
+                                        }
+                                        
+                                        if (node.nodeType === 1) {
+                                            const element = node as HTMLElement;
+                                            const tagName = element.tagName.toLowerCase();
+                                            
+                                            if (tagName === 'a') {
+                                                const href = element.getAttribute('href') || '';
+                                                const text = element.textContent || '';
+                                                return `<a href="${href}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+                                            }
+                                            
+                                            if (tagName === 'p' || tagName === 'div') {
+                                                const children = Array.from(element.childNodes)
+                                                    .map(child => extractContent(child))
+                                                    .join('');
+                                                return children.trim() ? `<p>${children}</p>` : '';
+                                            }
+                                            
+                                            if (tagName === 'br') {
+                                                return '<br>';
+                                            }
+                                            
+                                            return Array.from(element.childNodes)
+                                                .map(child => extractContent(child))
+                                                .join('');
+                                        }
+                                        
+                                        return '';
+                                    };
+                                    
+                                    const bodyContent = Array.from(doc.body.childNodes)
+                                        .map(node => extractContent(node))
+                                        .filter(content => content.trim())
+                                        .join('');
+                                    
+                                    contentToInsert = bodyContent;
+                                    
+                                    if (contentToInsert && !contentToInsert.includes('<p>')) {
+                                        contentToInsert = `<p>${contentToInsert}</p>`;
+                                    }
+                                } else {
+                                    const paragraphs = pastedText
+                                        .split(/\n\n+/)
+                                        .map(para => para.trim())
+                                        .filter(para => para);
+                                    
+                                    if (paragraphs.length > 0) {
+                                        contentToInsert = paragraphs
+                                            .map(para => `<p>${para.replace(/\n/g, '<br>')}</p>`)
+                                            .join('');
+                                    } else {
+                                        contentToInsert = `<p>${pastedText.replace(/\n/g, '<br>')}</p>`;
+                                    }
+                                }
+
+                                if (contentToInsert) {
+                                    const editor = editorRef.current;
+                                    if (editor) {
+                                        document.execCommand('insertHTML', false, contentToInsert);
+                                        setContent(editor.innerHTML);
+                                    }
+                                }
+                            }}
                             style={{
                                 whiteSpace: 'pre-wrap',
                                 wordBreak: 'break-word'
