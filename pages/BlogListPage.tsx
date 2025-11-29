@@ -189,11 +189,11 @@ const BlogListPage: React.FC = () => {
           {showNewPostPopup && (
             <NewPostPopup 
               onClose={() => setShowNewPostPopup(false)} 
-              onOpenAdmin={() => setShowAdmin(true)}
+              onSuccess={() => {
+                // Reload posts after successful creation
+                window.location.reload();
+              }}
             />
-          )}
-          {showAdmin && (
-            <AdminInventory onClose={() => setShowAdmin(false)} />
           )}
         </>
       )}
