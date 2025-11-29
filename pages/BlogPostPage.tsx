@@ -701,6 +701,7 @@ const BlogPostPage: React.FC = () => {
 
                 <div
                   ref={editorRef}
+                  id="editor"
                   contentEditable
                   suppressContentEditableWarning
                   className="w-full bg-gray-50 border-2 border-terracotta rounded-xl px-6 py-4 min-h-[400px] focus:outline-none focus:border-terracotta-dark text-base leading-relaxed overflow-auto"

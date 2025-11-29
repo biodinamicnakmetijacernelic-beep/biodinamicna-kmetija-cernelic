@@ -495,47 +495,82 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
   };
 
   const insertLink = (blockId: string) => {
-    const block = newsBlocks.find(b => b.id === blockId);
-    if (!block || block.type !== 'text') return;
-
-    const textarea = document.getElementById(`textarea-${blockId}`) as HTMLTextAreaElement;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const text = block.content || '';
-    const selectedText = text.substring(start, end);
+    const editor = document.getElementById(`textarea-${blockId}`) as HTMLElement;
+    if (!editor) return;
 
     const url = prompt("Vnesite URL povezavo:", "https://");
     if (url) {
-      const linkText = selectedText || "povezava";
-      const newText = text.substring(0, start) + `[${linkText}](${url})` + text.substring(end);
-      updateBlockContent(blockId, newText);
+      const text = prompt('Vnesite besedilo povezave:', 'povezava') || 'povezava';
+      const linkHtml = `<a href="${url}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+      editor.focus();
+      document.execCommand('insertHTML', false, linkHtml);
     }
   };
 
-  const wrapSelection = (blockId: string, startTag: string, endTag: string) => {
-    const block = newsBlocks.find(b => b.id === blockId);
-    if (!block || block.type !== 'text') return;
+  const formatText = (blockId: string, command: string) => {
+    const editor = document.getElementById(`textarea-${blockId}`) as HTMLElement;
+    if (!editor) return;
 
-    const textarea = document.getElementById(`textarea-${blockId}`) as HTMLTextAreaElement;
-    if (!textarea) return;
+    editor.focus();
 
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const text = block.content || '';
-    const selectedText = text.substring(start, end);
+    switch (command) {
+      case 'bold':
+        document.execCommand('bold', false);
+        break;
+      case 'italic':
+        document.execCommand('italic', false);
+        break;
+      case 'left':
+        document.execCommand('justifyLeft', false);
+        break;
+      case 'center':
+        document.execCommand('justifyCenter', false);
+        break;
+      case 'right':
+        document.execCommand('justifyRight', false);
+        break;
+    }
+  };
 
-    if (!selectedText) return;
+  const changeFontSize = (blockId: string, size: string) => {
+    const editor = document.getElementById(`textarea-${blockId}`) as HTMLElement;
+    if (!editor) return;
 
-    const newText = text.substring(0, start) + startTag + selectedText + endTag + text.substring(end);
-    updateBlockContent(blockId, newText);
+    if (size && size.trim()) {
+      editor.focus();
+      document.execCommand('fontSize', false, size);
+    }
+  };
+
+  const changeFontFamily = (blockId: string, family: string) => {
+    const editor = document.getElementById(`textarea-${blockId}`) as HTMLElement;
+    if (!editor) return;
+
+    const familyMap: { [key: string]: string } = {
+      'font-sans': 'Arial, sans-serif',
+      'font-serif': 'Times New Roman, serif',
+      'font-mono': 'Courier New, monospace'
+    };
+
+    const execFamily = familyMap[family];
+    if (execFamily) {
+      editor.focus();
+      document.execCommand('fontName', false, execFamily);
+    }
+  };
+
+  const changeTextColor = (blockId: string, color: string) => {
+    const editor = document.getElementById(`textarea-${blockId}`) as HTMLElement;
+    if (!editor) return;
+
+    editor.focus();
+    document.execCommand('foreColor', false, color);
   };
 
   const insertColor = (blockId: string) => {
     const color = prompt("Vnesite HEX barvo (npr. #FF5733):", "#");
     if (color) {
-      wrapSelection(blockId, `<span style="color:${color}">`, `</span>`);
+      changeTextColor(blockId, color);
     }
   };
 
@@ -606,11 +641,8 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
   };
 
   const insertVideoAtCursor = (blockId: string) => {
-    const block = newsBlocks.find(b => b.id === blockId);
-    if (!block || block.type !== 'text') return;
-
-    const textarea = document.getElementById(`textarea-${blockId}`) as HTMLTextAreaElement;
-    if (!textarea) return;
+    const editor = document.getElementById(`textarea-${blockId}`) as HTMLElement;
+    if (!editor) return;
 
     const url = prompt("Vnesite YouTube URL:", "https://www.youtube.com/watch?v=");
     if (url) {
@@ -620,10 +652,9 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
       if (match) videoId = match[1];
 
       if (videoId) {
-        const cursor = textarea.selectionStart;
-        const text = block.content || '';
-        const newText = text.substring(0, cursor) + `\n<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>\n` + text.substring(cursor);
-        updateBlockContent(blockId, newText);
+        const embedHtml = `<div class="my-10 relative w-full" style="padding-bottom: 56.25%"><iframe src="https://www.youtube.com/embed/${videoId}" class="absolute top-0 left-0 w-full h-full rounded-2xl shadow-lg" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+        editor.focus();
+        document.execCommand('insertHTML', false, embedHtml);
       } else {
         alert("Neveljaven YouTube URL");
       }
@@ -631,20 +662,16 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
   };
 
   const insertButtonAtCursor = (blockId: string) => {
-    const block = newsBlocks.find(b => b.id === blockId);
-    if (!block || block.type !== 'text') return;
-
-    const textarea = document.getElementById(`textarea-${blockId}`) as HTMLTextAreaElement;
-    if (!textarea) return;
+    const editor = document.getElementById(`textarea-${blockId}`) as HTMLElement;
+    if (!editor) return;
 
     const text = prompt("Besedilo gumba:", "Klikni tukaj");
     if (text) {
       const url = prompt("URL gumba:", "https://");
       if (url) {
-        const cursor = textarea.selectionStart;
-        const content = block.content || '';
-        const newText = content.substring(0, cursor) + `\n<button data-url="${url}">${text}</button>\n` + content.substring(cursor);
-        updateBlockContent(blockId, newText);
+        const buttonHtml = `<div class="my-6 text-center"><a href="${url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-3 bg-terracotta text-white rounded-xl font-semibold hover:bg-terracotta-dark transition-colors">${text}</a></div>`;
+        editor.focus();
+        document.execCommand('insertHTML', false, buttonHtml);
       }
     }
   };
@@ -1590,20 +1617,20 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                           <div className="relative">
                             {/* Formatting Toolbar */}
                             <div className="flex flex-wrap gap-1 mb-2 p-2 bg-gray-100 rounded-lg border border-gray-200">
-                              <button onClick={() => wrapSelection(block.id, '**', '**')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Krepko">
+                              <button onClick={() => formatText(block.id, 'bold')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Krepko">
                                 <Bold size={14} />
                               </button>
-                              <button onClick={() => wrapSelection(block.id, '*', '*')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Ležeče">
+                              <button onClick={() => formatText(block.id, 'italic')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Ležeče">
                                 <Italic size={14} />
                               </button>
                               <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
-                              <button onClick={() => wrapSelection(block.id, '<div class="text-left">', '</div>')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Poravnava levo">
+                              <button onClick={() => formatText(block.id, 'left')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Poravnava levo">
                                 <AlignLeft size={14} />
                               </button>
-                              <button onClick={() => wrapSelection(block.id, '<div class="text-center">', '</div>')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Sredinsko">
+                              <button onClick={() => formatText(block.id, 'center')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Sredinsko">
                                 <AlignCenter size={14} />
                               </button>
-                              <button onClick={() => wrapSelection(block.id, '<div class="text-right">', '</div>')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Poravnava desno">
+                              <button onClick={() => formatText(block.id, 'right')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Poravnava desno">
                                 <AlignRight size={14} />
                               </button>
                               <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
@@ -1617,23 +1644,23 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                               <select
                                 onChange={(e) => {
                                   if (e.target.value) {
-                                    wrapSelection(block.id, `<span class="${e.target.value}">`, '</span>');
+                                    changeFontSize(block.id, e.target.value);
                                     e.target.value = "";
                                   }
                                 }}
                                 className="text-xs bg-transparent border-none focus:ring-0 text-olive/70 font-medium cursor-pointer"
                               >
                                 <option value="">Velikost</option>
-                                <option value="text-sm">Majhna</option>
-                                <option value="text-base">Normalna</option>
-                                <option value="text-lg">Velika</option>
-                                <option value="text-xl">Zelo velika</option>
-                                <option value="text-2xl">Ogromna</option>
+                                <option value="2">Majhna</option>
+                                <option value="3">Normalna</option>
+                                <option value="4">Velika</option>
+                                <option value="5">Zelo velika</option>
+                                <option value="6">Ogromna</option>
                               </select>
                               <select
                                 onChange={(e) => {
                                   if (e.target.value) {
-                                    wrapSelection(block.id, `<span class="${e.target.value}">`, '</span>');
+                                    changeFontFamily(block.id, e.target.value);
                                     e.target.value = "";
                                   }
                                 }}
