@@ -240,8 +240,27 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
       });
     } else if (activeTab === 'gallery') {
       loadGallery();
+    } else if (activeTab === 'news') {
+      loadPosts();
     }
   }, [activeTab]);
+
+  // Check for pending new post title from NewPostPopup
+  useEffect(() => {
+    if (isLoggedIn) {
+      const pendingTitle = localStorage.getItem('pendingNewPostTitle');
+      if (pendingTitle) {
+        // Set active tab to news
+        setActiveTab('news');
+        // Set the title in the form
+        setNewsForm(prev => ({ ...prev, title: pendingTitle }));
+        // Start editing new post
+        setIsEditingNews(true);
+        // Clear the pending title
+        localStorage.removeItem('pendingNewPostTitle');
+      }
+    }
+  }, [isLoggedIn]);
 
   const loadInventory = async () => {
     setIsLoadingProducts(true);

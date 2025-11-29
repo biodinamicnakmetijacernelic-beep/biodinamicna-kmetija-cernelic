@@ -571,12 +571,19 @@ const BlogPostPage: React.FC = () => {
     const searchParams = new URLSearchParams(location.search);
     if (searchParams.get('edit') === 'true' && adminSession) {
       setIsEditMode(true);
+      // If post is already loaded, set the title immediately
+      if (post) {
+        setEditedTitle(post.title || '');
+      }
     }
-  }, [location]);
+  }, [location, post]);
 
   // Set initial editor content when entering edit mode
   useEffect(() => {
     if (isEditMode && post) {
+      // Set edited title
+      setEditedTitle(post.title || '');
+      // Set editor content
       const htmlContent = renderPortableTextToHTML(post.body);
       setEditedContent(htmlContent);
       if (editorRef.current) {
