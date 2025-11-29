@@ -136,7 +136,8 @@ export async function fetchNews(): Promise<NewsItem[]> {
       "slug": slug.current,
       publishedAt,
       "image": coalesce(mainImage.asset->url, null),
-      body
+      body,
+      link
     }`;
 
     const data = await client.fetch(query);
@@ -167,7 +168,8 @@ export async function fetchAllNews(): Promise<NewsItem[]> {
       "slug": slug.current,
       publishedAt,
       "image": coalesce(mainImage.asset->url, null),
-      body
+      body,
+      link
     }`;
 
     const data = await client.fetch(query);
@@ -180,7 +182,8 @@ export async function fetchAllNews(): Promise<NewsItem[]> {
       slug: item.slug,
       publishedAt: item.publishedAt,
       image: item.image,
-      body: item.body
+      body: item.body,
+      link: item.link
     }));
   } catch (error) {
     console.warn("Sanity (Vse Novice): Povezava ni uspela.", error);
@@ -196,7 +199,8 @@ export async function fetchNewsBySlug(slug: string): Promise<NewsItem | null> {
       "slug": slug.current,
       publishedAt,
       "image": coalesce(mainImage.asset->url, null),
-      body
+      body,
+      link
     }`;
 
     const item = await client.fetch(query, { slug });
@@ -209,7 +213,8 @@ export async function fetchNewsBySlug(slug: string): Promise<NewsItem | null> {
       slug: item.slug,
       publishedAt: item.publishedAt,
       image: item.image,
-      body: item.body
+      body: item.body,
+      link: item.link
     };
   } catch (error) {
     console.warn("Sanity (Posamezna Novica): Povezava ni uspela.", error);
@@ -344,7 +349,7 @@ export async function deleteGalleryImage(id: string, token: string) {
  * NEWS POSTING
  */
 export async function createNewsPost(
-  postData: { title: string; body: any[]; date: string },
+  postData: { title: string; body: any[]; date: string; link?: string },
   imageFile: File | null,
   token: string
 ) {
@@ -371,7 +376,8 @@ export async function createNewsPost(
       mainImage: imageAssetId ? {
         _type: 'image',
         asset: { _type: 'reference', _ref: imageAssetId }
-      } : undefined
+      } : undefined,
+      link: postData.link
     };
 
     const createdDoc = await authClient.create(doc);
@@ -384,7 +390,7 @@ export async function createNewsPost(
 
 export async function updateNewsPost(
   id: string,
-  postData: { title: string; body: any[]; date: string },
+  postData: { title: string; body: any[]; date: string; link?: string },
   imageFile: File | null,
   token: string
 ) {
@@ -399,6 +405,7 @@ export async function updateNewsPost(
       title: postData.title,
       publishedAt: postData.date,
       body: postData.body,
+      link: postData.link,
       slug: { _type: 'slug', current: postData.title.toLowerCase().replace(/\s+/g, '-').slice(0, 200) }
     });
 

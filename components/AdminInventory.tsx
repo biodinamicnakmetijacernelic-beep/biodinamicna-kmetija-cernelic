@@ -150,7 +150,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
   // News State
   const [posts, setPosts] = useState<NewsItem[]>([]);
   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
-  const [newsForm, setNewsForm] = useState({ title: '', date: new Date().toISOString().split('T')[0] });
+  const [newsForm, setNewsForm] = useState({ title: '', date: new Date().toISOString().split('T')[0], link: '' });
   const [newsImageFile, setNewsImageFile] = useState<File | null>(null);
   const [newsImagePreview, setNewsImagePreview] = useState<string | null>(null);
   const newsImageRef = useRef<HTMLInputElement>(null);
@@ -511,7 +511,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
 
   const startEditNews = (post: NewsItem) => {
     setEditingNewsId(post.id);
-    setNewsForm({ title: post.title, date: post.publishedAt });
+    setNewsForm({ title: post.title, date: post.publishedAt, link: post.link || '' });
     setNewsImagePreview(post.image);
     setNewsImageFile(null);
 
@@ -594,7 +594,8 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
         await updateNewsPost(editingNewsId, {
           title: newsForm.title,
           date: finalDate,
-          body: finalBody
+          body: finalBody,
+          link: newsForm.link
         }, newsImageFile, sanityToken);
         setNotification("✅ Novica posodobljena!");
       } else {
@@ -602,13 +603,14 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
         await createNewsPost({
           title: newsForm.title,
           date: finalDate,
-          body: finalBody
+          body: finalBody,
+          link: newsForm.link
         }, newsImageFile, sanityToken);
         setNotification("✅ Novica uspešno objavljena!");
       }
 
       // Reset
-      setNewsForm({ title: '', date: new Date().toISOString().split('T')[0] });
+      setNewsForm({ title: '', date: new Date().toISOString().split('T')[0], link: '' });
       setNewsImageFile(null);
       setNewsImagePreview(null);
       setNewsBlocks([{ id: Date.now().toString(), type: 'text', content: '' }]);
@@ -653,7 +655,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
         // Edit mode delete
         setIsEditingNews(false);
         setEditingNewsId(null);
-        setNewsForm({ title: '', date: new Date().toISOString().split('T')[0] });
+        setNewsForm({ title: '', date: new Date().toISOString().split('T')[0], link: '' });
         setNewsImageFile(null);
         setNewsImagePreview(null);
         setNewsBlocks([{ id: Date.now().toString(), type: 'text', content: '' }]);
@@ -1298,7 +1300,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
               </>
             ) : (
               <div className={`bg-white rounded-3xl p-6 shadow-sm border border-black/5 ${!sanityToken ? 'opacity-50 pointer-events-none' : ''}`}>
-                <div className="flex items-center gap-2 mb-6 text-olive/50 cursor-pointer" onClick={() => { setIsEditingNews(false); setEditingNewsId(null); setNewsForm({ title: '', date: new Date().toISOString().split('T')[0] }); setNewsImageFile(null); setNewsImagePreview(null); setNewsBlocks([{ id: Date.now().toString(), type: 'text', content: '' }]); }}><ArrowLeft size={16} /><span className="text-xs font-bold uppercase">Nazaj</span></div>
+                <div className="flex items-center gap-2 mb-6 text-olive/50 cursor-pointer" onClick={() => { setIsEditingNews(false); setEditingNewsId(null); setNewsForm({ title: '', date: new Date().toISOString().split('T')[0], link: '' }); setNewsImageFile(null); setNewsImagePreview(null); setNewsBlocks([{ id: Date.now().toString(), type: 'text', content: '' }]); }}><ArrowLeft size={16} /><span className="text-xs font-bold uppercase">Nazaj</span></div>
 
                 <h3 className="font-serif text-xl text-olive-dark mb-4">{editingNewsId ? 'Uredi Objavo' : 'Nova Objava'}</h3>
 
@@ -1332,6 +1334,17 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                       value={newsForm.date}
                       onChange={e => setNewsForm({ ...newsForm, date: e.target.value })}
                       placeholder="npr. 29.11.2025"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-bold uppercase text-olive/50 ml-1">Povezava (URL) - opcijsko</label>
+                    <input
+                      type="text"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta font-sans"
+                      value={newsForm.link}
+                      onChange={e => setNewsForm({ ...newsForm, link: e.target.value })}
+                      placeholder="https://..."
                     />
                   </div>
 

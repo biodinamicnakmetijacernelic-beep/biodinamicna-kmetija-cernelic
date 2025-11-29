@@ -60,6 +60,7 @@ export interface NewsItem {
   publishedAt: string;
   image: string;
   body: any[]; // Changed from string to any[] to support Portable Text blocks
+  link?: string;
 }
 
 export interface VideoGalleryItem {
