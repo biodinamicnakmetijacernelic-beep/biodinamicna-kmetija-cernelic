@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { X, Save, Search, RefreshCw, MousePointerClick, ShoppingBag, ClipboardList, Bell, Image as ImageIcon, Upload, Trash2, Pencil, ArrowLeft, AlertTriangle, Plus, Lock, Send, Eye, EyeOff, FileText, Type, Video, Check, LogOut, Link as LinkIcon, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette } from 'lucide-react';
 import { GalleryItem, PreOrderItem, NewsItem, VideoGalleryItem, Order } from '../types';
 import { uploadImageToSanity, fetchProducts, updateProductStatus, createProduct, updateProduct, deleteProduct, createNewsPost, fetchAllNews, updateNewsPost, deleteNewsPost, fetchVideoGallery, createVideo, updateVideo, deleteVideo, fetchOrders, updateOrderStatus, deleteOrder, fetchGalleryImages, updateGalleryImage, deleteGalleryImage } from '../sanityClient';
+import { createClient } from '@sanity/client';
 import { sendOrderStatusUpdateEmail } from '../utils/emailService';
 import { compressImage } from '../utils/imageOptimizer';
 
@@ -536,20 +537,54 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
     }
   };
 
-  const insertImageAtCursor = (blockId: string) => {
+  const insertImageAtCursor = async (blockId: string) => {
     const block = newsBlocks.find(b => b.id === blockId);
     if (!block || block.type !== 'text') return;
 
     const textarea = document.getElementById(`textarea-${blockId}`) as HTMLTextAreaElement;
     if (!textarea) return;
 
-    const url = prompt("Vnesite URL slike:", "https://");
-    if (url) {
-      const cursor = textarea.selectionStart;
-      const text = block.content || '';
-      const newText = text.substring(0, cursor) + `\n<img src="${url}" alt="Slika" />\n` + text.substring(cursor);
-      updateBlockContent(blockId, newText);
-    }
+    // Create file input
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      try {
+        // Compress and convert to WebP
+        const compressedFile = await compressImage(file);
+
+        // Upload directly to Sanity assets
+        const sanityToken = import.meta.env.VITE_SANITY_TOKEN;
+        const authClient = createClient({
+          projectId: import.meta.env.VITE_SANITY_PROJECT_ID,
+          dataset: import.meta.env.VITE_SANITY_DATASET,
+          apiVersion: '2024-01-01',
+          useCdn: false,
+          token: sanityToken,
+          ignoreBrowserTokenWarning: true
+        });
+
+        const imageAsset = await authClient.assets.upload('image', compressedFile, {
+          filename: compressedFile.name
+        });
+
+        if (imageAsset?.url) {
+          const cursor = textarea.selectionStart;
+          const text = block.content || '';
+          const newText = text.substring(0, cursor) + `\n<img src="${imageAsset.url}" alt="Slika" />\n` + text.substring(cursor);
+          updateBlockContent(blockId, newText);
+        }
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        alert('Napaka pri nalaganju slike');
+      }
+    };
+
+    input.click();
   };
 
   const insertVideoAtCursor = (blockId: string) => {
@@ -593,6 +628,49 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
         const newText = content.substring(0, cursor) + `\n<button data-url="${url}">${text}</button>\n` + content.substring(cursor);
         updateBlockContent(blockId, newText);
       }
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>, blockId: string) => {
+    const block = newsBlocks.find(b => b.id === blockId);
+    if (!block || block.type !== 'text') return;
+
+    // Get HTML from clipboard
+    const html = e.clipboardData.getData('text/html');
+
+    if (html) {
+      e.preventDefault();
+
+      // Parse HTML to extract links
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+
+      // Convert links to markdown format
+      const links = doc.querySelectorAll('a');
+      links.forEach(link => {
+        const text = link.textContent || '';
+        const href = link.getAttribute('href') || '';
+        if (href) {
+          link.replaceWith(document.createTextNode(`[${text}](${href})`));
+        }
+      });
+
+      // Get plain text with converted links
+      const textWithLinks = doc.body.textContent || '';
+
+      // Insert at cursor position
+      const textarea = e.currentTarget;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const currentContent = block.content || '';
+
+      const newContent = currentContent.substring(0, start) + textWithLinks + currentContent.substring(end);
+      updateBlockContent(blockId, newContent);
+
+      // Set cursor position after inserted text
+      setTimeout(() => {
+        textarea.selectionStart = textarea.selectionEnd = start + textWithLinks.length;
+      }, 0);
     }
   };
 
@@ -1544,9 +1622,10 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
 
                             <textarea
                               id={`textarea-${block.id}`}
-                              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta font-serif min-h-[150px]"
+                              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta font-serif min-h-[300px]"
                               value={block.content}
                               onChange={(e) => updateBlockContent(block.id, e.target.value)}
+                              onPaste={(e) => handlePaste(e, block.id)}
                               placeholder="Vnesite besedilo..."
                             />
                           </div>
