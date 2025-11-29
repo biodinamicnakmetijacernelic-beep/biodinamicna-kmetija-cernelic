@@ -71,11 +71,6 @@ const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
               <a href="https://www.youtube.com/channel/UCEu10obkT9aAr09USIWkBtw" target="_blank" rel="noopener noreferrer" className="p-3 bg-olive/5 rounded-full hover:bg-[#FF0000] hover:text-white transition-all transform hover:-translate-y-1 text-olive">
                 <Youtube size={20} />
               </a>
-              {onAdminClick && (
-                <button onClick={onAdminClick} className="p-3 bg-olive/5 rounded-full hover:bg-olive-dark hover:text-white transition-all transform hover:-translate-y-1 text-olive">
-                  <Settings size={20} />
-                </button>
-              )}
             </div>
           </div>
         </div>
@@ -92,10 +87,20 @@ const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
         {/* Copyright */}
         <div className="flex flex-col md:flex-row justify-between items-center text-xs md:text-sm text-olive/40 pt-8 border-t border-olive/10">
           <p className="mb-4 md:mb-0">&copy; {new Date().getFullYear()} Biodinamična kmetija Černelič. Vse pravice pridržane.</p>
-          <div className="flex gap-6">
+          <div className="flex items-center gap-6">
             <a href="#" className="hover:text-olive-dark transition-colors">Zasebnost</a>
             <a href="#" className="hover:text-olive-dark transition-colors">Pogoji uporabe</a>
             <a href="#" className="hover:text-olive-dark transition-colors">Piškotki</a>
+            {onAdminClick && (
+              <button
+                onClick={onAdminClick}
+                className="flex items-center gap-2 text-olive/40 hover:text-olive-dark transition-colors"
+                title="Admin nastavitve"
+              >
+                <Settings size={16} />
+                <span className="text-xs">Admin</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

@@ -775,7 +775,7 @@ const BlogPostPage: React.FC = () => {
                   type="text"
                   value={editedTitle}
                   onChange={(e) => setEditedTitle(e.target.value)}
-                  className="w-full font-serif text-4xl md:text-5xl text-olive-dark leading-tight bg-gray-50 border-2 border-terracotta rounded-xl px-4 py-3 focus:outline-none focus:border-terracotta-dark"
+                  className="w-full font-serif text-xl md:text-2xl text-olive-dark leading-tight bg-gray-50 border-2 border-terracotta rounded-xl px-4 py-3 focus:outline-none focus:border-terracotta-dark"
                   placeholder="Naslov"
                 />
                 

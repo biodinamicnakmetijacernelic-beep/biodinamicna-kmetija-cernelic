@@ -431,7 +431,7 @@ const NewPostPopup: React.FC<NewPostPopupProps> = ({ onClose, onSuccess }) => {
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="Vnesite naslov..."
-                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-terracotta font-serif text-lg"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-terracotta font-serif text-xl md:text-2xl"
                             autoFocus
                         />
                     </div>
