@@ -1638,6 +1638,40 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                               onPaste={(e) => handlePaste(e, block.id)}
                               placeholder="Vnesite besedilo..."
                             />
+
+                            {/* Image Previews */}
+                            {block.content && (() => {
+                              const imgRegex = /<img\s+src="([^"]+)"\s+alt="[^"]*"\s*\/>/g;
+                              const matches = [...block.content.matchAll(imgRegex)];
+                              if (matches.length > 0) {
+                                return (
+                                  <div className="mt-3 grid grid-cols-2 md:grid-cols-3 gap-3">
+                                    {matches.map((match, idx) => (
+                                      <div key={idx} className="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                                        <img
+                                          src={match[1]}
+                                          alt="Predogled"
+                                          className="w-full h-32 object-cover"
+                                        />
+                                        <div className="absolute top-1 right-1">
+                                          <button
+                                            onClick={() => {
+                                              const newContent = block.content?.replace(match[0], '');
+                                              updateBlockContent(block.id, newContent || '');
+                                            }}
+                                            className="p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                                            title="Odstrani sliko"
+                                          >
+                                            <X size={14} />
+                                          </button>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                );
+                              }
+                              return null;
+                            })()}
                           </div>
                         )}
                         {block.type !== 'text' && (
