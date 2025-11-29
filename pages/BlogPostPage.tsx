@@ -136,8 +136,6 @@ const BlogPostPage: React.FC = () => {
             {renderPortableText(post.body, (src) => setLightboxImage(src))}
           </div>
 
-          <Lightbox image={lightboxImage} onClose={() => setLightboxImage(null)} />
-
           {/* Back to Blog CTA */}
           <div className="mt-16 pt-12 border-t border-black/5">
             <Link
@@ -150,6 +148,8 @@ const BlogPostPage: React.FC = () => {
           </div>
         </div>
       </FadeIn>
+
+      <Lightbox image={lightboxImage} onClose={() => setLightboxImage(null)} />
     </article>
   );
 };

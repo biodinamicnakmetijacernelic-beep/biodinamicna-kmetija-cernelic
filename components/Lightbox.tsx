@@ -27,24 +27,25 @@ const Lightbox: React.FC<LightboxProps> = ({ image, onClose }) => {
 
     return (
         <div
-            className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-200"
+            className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-300"
             onClick={onClose}
         >
             <button
                 onClick={onClose}
-                className="absolute top-4 right-4 md:top-8 md:right-8 text-white/70 hover:text-white transition-colors p-2 bg-black/20 rounded-full backdrop-blur-md"
+                className="absolute top-6 right-6 text-white/70 hover:text-white transition-colors p-2 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-md border border-white/10"
             >
-                <X size={32} />
+                <X size={24} />
             </button>
 
             <div
-                className="relative max-w-full max-h-full"
-                onClick={e => e.stopPropagation()} // Prevent closing when clicking image
+                className="relative max-w-[85vw] max-h-[85vh] flex items-center justify-center"
+                onClick={e => e.stopPropagation()}
             >
                 <img
                     src={image}
                     alt="Povečana slika"
-                    className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-300"
+                    className="max-w-full max-h-full object-contain rounded-xl shadow-2xl animate-in zoom-in-95 duration-300"
+                    style={{ maxHeight: '85vh' }}
                 />
             </div>
         </div>
