@@ -201,7 +201,7 @@ const BlogPostPage: React.FC = () => {
       if (!editor) return;
 
       // Vstavi sliko na trenutno pozicijo cursora
-      const imageHtml = `<div class="my-10 rounded-2xl overflow-hidden shadow-lg"><img src="${imageUrl}" alt="${file.name}" class="w-full h-auto object-cover cursor-pointer hover:scale-[1.02] transition-transform duration-500" /></div>`;
+      const imageHtml = `<div class="my-10 rounded-2xl overflow-hidden shadow-lg"><img src="${imageUrl}" alt="${file.name}" class="w-full h-auto object-cover cursor-pointer hover:scale-[1.02] transition-transform duration-500" /></div><p><br></p>`;
       document.execCommand('insertHTML', false, imageHtml);
       setEditedContent(editor.innerHTML);
     };
