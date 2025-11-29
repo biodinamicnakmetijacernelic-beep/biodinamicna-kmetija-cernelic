@@ -133,22 +133,75 @@ const BlogPostPage: React.FC = () => {
   const convertToPortableText = (htmlContent: string): any[] => {
     if (!htmlContent?.trim()) return [];
 
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(`<body>${htmlContent}</body>`, 'text/html');
-    const markDefs: any[] = [];
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(`<body>${htmlContent}</body>`, 'text/html');
+      const markDefs: any[] = [];
 
-    const bodyNodes = Array.from(doc.body.childNodes);
-    const portableTextBlocks = bodyNodes.map(node => nodeToPortableText(node, markDefs)).flat().filter(Boolean);
+      const bodyNodes = Array.from(doc.body.childNodes);
+      const portableTextBlocks = bodyNodes
+        .map(node => nodeToPortableText(node, markDefs))
+        .flat()
+        .filter(Boolean)
+        .filter(block => {
+          // Filter out invalid blocks
+          if (!block || typeof block !== 'object') return false;
+          if (block._type === 'block') {
+            // Ensure block has required fields
+            if (!block.children || !Array.isArray(block.children) || block.children.length === 0) {
+              return false;
+            }
+            // Ensure children are valid spans
+            const validChildren = block.children.filter((child: any) => {
+              return child && child._type === 'span' && child.text !== undefined;
+            });
+            if (validChildren.length === 0) return false;
+            block.children = validChildren;
+          }
+          return true;
+        });
 
-    // Associate markDefs with the blocks that use them
-    portableTextBlocks.forEach(block => {
-      if (block._type === 'block' && block.children) {
-        const blockMarkKeys = new Set(block.children.flatMap((c: any) => c.marks || []));
-        block.markDefs = markDefs.filter(def => blockMarkKeys.has(def._key));
+      // Associate markDefs with the blocks that use them
+      portableTextBlocks.forEach(block => {
+        if (block._type === 'block' && block.children) {
+          const blockMarkKeys = new Set(block.children.flatMap((c: any) => c.marks || []));
+          block.markDefs = markDefs.filter(def => blockMarkKeys.has(def._key));
+        }
+      });
+
+      // If no valid blocks, return at least one empty block
+      if (portableTextBlocks.length === 0) {
+        return [{
+          _type: 'block',
+          _key: `block-${Date.now()}`,
+          style: 'normal',
+          children: [{
+            _type: 'span',
+            _key: `span-${Date.now()}`,
+            text: '',
+            marks: []
+          }],
+          markDefs: []
+        }];
       }
-    });
 
-    return portableTextBlocks;
+      return portableTextBlocks;
+    } catch (error) {
+      console.error('Error converting HTML to Portable Text:', error);
+      // Return empty block on error
+      return [{
+        _type: 'block',
+        _key: `block-${Date.now()}`,
+        style: 'normal',
+        children: [{
+          _type: 'span',
+          _key: `span-${Date.now()}`,
+          text: '',
+          marks: []
+        }],
+        markDefs: []
+      }];
+    }
   };
 
   // Formatting functions for the toolbar
@@ -311,7 +364,7 @@ const BlogPostPage: React.FC = () => {
       if (!editor) return;
 
       // Vstavi sliko na trenutno pozicijo cursora
-      const imageHtml = `<div class="rounded-2xl overflow-hidden"><img src="${imageUrl}" alt="${file.name}" class="w-full h-auto object-cover cursor-pointer hover:scale-[1.02] transition-transform duration-500" /></div>\n\n`;
+      const imageHtml = `<div class="rounded-2xl overflow-hidden"><img src="${imageUrl}" alt="${file.name}" class="w-full h-auto object-cover cursor-pointer hover:scale-[1.02] transition-transform duration-500" loading="lazy" /></div>\n\n`;
       document.execCommand('insertHTML', false, imageHtml);
       setEditedContent(editor.innerHTML);
     };
@@ -714,65 +767,6 @@ const BlogPostPage: React.FC = () => {
               </button>
             )}
 
-            {/* Edit Mode Controls */}
-            {isEditMode && (
-              <div className="mb-6 flex gap-3">
-                <button
-                  onClick={async () => {
-                    if (!post) return;
-
-                    try {
-                      const token = import.meta.env.VITE_SANITY_TOKEN;
-                      if (!token) {
-                        alert('Napaka: Manjka Sanity token');
-                        return;
-                      }
-
-                      // Convert edited content to Portable Text format
-                      const currentContent = editorRef.current?.innerHTML || editedContent;
-                      const portableTextBody = convertToPortableText(currentContent);
-
-                      await updateNewsPost(
-                        post.id,
-                        {
-                          title: editedTitle,
-                          body: portableTextBody,
-                          date: post.publishedAt,
-                          link: post.link
-                        },
-                        null, // No new image file for now
-                        token
-                      );
-
-                      alert('Objava uspešno posodobljena!');
-                      setIsEditMode(false);
-
-                      // Refresh the page to show updated content
-                      window.location.reload();
-                    } catch (error) {
-                      console.error('Error updating post:', error);
-                      alert('Napaka pri shranjevanju objave');
-                    }
-                  }}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-terracotta text-white rounded-xl font-semibold hover:bg-terracotta-dark transition-colors"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  Posodobi
-                </button>
-                <button
-                  onClick={() => {
-                    setIsEditMode(false);
-                    setEditedTitle('');
-                    setEditedContent('');
-                  }}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-300 transition-colors"
-                >
-                  Prekliči
-                </button>
-              </div>
-            )}
           </FadeIn>
         </div>
       </div>
@@ -799,8 +793,8 @@ const BlogPostPage: React.FC = () => {
           <div className="prose max-w-none">
             {isEditMode ? (
               <div>
-                {/* Formatting Toolbar */}
-                <div className="flex flex-wrap gap-1 mb-2 p-2 bg-gray-100 rounded-lg border border-gray-200">
+                {/* Formatting Toolbar - Sticky */}
+                <div className="sticky top-0 z-50 flex flex-wrap gap-1 mb-2 p-2 bg-white rounded-lg border border-gray-200 shadow-md">
                   <button onClick={() => formatText('bold')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Krepko">
                     <Bold size={14} />
                   </button>
@@ -877,6 +871,68 @@ const BlogPostPage: React.FC = () => {
                   </button>
                   <button onClick={() => insertButton()} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi gumb">
                     <MousePointerClick size={14} />
+                  </button>
+                  <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
+                  <button
+                    onClick={async () => {
+                      if (!post) return;
+
+                      try {
+                        const token = import.meta.env.VITE_SANITY_TOKEN;
+                        if (!token) {
+                          alert('Napaka: Manjka Sanity token');
+                          return;
+                        }
+
+                        // Convert edited content to Portable Text format
+                        const currentContent = editorRef.current?.innerHTML || editedContent;
+                        const portableTextBody = convertToPortableText(currentContent);
+
+                        if (!portableTextBody || portableTextBody.length === 0) {
+                          alert('Napaka: Vsebina ne more biti prazna');
+                          return;
+                        }
+
+                        await updateNewsPost(
+                          post.id,
+                          {
+                            title: editedTitle,
+                            body: portableTextBody,
+                            date: post.publishedAt,
+                            link: post.link
+                          },
+                          null, // No new image file for now
+                          token
+                        );
+
+                        alert('Objava uspešno posodobljena!');
+                        setIsEditMode(false);
+
+                        // Refresh the page to show updated content
+                        window.location.reload();
+                      } catch (error) {
+                        console.error('Error updating post:', error);
+                        alert(`Napaka pri shranjevanju objave: ${error instanceof Error ? error.message : 'Neznana napaka'}`);
+                      }
+                    }}
+                    className="px-4 py-1.5 bg-terracotta text-white rounded font-semibold hover:bg-terracotta-dark transition-colors text-sm"
+                    title="Shrani spremembe"
+                  >
+                    <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Shrani
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsEditMode(false);
+                      setEditedTitle('');
+                      setEditedContent('');
+                    }}
+                    className="px-4 py-1.5 bg-gray-300 text-gray-700 rounded font-semibold hover:bg-gray-400 transition-colors text-sm"
+                    title="Prekliči urejanje"
+                  >
+                    Prekliči
                   </button>
                 </div>
 

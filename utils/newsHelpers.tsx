@@ -223,6 +223,7 @@ export const renderPortableText = (body: any[], onImageClick?: (src: string) => 
                                 alt={altMatch ? altMatch[1] : "Slika"}
                                 className="w-full h-auto object-cover cursor-pointer hover:scale-[1.02] transition-transform duration-500"
                                 onClick={() => onImageClick && onImageClick(srcMatch[1])}
+                                loading="lazy"
                               />
                             </div>
                           );
@@ -429,11 +430,11 @@ export const renderPortableText = (body: any[], onImageClick?: (src: string) => 
               onClick={() => onImageClick(imageUrl)}
               className="cursor-zoom-in block"
             >
-              <img src={imageUrl} alt="Slika v novici" className="w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-500" />
+              <img src={imageUrl} alt="Slika v novici" className="w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-500" loading="lazy" />
             </div>
           ) : (
             <a href={imageUrl} target="_blank" rel="noopener noreferrer" className="cursor-zoom-in block">
-              <img src={imageUrl} alt="Slika v novici" className="w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-500" />
+              <img src={imageUrl} alt="Slika v novici" className="w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-500" loading="lazy" />
             </a>
           )}
         </div>
