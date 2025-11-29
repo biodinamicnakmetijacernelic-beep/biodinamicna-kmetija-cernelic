@@ -540,8 +540,8 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
     const block = newsBlocks.find(b => b.id === blockId);
     if (!block || block.type !== 'text') return;
 
-    const textarea = document.getElementById(`textarea-${blockId}`) as HTMLTextAreaElement;
-    if (!textarea) return;
+    const editable = document.getElementById(`textarea-${blockId}`);
+    if (!editable) return;
 
     // Create file input
     const input = document.createElement('input');
@@ -569,10 +569,29 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
         });
 
         if (imageAsset?.url) {
-          const cursor = textarea.selectionStart;
-          const text = block.content || '';
-          const newText = text.substring(0, cursor) + `\n<img src="${imageAsset.url}" alt="Slika" />\n` + text.substring(cursor);
-          updateBlockContent(blockId, newText);
+          // Create image element
+          const img = document.createElement('img');
+          img.src = imageAsset.url;
+          img.alt = 'Slika';
+          img.className = 'max-w-full h-auto my-4 rounded-lg';
+          img.style.maxHeight = '400px';
+
+          // Insert at cursor position in contenteditable
+          const selection = window.getSelection();
+          if (selection && selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            range.deleteContents();
+            range.insertNode(img);
+
+            // Move cursor after image
+            range.setStartAfter(img);
+            range.setEndAfter(img);
+            selection.removeAllRanges();
+            selection.addRange(range);
+          }
+
+          // Update block content
+          updateBlockContent(blockId, editable.innerHTML);
         }
       } catch (error) {
         console.error('Error uploading image:', error);
@@ -1630,48 +1649,26 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                               </button>
                             </div>
 
-                            <textarea
+                            <div
                               id={`textarea-${block.id}`}
-                              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta font-serif min-h-[300px]"
-                              value={block.content}
-                              onChange={(e) => updateBlockContent(block.id, e.target.value)}
-                              onPaste={(e) => handlePaste(e, block.id)}
-                              placeholder="Vnesite besedilo..."
+                              contentEditable
+                              suppressContentEditableWarning
+                              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta font-serif min-h-[300px] overflow-auto"
+                              onInput={(e) => {
+                                const content = e.currentTarget.innerHTML;
+                                updateBlockContent(block.id, content);
+                              }}
+                              onPaste={(e) => {
+                                e.preventDefault();
+                                const text = e.clipboardData.getData('text/plain');
+                                document.execCommand('insertText', false, text);
+                              }}
+                              dangerouslySetInnerHTML={{ __html: block.content || '' }}
+                              style={{
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word'
+                              }}
                             />
-
-                            {/* Image Previews */}
-                            {block.content && (() => {
-                              const imgRegex = /<img\s+src="([^"]+)"\s+alt="[^"]*"\s*\/>/g;
-                              const matches = [...block.content.matchAll(imgRegex)];
-                              if (matches.length > 0) {
-                                return (
-                                  <div className="mt-3 grid grid-cols-2 md:grid-cols-3 gap-3">
-                                    {matches.map((match, idx) => (
-                                      <div key={idx} className="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
-                                        <img
-                                          src={match[1]}
-                                          alt="Predogled"
-                                          className="w-full h-32 object-cover"
-                                        />
-                                        <div className="absolute top-1 right-1">
-                                          <button
-                                            onClick={() => {
-                                              const newContent = block.content?.replace(match[0], '');
-                                              updateBlockContent(block.id, newContent || '');
-                                            }}
-                                            className="p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                                            title="Odstrani sliko"
-                                          >
-                                            <X size={14} />
-                                          </button>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                );
-                              }
-                              return null;
-                            })()}
                           </div>
                         )}
                         {block.type !== 'text' && (
