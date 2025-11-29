@@ -583,11 +583,17 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
         }
       }
 
+      let finalDate = newsForm.date;
+      const parsedEuropean = parseEuropeanDate(newsForm.date);
+      if (parsedEuropean) {
+        finalDate = parsedEuropean.toISOString().split('T')[0];
+      }
+
       if (editingNewsId) {
         // Update existing post
         await updateNewsPost(editingNewsId, {
           title: newsForm.title,
-          date: newsForm.date,
+          date: finalDate,
           body: finalBody
         }, newsImageFile, sanityToken);
         setNotification("✅ Novica posodobljena!");
@@ -595,7 +601,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
         // Create new post
         await createNewsPost({
           title: newsForm.title,
-          date: newsForm.date,
+          date: finalDate,
           body: finalBody
         }, newsImageFile, sanityToken);
         setNotification("✅ Novica uspešno objavljena!");
@@ -1319,12 +1325,13 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                   />
 
                   <div className="flex flex-col gap-1">
-                    <label className="text-xs font-bold uppercase text-olive/50 ml-1">Datum objave</label>
+                    <label className="text-xs font-bold uppercase text-olive/50 ml-1">Datum objave (DD.MM.YYYY)</label>
                     <input
-                      type="date"
+                      type="text"
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta font-sans"
                       value={newsForm.date}
                       onChange={e => setNewsForm({ ...newsForm, date: e.target.value })}
+                      placeholder="npr. 29.11.2025"
                     />
                   </div>
 

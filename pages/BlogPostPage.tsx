@@ -127,7 +127,7 @@ const BlogPostPage: React.FC = () => {
       )}
 
       {/* Content - Apple Typography */}
-      <FadeIn delay={300}>
+      <FadeIn>
         <div className="container mx-auto px-6 max-w-3xl pb-24">
           <div className="prose max-w-none">
             {renderPortableText(post.body)}
