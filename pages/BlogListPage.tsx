@@ -7,12 +7,16 @@ import FadeIn from '../components/FadeIn';
 import { getPreviewText } from '../utils/newsHelpers';
 import AdminFloatingButtons from '../components/AdminFloatingButtons';
 import AllPostsPopup from '../components/AllPostsPopup';
+import NewPostPopup from '../components/NewPostPopup';
+import AdminInventory from '../components/AdminInventory';
 import { useNavigate } from 'react-router-dom';
 
 const BlogListPage: React.FC = () => {
   const [posts, setPosts] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAllPostsPopup, setShowAllPostsPopup] = useState(false);
+  const [showNewPostPopup, setShowNewPostPopup] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
@@ -176,11 +180,20 @@ const BlogListPage: React.FC = () => {
       {isAdmin && (
         <>
           <AdminFloatingButtons
-            onCreateNew={() => navigate('/admin')}
+            onCreateNew={() => setShowNewPostPopup(true)}
             onViewAll={() => setShowAllPostsPopup(true)}
           />
           {showAllPostsPopup && (
             <AllPostsPopup onClose={() => setShowAllPostsPopup(false)} />
+          )}
+          {showNewPostPopup && (
+            <NewPostPopup 
+              onClose={() => setShowNewPostPopup(false)} 
+              onOpenAdmin={() => setShowAdmin(true)}
+            />
+          )}
+          {showAdmin && (
+            <AdminInventory onClose={() => setShowAdmin(false)} />
           )}
         </>
       )}

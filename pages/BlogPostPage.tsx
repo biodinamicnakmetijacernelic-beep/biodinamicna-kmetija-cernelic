@@ -18,6 +18,9 @@ const BlogPostPage: React.FC = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedTitle, setEditedTitle] = useState('');
   const [editedContent, setEditedContent] = useState('');
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const thumbnailInputRef = useRef<HTMLInputElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
 
@@ -579,6 +582,9 @@ const BlogPostPage: React.FC = () => {
       if (editorRef.current) {
         editorRef.current.innerHTML = htmlContent;
       }
+      // Reset thumbnail when entering edit mode
+      setThumbnailFile(null);
+      setThumbnailPreview(null);
     }
   }, [isEditMode, post]);
 
@@ -757,13 +763,81 @@ const BlogPostPage: React.FC = () => {
 
             {/* Title */}
             {isEditMode ? (
-              <input
-                type="text"
-                value={editedTitle}
-                onChange={(e) => setEditedTitle(e.target.value)}
-                className="w-full font-serif text-4xl md:text-5xl text-olive-dark mb-8 leading-tight bg-gray-50 border-2 border-terracotta rounded-xl px-4 py-3 focus:outline-none focus:border-terracotta-dark"
-                placeholder="Naslov"
-              />
+              <div className="mb-8 space-y-4">
+                <input
+                  type="text"
+                  value={editedTitle}
+                  onChange={(e) => setEditedTitle(e.target.value)}
+                  className="w-full font-serif text-4xl md:text-5xl text-olive-dark leading-tight bg-gray-50 border-2 border-terracotta rounded-xl px-4 py-3 focus:outline-none focus:border-terracotta-dark"
+                  placeholder="Naslov"
+                />
+                
+                {/* Thumbnail Image Upload */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-olive-dark">
+                    Thumbnail slika (opcijsko)
+                  </label>
+                  <div 
+                    className="relative h-48 bg-gray-100 rounded-xl overflow-hidden border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-50 transition-colors"
+                    onClick={() => thumbnailInputRef.current?.click()}
+                  >
+                    {thumbnailPreview ? (
+                      <img src={thumbnailPreview} alt="Thumbnail preview" className="w-full h-full object-cover" />
+                    ) : post.image ? (
+                      <div className="relative w-full h-full">
+                        <img src={post.image} alt="Current thumbnail" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                          <span className="text-white text-sm font-semibold bg-black/50 px-4 py-2 rounded-lg">Kliknite za spremembo</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center h-full text-olive/40">
+                        <ImageIcon size={32} />
+                        <span className="text-xs font-bold uppercase mt-2">Kliknite za dodajanje thumbnail slike</span>
+                      </div>
+                    )}
+                    <input
+                      ref={thumbnailInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          if (!file.type.startsWith('image/')) {
+                            alert('Prosimo izberite slikovno datoteko');
+                            return;
+                          }
+                          if (file.size > 5 * 1024 * 1024) {
+                            alert('Slika je prevelika. Največja dovoljena velikost je 5MB.');
+                            return;
+                          }
+                          setThumbnailFile(file);
+                          const reader = new FileReader();
+                          reader.onload = (e) => {
+                            setThumbnailPreview(e.target?.result as string);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                  </div>
+                  {thumbnailPreview && (
+                    <button
+                      onClick={() => {
+                        setThumbnailFile(null);
+                        setThumbnailPreview(null);
+                        if (thumbnailInputRef.current) {
+                          thumbnailInputRef.current.value = '';
+                        }
+                      }}
+                      className="text-sm text-red-600 hover:text-red-700 font-semibold"
+                    >
+                      Odstrani sliko
+                    </button>
+                  )}
+                </div>
+              </div>
             ) : (
               <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-olive-dark leading-[0.95] tracking-tight mb-6">
                 {post.title}
@@ -921,7 +995,7 @@ const BlogPostPage: React.FC = () => {
                             date: post.publishedAt,
                             link: post.link
                           },
-                          null, // No new image file for now
+                          thumbnailFile, // Thumbnail image file
                           token
                         );
 
