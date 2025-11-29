@@ -72,7 +72,7 @@ const BlogListPage: React.FC = () => {
           <div className="space-y-16">
             {/* Featured Post */}
             {featuredPost && (
-              <FadeIn delay={100}>
+              <FadeIn>
                 <Link
                   to={`/blog-novice/${featuredPost.slug}`}
                   className="group block bg-white rounded-[3rem] overflow-hidden border border-black/5 hover:shadow-2xl transition-all duration-700"
@@ -119,7 +119,7 @@ const BlogListPage: React.FC = () => {
             {regularPosts.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {regularPosts.map((post, idx) => (
-                  <FadeIn key={post.id} delay={idx * 80}>
+                  <FadeIn key={post.id}>
                     <Link
                       to={`/blog-novice/${post.slug}`}
                       className="group block bg-white rounded-3xl overflow-hidden hover:shadow-xl transition-all duration-500"

@@ -55,7 +55,6 @@ async function sendStatusUpdateEmail(orderData: any, oldStatus: string, newStatu
     return false;
   }
 }
-import { createClient } from '@sanity/client';
 import { sanityConfig } from '../sanityConfig';
 
 // Order management
@@ -641,7 +640,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
     if (html) {
       e.preventDefault();
 
-      // Parse HTML to extract links
+      // Parse HTML to extract links and preserve paragraphs
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
 
@@ -655,8 +654,22 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
         }
       });
 
-      // Get plain text with converted links
-      const textWithLinks = doc.body.textContent || '';
+      // Convert paragraphs and line breaks
+      const paragraphs = doc.querySelectorAll('p, div, br');
+      paragraphs.forEach(p => {
+        if (p.tagName === 'BR') {
+          p.replaceWith(document.createTextNode('\n'));
+        } else {
+          // Add double newline after paragraphs
+          const textNode = document.createTextNode(p.textContent + '\n\n');
+          p.replaceWith(textNode);
+        }
+      });
+
+      // Get plain text with converted links and preserved paragraphs
+      let textWithLinks = doc.body.textContent || '';
+      // Clean up excessive newlines (more than 2 in a row)
+      textWithLinks = textWithLinks.replace(/\n{3,}/g, '\n\n');
 
       // Insert at cursor position
       const textarea = e.currentTarget;
