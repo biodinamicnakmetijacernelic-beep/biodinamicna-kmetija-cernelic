@@ -21,24 +21,134 @@ const BlogPostPage: React.FC = () => {
   const editorRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
 
+  const nodeToPortableText = (node: Node, markDefs: any[]): any => {
+    if (node.nodeType === 3) { // Text node
+      // Ignore whitespace-only text nodes between block elements
+      if (node.nodeValue && node.nodeValue.trim() === '') {
+        const parent = node.parentNode?.nodeName.toLowerCase();
+        if (parent === 'body' || parent === 'div') return null;
+      }
+      return {
+        _type: 'span',
+        _key: `span-${Math.random()}`,
+        text: node.nodeValue || '',
+        marks: [],
+      };
+    }
+
+    if (node.nodeType !== 1) return null; // Not an element node
+
+    const element = node as HTMLElement;
+    const tagName = element.tagName.toLowerCase();
+
+    let children = Array.from(element.childNodes).map(child => nodeToPortableText(child, markDefs)).filter(Boolean);
+
+    switch (tagName) {
+      case 'strong':
+      case 'b':
+        children.forEach((child: any) => {
+          if (child._type === 'span' && !child.marks.includes('strong')) {
+            child.marks.push('strong');
+          }
+        });
+        return children;
+
+      case 'em':
+      case 'i':
+        children.forEach((child: any) => {
+          if (child._type === 'span' && !child.marks.includes('em')) {
+            child.marks.push('em');
+          }
+        });
+        return children;
+
+      case 'a':
+        const linkDef = {
+          _type: 'link',
+          _key: `link-${Math.random()}`,
+          href: element.getAttribute('href'),
+        };
+        markDefs.push(linkDef);
+        children.forEach((child: any) => {
+          if (child._type === 'span') {
+            child.marks.push(linkDef._key);
+          }
+        });
+        return children;
+
+      case 'p':
+      case 'h2':
+      case 'h3':
+      case 'blockquote':
+        // If children list is empty or contains only empty text, return null
+        if (!children.length || children.every((c: any) => c._type === 'span' && !c.text?.trim())) {
+          return null;
+        }
+        return {
+          _type: 'block',
+          _key: `block-${Math.random()}`,
+          style: tagName === 'p' ? 'normal' : tagName,
+          children: children.flat(),
+          markDefs: [],
+        };
+
+      case 'div':
+        // Handle divs that act as block containers
+        if (children.length > 0) {
+          // If a div only contains other block elements, flatten them.
+          // Otherwise, wrap inline content in a 'normal' paragraph block.
+          const containsBlock = children.some((c: any) => c._type === 'block');
+          if (containsBlock) {
+            return children;
+          }
+          return {
+            _type: 'block',
+            _key: `block-${Math.random()}`,
+            style: 'normal',
+            children: children.flat(),
+            markDefs: [],
+          };
+        }
+        return null;
+
+      case 'img':
+        return {
+          _type: 'image',
+          _key: `block-${Math.random()}`,
+          asset: { // This is a placeholder; real implementation might need asset upload
+            _type: 'reference',
+            _ref: `image-url-${element.getAttribute('src')}` // Not a valid Sanity ref, but shows intent
+          },
+          // We store the URL directly for now, assuming the renderer can handle it.
+          // This part might need adjustment based on how Sanity assets are handled.
+          _temp_src: element.getAttribute('src'),
+        };
+
+      default:
+        return children; // Flatten unknown tags
+    }
+  };
+
   // Helper function to convert HTML content to Portable Text
   const convertToPortableText = (htmlContent: string): any[] => {
-    if (!htmlContent.trim()) return [];
+    if (!htmlContent?.trim()) return [];
 
-    // Split by paragraphs (double line breaks)
-    const paragraphs = htmlContent.split('\n\n').filter(p => p.trim());
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(`<body>${htmlContent}</body>`, 'text/html');
+    const markDefs: any[] = [];
 
-    return paragraphs.map((paragraph, index) => ({
-      _type: 'block',
-      _key: `block-${Date.now()}-${index}`,
-      style: 'normal',
-      children: [{
-        _type: 'span',
-        _key: `span-${Date.now()}-${index}`,
-        text: paragraph.trim(),
-        marks: []
-      }]
-    }));
+    const bodyNodes = Array.from(doc.body.childNodes);
+    const portableTextBlocks = bodyNodes.map(node => nodeToPortableText(node, markDefs)).flat().filter(Boolean);
+
+    // Associate markDefs with the blocks that use them
+    portableTextBlocks.forEach(block => {
+      if (block._type === 'block' && block.children) {
+        const blockMarkKeys = new Set(block.children.flatMap((c: any) => c.marks || []));
+        block.markDefs = markDefs.filter(def => blockMarkKeys.has(def._key));
+      }
+    });
+
+    return portableTextBlocks;
   };
 
   // Formatting functions for the toolbar
@@ -158,7 +268,7 @@ const BlogPostPage: React.FC = () => {
       // Extract video ID from URL
       const videoId = extractYouTubeId(url);
       if (videoId) {
-        const embedHtml = `<div class="my-10 relative w-full" style="padding-bottom: 56.25%"><iframe src="https://www.youtube.com/embed/${videoId}" class="absolute top-0 left-0 w-full h-full rounded-2xl shadow-lg" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+        const embedHtml = `<div class="relative w-full" style="padding-bottom: 56.25%"><iframe src="https://www.youtube.com/embed/${videoId}" class="absolute top-0 left-0 w-full h-full rounded-2xl" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
         document.execCommand('insertHTML', false, embedHtml);
         setEditedContent(editor.innerHTML);
       } else {
@@ -201,7 +311,7 @@ const BlogPostPage: React.FC = () => {
       if (!editor) return;
 
       // Vstavi sliko na trenutno pozicijo cursora
-      const imageHtml = `<div class="my-10 rounded-2xl overflow-hidden shadow-lg"><img src="${imageUrl}" alt="${file.name}" class="w-full h-auto object-cover cursor-pointer hover:scale-[1.02] transition-transform duration-500" /></div><p><br></p>`;
+      const imageHtml = `<div class="rounded-2xl overflow-hidden"><img src="${imageUrl}" alt="${file.name}" class="w-full h-auto object-cover cursor-pointer hover:scale-[1.02] transition-transform duration-500" /></div>\n\n`;
       document.execCommand('insertHTML', false, imageHtml);
       setEditedContent(editor.innerHTML);
     };
@@ -213,8 +323,24 @@ const BlogPostPage: React.FC = () => {
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const text = e.clipboardData.getData('text/plain');
-    document.execCommand('insertText', false, text);
+    const pastedHtml = e.clipboardData.getData('text/html');
+    const pastedText = e.clipboardData.getData('text/plain');
+
+    let contentToInsert = '';
+    if (pastedHtml && pastedHtml.length > 0) {
+      // Basic sanitization: remove <meta>, <style>, <script> tags
+      const sanitizedHtml = pastedHtml
+        .replace(/<meta[^>]*>/g, '')
+        .replace(/<style[^>]*>[\s\S]*?<\/style>/g, '')
+        .replace(/<script[^>]*>[\s\S]*?<\/script>/g, '');
+      contentToInsert = sanitizedHtml;
+    } else {
+      contentToInsert = pastedText.replace(/\n/g, '<br>');
+    }
+
+    if (contentToInsert) {
+      document.execCommand('insertHTML', false, contentToInsert);
+    }
   };
 
   // Helper function to extract YouTube video ID
@@ -240,50 +366,43 @@ const BlogPostPage: React.FC = () => {
     return null;
   };
 
-  // Helper function to convert Portable Text back to HTML for editing
   const renderPortableTextToHTML = (body: any[]): string => {
-    if (!Array.isArray(body)) return '';
+    if (!Array.isArray(body)) {
+      // Fallback for old string content
+      return typeof body === 'string' ? body.replace(/\n/g, '<br/>') : '';
+    }
 
-    return body.map((block) => {
-      if (block._type === 'block') {
-        const style = block.style || 'normal';
-        let tag = 'p';
-
-        switch (style) {
-          case 'h2':
-            tag = 'h2';
-            break;
-          case 'h3':
-            tag = 'h3';
-            break;
-          case 'h4':
-            tag = 'h4';
-            break;
-          case 'blockquote':
-            tag = 'blockquote';
-            break;
-        }
-
-        const childrenHTML = block.children?.map((child: any) => {
-          let content = child.text || '';
-
-          // Apply marks
-          if (child.marks && child.marks.length > 0) {
-            if (child.marks.includes('strong')) {
-              content = `<strong>${content}</strong>`;
-            }
-            if (child.marks.includes('em')) {
-              content = `<em>${content}</em>`;
-            }
-          }
-
-          return content;
-        }).join('') || '';
-
-        return `<${tag}>${childrenHTML}</${tag}>`;
+    return body.map(block => {
+      if (block._type === 'image' && block._temp_src) {
+        return `<div class="rounded-2xl overflow-hidden"><img src="${block._temp_src}" alt="Image" class="w-full h-auto object-cover" /></div>`;
       }
 
-      return '';
+      if (block._type !== 'block') return '';
+
+      const tag = block.style === 'normal' ? 'p' : block.style;
+      const childrenHtml = (block.children || []).map((span: any) => {
+        let text = span.text || '';
+        // Basic HTML entity escaping
+        text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+        const marks = span.marks || [];
+        return marks.reduce((acc: string, markKey: string) => {
+          if (markKey === 'strong') return `<strong>${acc}</strong>`;
+          if (markKey === 'em') return `<em>${acc}</em>`;
+
+          const markDef = (block.markDefs || []).find((def: any) => def._key === markKey);
+          if (markDef?._type === 'link') {
+            return `<a href="${markDef.href}" target="_blank" rel="noopener noreferrer">${acc}</a>`;
+          }
+
+          return acc;
+        }, text);
+      }).join('');
+
+      // Avoid creating empty paragraphs that cause the .</p><p> issue
+      if (!childrenHtml.trim() && tag === 'p') return '';
+
+      return `<${tag}>${childrenHtml}</${tag}>`;
     }).join('\n\n');
   };
 
@@ -315,10 +434,14 @@ const BlogPostPage: React.FC = () => {
 
   // Set initial editor content when entering edit mode
   useEffect(() => {
-    if (isEditMode && editorRef.current && editedContent) {
-      editorRef.current.innerHTML = editedContent;
+    if (isEditMode && post) {
+      const htmlContent = renderPortableTextToHTML(post.body);
+      setEditedContent(htmlContent);
+      if (editorRef.current) {
+        editorRef.current.innerHTML = htmlContent;
+      }
     }
-  }, [isEditMode, editedContent]);
+  }, [isEditMode, post]);
 
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
@@ -514,15 +637,7 @@ const BlogPostPage: React.FC = () => {
                 onClick={() => {
                   setIsEditMode(true);
                   setEditedTitle(post.title);
-                  // Convert Portable Text to HTML for editing
-                  const htmlContent = renderPortableTextToHTML(post.body);
-                  setEditedContent(htmlContent);
-                  // Set initial content in editor after render
-                  setTimeout(() => {
-                    if (editorRef.current) {
-                      editorRef.current.innerHTML = htmlContent;
-                    }
-                  }, 0);
+                  // Initial setup is now handled by useEffect
                 }}
                 className="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-olive text-white rounded-xl font-semibold hover:bg-olive-dark transition-colors"
               >

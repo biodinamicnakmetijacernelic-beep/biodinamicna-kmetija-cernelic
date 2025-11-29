@@ -217,7 +217,7 @@ export const renderPortableText = (body: any[], onImageClick?: (src: string) => 
                         const altMatch = attributes.match(/alt="([^"]+)"/);
                         if (srcMatch) {
                           currentChildren.push(
-                            <div key={`img-${cursor}`} className="my-10 rounded-2xl overflow-hidden shadow-lg">
+                            <div key={`img-${cursor}`} className="rounded-2xl overflow-hidden">
                               <img
                                 src={srcMatch[1]}
                                 alt={altMatch ? altMatch[1] : "Slika"}
@@ -423,7 +423,7 @@ export const renderPortableText = (body: any[], onImageClick?: (src: string) => 
     if (block._type === 'image' && block.asset) {
       const imageUrl = urlFor(block.asset).width(1200).url();
       return (
-        <div key={block._key || index} className="my-10 rounded-2xl overflow-hidden shadow-lg">
+        <div key={block._key || index} className="rounded-2xl overflow-hidden">
           {onImageClick ? (
             <div
               onClick={() => onImageClick(imageUrl)}
