@@ -3,7 +3,7 @@ import { useParams, useLocation, Link } from 'react-router-dom';
 import { fetchNewsBySlug, updateNewsPost } from '../sanityClient';
 import { NewsItem } from '../types';
 import { renderPortableText } from '../utils/newsHelpers';
-import { ArrowLeft, Calendar, Share2 } from 'lucide-react';
+import { ArrowLeft, Calendar, Share2, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette, Link as LinkIcon, Image as ImageIcon, Video, MousePointerClick, Heading2, Heading3 } from 'lucide-react';
 import FadeIn from '../components/FadeIn';
 import Lightbox from '../components/Lightbox';
 import LinkPopup from '../components/LinkPopup';
@@ -60,6 +60,15 @@ const BlogPostPage: React.FC = () => {
       case 'h3':
         document.execCommand('formatBlock', false, 'h3');
         break;
+      case 'left':
+        document.execCommand('justifyLeft', false);
+        break;
+      case 'center':
+        document.execCommand('justifyCenter', false);
+        break;
+      case 'right':
+        document.execCommand('justifyRight', false);
+        break;
     }
 
     // Update the state with the new content
@@ -92,6 +101,56 @@ const BlogPostPage: React.FC = () => {
     }
   };
 
+  const changeTextColor = () => {
+    const editor = document.getElementById('editor') as HTMLElement;
+    if (!editor) return;
+
+    const color = prompt('Vnesite barvo (npr. #ff0000, red, rgb(255,0,0)):');
+    if (color) {
+      editor.focus();
+      document.execCommand('foreColor', false, color);
+      setEditedContent(editor.innerHTML);
+    }
+  };
+
+  const changeFontSize = (size: string) => {
+    const editor = document.getElementById('editor') as HTMLElement;
+    if (!editor) return;
+
+    const sizeMap: { [key: string]: string } = {
+      'text-sm': '2',
+      'text-base': '3',
+      'text-lg': '4',
+      'text-xl': '5',
+      'text-2xl': '6'
+    };
+
+    const execSize = sizeMap[size];
+    if (execSize) {
+      editor.focus();
+      document.execCommand('fontSize', false, execSize);
+      setEditedContent(editor.innerHTML);
+    }
+  };
+
+  const changeFontFamily = (family: string) => {
+    const editor = document.getElementById('editor') as HTMLElement;
+    if (!editor) return;
+
+    const familyMap: { [key: string]: string } = {
+      'font-sans': 'Arial, sans-serif',
+      'font-serif': 'Times New Roman, serif',
+      'font-mono': 'Courier New, monospace'
+    };
+
+    const execFamily = familyMap[family];
+    if (execFamily) {
+      editor.focus();
+      document.execCommand('fontName', false, execFamily);
+      setEditedContent(editor.innerHTML);
+    }
+  };
+
   const insertYouTube = () => {
     const editor = document.getElementById('editor') as HTMLElement;
     if (!editor) return;
@@ -108,6 +167,17 @@ const BlogPostPage: React.FC = () => {
         alert('Neveljaven YouTube URL');
       }
     }
+  };
+
+  const insertButton = () => {
+    const editor = document.getElementById('editor') as HTMLElement;
+    if (!editor) return;
+
+    const text = prompt('Vnesite besedilo gumba:', 'Preberi več') || 'Preberi več';
+    const url = prompt('Vnesite URL povezave:', 'https://') || 'https://';
+    const buttonHtml = `<div class="my-6 text-center"><a href="${url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-3 bg-terracotta text-white rounded-xl font-semibold hover:bg-terracotta-dark transition-colors">${text}</a></div>`;
+    document.execCommand('insertHTML', false, buttonHtml);
+    setEditedContent(editor.innerHTML);
   };
 
   // Helper function to extract YouTube video ID
@@ -490,7 +560,7 @@ const BlogPostPage: React.FC = () => {
         </FadeIn>
       )} */}
 
-            {/* Content - Apple Typography */}
+      {/* Content - Apple Typography */}
       <FadeIn>
         <div className="container mx-auto px-6 max-w-3xl pb-24">
           <div className="prose max-w-none">
@@ -499,56 +569,70 @@ const BlogPostPage: React.FC = () => {
                 {/* Formatting Toolbar */}
                 <div className="flex flex-wrap gap-1 mb-2 p-2 bg-gray-100 rounded-lg border border-gray-200">
                   <button onClick={() => formatText('bold')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Krepko">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
-                    </svg>
+                    <Bold size={14} />
                   </button>
                   <button onClick={() => formatText('italic')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Ležeče">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 4h-9m4 16h6M4 20l6.3-6.3a5.5 5.5 0 0 0 0-7.8L4 4" />
-                    </svg>
+                    <Italic size={14} />
                   </button>
                   <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
                   <button onClick={() => formatText('h2')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Naslov 2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 4h12M6 4v16M6 20h12M14 8H8" />
-                    </svg>
+                    <Heading2 size={14} />
                   </button>
                   <button onClick={() => formatText('h3')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Naslov 3">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 4h12M6 4v16M6 20h12M14 8H8M14 12H8" />
-                    </svg>
+                    <Heading3 size={14} />
                   </button>
                   <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
-                  <button onClick={() => insertLink()} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi povezavo">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-                    </svg>
+                  <button onClick={() => formatText('left')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Poravnava levo">
+                    <AlignLeft size={14} />
                   </button>
+                  <button onClick={() => formatText('center')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Sredinsko">
+                    <AlignCenter size={14} />
+                  </button>
+                  <button onClick={() => formatText('right')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Poravnava desno">
+                    <AlignRight size={14} />
+                  </button>
+                  <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
+                  <button onClick={() => changeTextColor()} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Barva besedila">
+                    <Palette size={14} />
+                  </button>
+                  <button onClick={() => insertLink()} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi povezavo">
+                    <LinkIcon size={14} />
+                  </button>
+                  <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
+                  <select onChange={(e) => changeFontSize(e.target.value)} className="text-xs bg-transparent border-none focus:ring-0 text-olive/70 font-medium cursor-pointer">
+                    <option value="">Velikost</option>
+                    <option value="text-sm">Majhna</option>
+                    <option value="text-base">Normalna</option>
+                    <option value="text-lg">Velika</option>
+                    <option value="text-xl">Zelo velika</option>
+                    <option value="text-2xl">Ogromna</option>
+                  </select>
+                  <select onChange={(e) => changeFontFamily(e.target.value)} className="text-xs bg-transparent border-none focus:ring-0 text-olive/70 font-medium cursor-pointer">
+                    <option value="">Pisava</option>
+                    <option value="font-sans">Sans-Serif</option>
+                    <option value="font-serif">Serif</option>
+                    <option value="font-mono">Mono</option>
+                  </select>
+                  <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
                   <button onClick={() => insertImage()} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi sliko">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <rect x={3} y={3} width={18} height={18} rx={2} ry={2} />
-                      <circle cx={9} cy={9} r={2} />
-                      <path d="M21 15l-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-                    </svg>
+                    <ImageIcon size={14} />
                   </button>
                   <button onClick={() => insertYouTube()} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi video (YouTube)">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0 1 21 8.618v6.764a1 1 0 0 1-1.447.894L15 14M5 18h8a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z" />
-                    </svg>
+                    <Video size={14} />
+                  </button>
+                  <button onClick={() => insertButton()} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi gumb">
+                    <MousePointerClick size={14} />
                   </button>
                 </div>
 
                 <div
                   id="editor"
-                  contentEditable
-                  suppressContentEditableWarning
-                  className="w-full bg-gray-50 border-2 border-terracotta rounded-xl px-6 py-4 min-h-[400px] focus:outline-none focus:border-terracotta-dark text-base leading-relaxed"
+                contentEditable
+                suppressContentEditableWarning
+                className="w-full bg-gray-50 border-2 border-terracotta rounded-xl px-6 py-4 min-h-[400px] focus:outline-none focus:border-terracotta-dark text-base leading-relaxed"
                   onInput={(e) => setEditedContent(e.currentTarget.innerHTML)}
-                  dangerouslySetInnerHTML={{ __html: editedContent }}
-                />
+                dangerouslySetInnerHTML={{ __html: editedContent }}
+              />
               </div>
             ) : (
               renderPortableText(post.body, (src) => setLightboxImage(src), (url) => setLinkPopupUrl(url))
