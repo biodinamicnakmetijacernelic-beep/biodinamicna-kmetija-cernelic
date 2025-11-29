@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useLocation, Link } from 'react-router-dom';
-import { fetchAllNews } from '../sanityClient';
+import { fetchNewsBySlug } from '../sanityClient';
 import { NewsItem } from '../types';
 import { renderPortableText } from '../utils/newsHelpers';
 import { ArrowLeft, Calendar, Share2 } from 'lucide-react';
