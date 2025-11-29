@@ -1318,6 +1318,16 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                     placeholder="Naslov Novice"
                   />
 
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-bold uppercase text-olive/50 ml-1">Datum objave</label>
+                    <input
+                      type="date"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta font-sans"
+                      value={newsForm.date}
+                      onChange={e => setNewsForm({ ...newsForm, date: e.target.value })}
+                    />
+                  </div>
+
                   {/* Block Editor Area */}
                   <div className="space-y-3">
                     <label className="text-xs font-bold uppercase text-olive/50 block">Vsebina</label>
