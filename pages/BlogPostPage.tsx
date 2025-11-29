@@ -210,6 +210,70 @@ const BlogPostPage: React.FC = () => {
     event.target.value = '';
   };
 
+  const sanitizeHtml = (html: string): string => {
+    // Ustvari začasni div za parsing HTML-ja
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+
+    // Odstrani nevarne elemente
+    const dangerousElements = tempDiv.querySelectorAll('script, style, iframe, object, embed, form, input, button, meta, link');
+    dangerousElements.forEach(element => element.remove());
+
+    // Odstrani nevarne atribute
+    const allElements = tempDiv.querySelectorAll('*');
+    allElements.forEach(element => {
+      // Odstrani event handlerje in javascript
+      Array.from(element.attributes).forEach(attr => {
+        if (attr.name.startsWith('on') || attr.value.toLowerCase().includes('javascript:')) {
+          element.removeAttribute(attr.name);
+        }
+      });
+
+      // Dovoli samo varne atribute za linke
+      if (element.tagName.toLowerCase() === 'a') {
+        const allowedAttrs = ['href', 'target', 'rel'];
+        Array.from(element.attributes).forEach(attr => {
+          if (!allowedAttrs.includes(attr.name)) {
+            element.removeAttribute(attr.name);
+          }
+        });
+
+        // Zagotovi target="_blank" in rel="noopener noreferrer" za varnost
+        if (element.hasAttribute('href')) {
+          element.setAttribute('target', '_blank');
+          element.setAttribute('rel', 'noopener noreferrer');
+        }
+      }
+    });
+
+    return tempDiv.innerHTML;
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+
+    const clipboardData = e.clipboardData;
+    const editor = e.currentTarget as HTMLElement;
+
+    // Najprej poskusi dobiti HTML content
+    let htmlContent = clipboardData.getData('text/html');
+
+    if (htmlContent) {
+      // Očisti HTML content
+      htmlContent = sanitizeHtml(htmlContent);
+
+      // Vstavi očiščeni HTML
+      document.execCommand('insertHTML', false, htmlContent);
+    } else {
+      // Če ni HTML-ja, uporabi plain text
+      const textContent = clipboardData.getData('text/plain');
+      document.execCommand('insertText', false, textContent);
+    }
+
+    // Posodobi state
+    setEditedContent(editor.innerHTML);
+  };
+
   // Helper function to extract YouTube video ID
   const extractYouTubeId = (input: string): string | null => {
     const patterns = [
@@ -684,6 +748,7 @@ const BlogPostPage: React.FC = () => {
                 suppressContentEditableWarning
                 className="w-full bg-gray-50 border-2 border-terracotta rounded-xl px-6 py-4 min-h-[400px] focus:outline-none focus:border-terracotta-dark text-base leading-relaxed"
                   onInput={(e) => setEditedContent(e.currentTarget.innerHTML)}
+                  onPaste={handlePaste}
                 dangerouslySetInnerHTML={{ __html: editedContent }}
               />
               </div>
