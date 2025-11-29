@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { fetchNewsBySlug } from '../sanityClient';
+import { useParams, useLocation, Link } from 'react-router-dom';
+import { fetchAllNews } from '../sanityClient';
 import { NewsItem } from '../types';
 import { renderPortableText } from '../utils/newsHelpers';
 import { ArrowLeft, Calendar, Share2 } from 'lucide-react';
@@ -14,6 +14,11 @@ const BlogPostPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [linkPopupUrl, setLinkPopupUrl] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editedTitle, setEditedTitle] = useState('');
+  const [editedContent, setEditedContent] = useState('');
+  const location = useLocation();
 
   useEffect(() => {
     const loadPost = async () => {
@@ -29,7 +34,17 @@ const BlogPostPage: React.FC = () => {
   useEffect(() => {
     // Scroll to top when component mounts
     window.scrollTo(0, 0);
-  }, []);
+
+    // Check if admin is logged in
+    const adminSession = localStorage.getItem('admin_session');
+    setIsAdmin(!!adminSession);
+
+    // Check if edit mode is requested via URL
+    const searchParams = new URLSearchParams(location.search);
+    if (searchParams.get('edit') === 'true' && adminSession) {
+      setIsEditMode(true);
+    }
+  }, [location]);
 
   const [showShareMenu, setShowShareMenu] = useState(false);
 

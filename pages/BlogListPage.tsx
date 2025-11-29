@@ -5,14 +5,24 @@ import { NewsItem } from '../types';
 import { Calendar, ArrowRight } from 'lucide-react';
 import FadeIn from '../components/FadeIn';
 import { getPreviewText } from '../utils/newsHelpers';
+import AdminFloatingButtons from '../components/AdminFloatingButtons';
+import AllPostsPopup from '../components/AllPostsPopup';
+import { useNavigate } from 'react-router-dom';
 
 const BlogListPage: React.FC = () => {
   const [posts, setPosts] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAllPostsPopup, setShowAllPostsPopup] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Scroll to top when page loads
     window.scrollTo(0, 0);
+
+    // Check if admin is logged in
+    const adminSession = localStorage.getItem('admin_session');
+    setIsAdmin(!!adminSession);
   }, []);
 
   useEffect(() => {
@@ -161,6 +171,19 @@ const BlogListPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Admin Floating Buttons */}
+      {isAdmin && (
+        <>
+          <AdminFloatingButtons
+            onCreateNew={() => navigate('/admin')}
+            onViewAll={() => setShowAllPostsPopup(true)}
+          />
+          {showAllPostsPopup && (
+            <AllPostsPopup onClose={() => setShowAllPostsPopup(false)} />
+          )}
+        </>
+      )}
     </section>
   );
 };
