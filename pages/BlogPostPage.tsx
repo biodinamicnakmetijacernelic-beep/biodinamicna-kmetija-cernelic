@@ -211,7 +211,7 @@ const BlogPostPage: React.FC = () => {
   };
 
   const sanitizeHtml = (html: string): string => {
-    // Ohrani SAMO hyperlinke, odstrani vso drugo formatacijo
+    // Ohrani hyperlinke IN odstavke, odstrani vso drugo formatacijo
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = html;
 
@@ -226,21 +226,44 @@ const BlogPostPage: React.FC = () => {
       return newLink;
     });
 
-    // Vrni samo tekst z linki, brez druge formatacije
+    // Najdi odstavke in jih shrani
+    const paragraphs = tempDiv.querySelectorAll('p, div, br');
+    let result = '';
+
+    if (paragraphs.length > 0) {
+      // Ohrani strukturo odstavkov
+      Array.from(paragraphs).forEach((para, index) => {
+        if (para.tagName.toLowerCase() === 'br') {
+          result += '<br>';
+          return;
+        }
+
+        const text = para.textContent || '';
+        if (text.trim()) {
+          // Če je odstavek, ga ovij v <p>
+          if (para.tagName.toLowerCase() === 'p') {
+            result += `<p>${text}</p>`;
+          } else {
+            // Za div elemente preveri če imajo tekst
+            result += text + (index < paragraphs.length - 1 ? '<br>' : '');
+          }
+        }
+      });
+    } else {
+      // Če ni odstavkov, vzami ves tekst
+      result = tempDiv.textContent || '';
+    }
+
+    // Dodaj linke nazaj v tekst
     if (linkElements.length > 0) {
-      const textContent = tempDiv.textContent || '';
-      // Preprosta zamenjava - če najdemo link tekst v plain tekstu, ga zamenjaj z link elementom
-      let result = textContent;
       linkElements.forEach(link => {
         const linkText = link.textContent || '';
         const linkHtml = link.outerHTML;
-        result = result.replace(linkText, linkHtml);
+        result = result.replace(new RegExp(linkText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), linkHtml);
       });
-      return result;
     }
 
-    // Če ni linkov, vrni samo plain text
-    return tempDiv.textContent || '';
+    return result;
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
@@ -731,22 +754,22 @@ const BlogPostPage: React.FC = () => {
                   id="editor"
                 contentEditable
                 suppressContentEditableWarning
-                className="w-full bg-gray-50 border-2 border-terracotta rounded-xl px-6 py-4 min-h-[400px] focus:outline-none focus:border-terracotta-dark text-base leading-relaxed"
+                className="w-full bg-gray-50 border-2 border-terracotta rounded-xl px-6 py-4 min-h-[400px] text-base"
                   style={{
-                    cursor: 'text'
+                    outline: 'none',
+                    cursor: 'text',
+                    caretColor: '#000',
+                    lineHeight: '1.6',
+                    wordWrap: 'break-word',
+                    overflowWrap: 'break-word'
                   }}
                   onInput={(e) => setEditedContent(e.currentTarget.innerHTML)}
                   onPaste={handlePaste}
-                  onClick={(e) => {
-                    // Ensure focus and cursor position
-                    e.currentTarget.focus();
-                    const selection = window.getSelection();
-                    if (selection && selection.rangeCount === 0) {
-                      const range = document.createRange();
-                      range.selectNodeContents(e.currentTarget);
-                      range.collapse(false);
-                      selection.removeAllRanges();
-                      selection.addRange(range);
+                  onKeyDown={(e) => {
+                    // Handle Enter key to prevent cursor jumping
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      document.execCommand('insertHTML', false, '<br><br>');
                     }
                   }}
                 dangerouslySetInnerHTML={{ __html: editedContent }}
