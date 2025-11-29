@@ -211,31 +211,36 @@ const BlogPostPage: React.FC = () => {
   };
 
   const sanitizeHtml = (html: string): string => {
-    // Preprost pristop - samo odstrani nevarne elemente
+    // Ohrani SAMO hyperlinke, odstrani vso drugo formatacijo
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = html;
 
-    // Odstrani nevarne elemente
-    const dangerous = tempDiv.querySelectorAll('script, style, iframe, object, embed, form, input, button, meta, link');
-    dangerous.forEach(el => el.remove());
-
-    // Odstrani event handlerje iz vseh elementov
-    const allElements = tempDiv.querySelectorAll('*');
-    allElements.forEach(el => {
-      Array.from(el.attributes).forEach(attr => {
-        if (attr.name.startsWith('on') || attr.value.includes('javascript:') || attr.value.includes('vbscript:')) {
-          el.removeAttribute(attr.name);
-        }
-      });
-
-      // Za linke dodaj varnostne atribute
-      if (el.tagName.toLowerCase() === 'a' && el.hasAttribute('href')) {
-        el.setAttribute('target', '_blank');
-        el.setAttribute('rel', 'noopener noreferrer');
-      }
+    // Najdi vse linke in jih shrani
+    const links = tempDiv.querySelectorAll('a[href]');
+    const linkElements = Array.from(links).map(link => {
+      const newLink = document.createElement('a');
+      newLink.href = link.href;
+      newLink.textContent = link.textContent || link.href;
+      newLink.setAttribute('target', '_blank');
+      newLink.setAttribute('rel', 'noopener noreferrer');
+      return newLink;
     });
 
-    return tempDiv.innerHTML;
+    // Vrni samo tekst z linki, brez druge formatacije
+    if (linkElements.length > 0) {
+      const textContent = tempDiv.textContent || '';
+      // Preprosta zamenjava - če najdemo link tekst v plain tekstu, ga zamenjaj z link elementom
+      let result = textContent;
+      linkElements.forEach(link => {
+        const linkText = link.textContent || '';
+        const linkHtml = link.outerHTML;
+        result = result.replace(linkText, linkHtml);
+      });
+      return result;
+    }
+
+    // Če ni linkov, vrni samo plain text
+    return tempDiv.textContent || '';
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
@@ -727,8 +732,23 @@ const BlogPostPage: React.FC = () => {
                 contentEditable
                 suppressContentEditableWarning
                 className="w-full bg-gray-50 border-2 border-terracotta rounded-xl px-6 py-4 min-h-[400px] focus:outline-none focus:border-terracotta-dark text-base leading-relaxed"
+                  style={{
+                    cursor: 'text'
+                  }}
                   onInput={(e) => setEditedContent(e.currentTarget.innerHTML)}
                   onPaste={handlePaste}
+                  onClick={(e) => {
+                    // Ensure focus and cursor position
+                    e.currentTarget.focus();
+                    const selection = window.getSelection();
+                    if (selection && selection.rangeCount === 0) {
+                      const range = document.createRange();
+                      range.selectNodeContents(e.currentTarget);
+                      range.collapse(false);
+                      selection.removeAllRanges();
+                      selection.addRange(range);
+                    }
+                  }}
                 dangerouslySetInnerHTML={{ __html: editedContent }}
               />
               </div>
