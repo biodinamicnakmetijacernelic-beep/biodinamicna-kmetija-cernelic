@@ -219,9 +219,64 @@ const BlogPostPage: React.FC = () => {
             </div>
 
             {/* Title */}
-            <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-olive-dark leading-[0.95] tracking-tight mb-6">
-              {post.title}
-            </h1>
+            {isEditMode ? (
+              <input
+                type="text"
+                value={editedTitle}
+                onChange={(e) => setEditedTitle(e.target.value)}
+                className="w-full font-serif text-4xl md:text-5xl text-olive-dark mb-8 leading-tight bg-gray-50 border-2 border-terracotta rounded-xl px-4 py-3 focus:outline-none focus:border-terracotta-dark"
+                placeholder="Naslov"
+              />
+            ) : (
+              <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-olive-dark leading-[0.95] tracking-tight mb-6">
+                {post.title}
+              </h1>
+            )}
+
+            {/* Admin Edit Button */}
+            {isAdmin && !isEditMode && (
+              <button
+                onClick={() => {
+                  setIsEditMode(true);
+                  setEditedTitle(post.title);
+                  setEditedContent(post.body.map(b => b.children?.map((c: any) => c.text).join('') || '').join('\n\n'));
+                }}
+                className="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-olive text-white rounded-xl font-semibold hover:bg-olive-dark transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Uredi
+              </button>
+            )}
+
+            {/* Edit Mode Controls */}
+            {isEditMode && (
+              <div className="mb-6 flex gap-3">
+                <button
+                  onClick={async () => {
+                    // Save logic will be implemented
+                    alert('Shranjevanje...');
+                  }}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-terracotta text-white rounded-xl font-semibold hover:bg-terracotta-dark transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Posodobi
+                </button>
+                <button
+                  onClick={() => {
+                    setIsEditMode(false);
+                    setEditedTitle('');
+                    setEditedContent('');
+                  }}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-300 transition-colors"
+                >
+                  Prekliči
+                </button>
+              </div>
+            )}
           </FadeIn>
         </div>
       </div>
@@ -246,7 +301,17 @@ const BlogPostPage: React.FC = () => {
       <FadeIn>
         <div className="container mx-auto px-6 max-w-3xl pb-24">
           <div className="prose max-w-none">
-            {renderPortableText(post.body, (src) => setLightboxImage(src), (url) => setLinkPopupUrl(url))}
+            {isEditMode ? (
+              <div
+                contentEditable
+                suppressContentEditableWarning
+                className="w-full bg-gray-50 border-2 border-terracotta rounded-xl px-6 py-4 min-h-[400px] focus:outline-none focus:border-terracotta-dark text-base leading-relaxed"
+                onInput={(e) => setEditedContent(e.currentTarget.textContent || '')}
+                dangerouslySetInnerHTML={{ __html: editedContent }}
+              />
+            ) : (
+              renderPortableText(post.body, (src) => setLightboxImage(src), (url) => setLinkPopupUrl(url))
+            )}
           </div>
 
           {/* Back to Blog CTA */}
