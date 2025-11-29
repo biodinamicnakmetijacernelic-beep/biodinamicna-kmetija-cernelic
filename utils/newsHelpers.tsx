@@ -59,51 +59,215 @@ export const renderPortableText = (body: any[], onImageClick?: (src: string) => 
           {block.children?.map((child: any, childIndex: number) => {
             let content: React.ReactNode = child.text;
 
-            // Handle Markdown-style links [text](url)
+            // Handle Markdown-style links [text](url) and HTML tags
             if (typeof content === 'string') {
-              const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-              const parts = [];
-              let lastIndex = 0;
-              let match;
+              // Regex to match:
+              // 1. Markdown links: [text](url)
+              // 2. HTML tags: <tag attributes>...</tag> (simple nesting supported via recursion or iterative parsing)
+              // For simplicity and robustness with the specific tags we use, let's use a splitter.
 
-              while ((match = linkRegex.exec(content)) !== null) {
-                // Add text before the link
-                if (match.index > lastIndex) {
-                  parts.push(content.slice(lastIndex, match.index));
+              // We will split by tags and links.
+              // Supported tags: <b>, <i>, <strong>, <em>, <span>, <div> (with classes/styles)
+              // Note: The toolbar inserts: **, *, <div class="...">, <span class="...">, <span style="...">
+
+              const parts: React.ReactNode[] = [];
+
+              // Helper to parse string content
+              const parseContent = (text: string): React.ReactNode[] => {
+                const result: React.ReactNode[] = [];
+                // Regex for our specific tokens
+                // Matches:
+                // 1. Markdown link: \[([^\]]+)\]\(([^)]+)\)
+                // 2. HTML open tag: <([a-z]+)([^>]*)>
+                // 3. HTML close tag: <\/([a-z]+)>
+                // 4. Bold: \*\*([^*]+)\*\*
+                // 5. Italic: \*([^*]+)\*
+                const tokenRegex = /(\[([^\]]+)\]\(([^)]+)\))|(<([a-z]+)([^>]*)>)|(<\/([a-z]+)>)|(\*\*([^*]+)\*\*)|(\*([^*]+)\*)/gi;
+
+                let lastIndex = 0;
+                let match;
+
+                // We need a stack for HTML tags to handle nesting properly
+                // But a full parser is complex. Let's try a simpler approach: 
+                // Since our tags are mostly wrapping, we can try to replace them with React elements.
+                // However, string replacement doesn't work for React elements.
+
+                // Let's iterate through the string and build the tree.
+
+                const tokens = text.split(/((?:\[[^\]]+\]\([^)]+\))|(?:<\/?(?:div|span)[^>]*>)|(?:\*\*[^*]+\*\*)|(?:\*[^*]+\*))/g);
+
+                // This split gives us: ["text", "token", "text", ...] (flat list)
+                // This doesn't handle nesting well (e.g. <b><i>text</i></b>).
+                // But our toolbar wraps selection. If user wraps twice, it nests.
+
+                // If we want to support nesting, we need to parse properly.
+                // Given the constraints, let's try to handle the most common cases or use a recursive parser.
+
+                // Let's try a recursive parser that finds the *first* open tag or token, finds its matching close, and recurses.
+
+                // Simplified parser for our specific use cases:
+                // We support:
+                // - [text](url) -> Link
+                // - **text** -> Bold
+                // - *text* -> Italic
+                // - <div class="...">...</div> -> Div with class
+                // - <span class="...">...</span> -> Span with class
+                // - <span style="...">...</span> -> Span with style
+
+                // We can use a regex to find the *next* interesting thing.
+
+                let cursor = 0;
+                let currentChildren = result; // This is the array we're building
+                while (cursor < text.length) {
+                  // Find next start token
+                  const nextToken = text.slice(cursor).match(/(\[([^\]]+)\]\(([^)]+)\))|(\*\*)|(\*)|(<(div|span)([^>]*)>)|(<\/(div|span)>)/);
+
+                  if (!nextToken) {
+                    currentChildren.push(text.slice(cursor));
+                    break;
+                  }
+
+                  const matchIndex = cursor + nextToken.index!;
+
+                  // Push text before token
+                  if (matchIndex > cursor) {
+                    currentChildren.push(text.slice(cursor, matchIndex));
+                  }
+
+                  const fullMatch = nextToken[0];
+
+                  // Handle Link (Self-contained)
+                  if (fullMatch.startsWith('[')) {
+                    const linkMatch = fullMatch.match(/\[([^\]]+)\]\(([^)]+)\)/);
+                    if (linkMatch) {
+                      currentChildren.push(
+                        <a
+                          key={`link-${cursor}`}
+                          href={linkMatch[2]}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-terracotta hover:text-olive-dark transition-colors border-b border-terracotta/30 hover:border-olive-dark font-medium"
+                        >
+                          {linkMatch[1]}
+                        </a>
+                      );
+                    }
+                    cursor = matchIndex + fullMatch.length;
+                    continue;
+                  }
+
+                  // Handle Bold (**...**)
+                  if (fullMatch === '**') {
+                    const endBold = text.indexOf('**', matchIndex + 2);
+                    if (endBold !== -1) {
+                      const boldContent = text.slice(matchIndex + 2, endBold);
+                      currentChildren.push(<strong key={`b-${cursor}`} className="font-bold">{parseContent(boldContent)}</strong>);
+                      cursor = endBold + 2;
+                      continue;
+                    }
+                  }
+
+                  // Handle Italic (*...*)
+                  if (fullMatch === '*') {
+                    const endItalic = text.indexOf('*', matchIndex + 1);
+                    if (endItalic !== -1) {
+                      const italicContent = text.slice(matchIndex + 1, endItalic);
+                      currentChildren.push(<em key={`i-${cursor}`} className="italic">{parseContent(italicContent)}</em>);
+                      cursor = endItalic + 1;
+                      continue;
+                    }
+                  }
+
+                  // Handle HTML Tags
+                  if (fullMatch.startsWith('<')) {
+                    if (fullMatch.startsWith('</')) {
+                      // Closing tag - should be handled by recursion if we were strict, 
+                      // but here it means we found a stray closing tag or we are inside a recursive call?
+                      // Actually, for this simple parser, let's assume balanced tags for the "wrapping" logic.
+                      // If we find an opening tag, we look for the matching closing tag.
+
+                      // This simple linear scan might fail with nested same-tags.
+                      // But let's try to find the matching closing tag counting depth.
+                    } else {
+                      // Opening tag
+                      const tagName = nextToken[7]; // div or span
+                      const attributes = nextToken[8];
+
+                      // Parse attributes
+                      let className = "";
+                      let style: React.CSSProperties = {};
+
+                      const classMatch = attributes.match(/class="([^"]+)"/);
+                      if (classMatch) className = classMatch[1];
+
+                      const styleMatch = attributes.match(/style="([^"]+)"/);
+                      if (styleMatch) {
+                        const styleStr = styleMatch[1];
+                        // Parse simple style string "color:#..."
+                        styleStr.split(';').forEach(s => {
+                          const [key, val] = s.split(':');
+                          if (key && val) {
+                            // Convert CSS property name to camelCase for React style object
+                            const camelKey = key.trim().replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+                            style[camelKey as keyof React.CSSProperties] = val.trim();
+                          }
+                        });
+                      }
+
+                      // Find matching closing tag </tagName>
+                      // We need to handle nesting of same tag.
+                      let depth = 1;
+                      let searchCursor = matchIndex + fullMatch.length;
+                      let closeIndex = -1;
+
+                      while (searchCursor < text.length) {
+                        const nextTag = text.slice(searchCursor).match(new RegExp(`(<${tagName}[^>]*>)|(<\/${tagName}>)`));
+                        if (!nextTag) break;
+
+                        if (nextTag[0].startsWith('</')) {
+                          depth--;
+                        } else {
+                          depth++;
+                        }
+
+                        if (depth === 0) {
+                          closeIndex = searchCursor + nextTag.index!;
+                          break;
+                        }
+                        searchCursor += nextTag.index! + nextTag[0].length;
+                      }
+
+                      if (closeIndex !== -1) {
+                        const innerContent = text.slice(matchIndex + fullMatch.length, closeIndex);
+                        const Component = tagName as any;
+                        currentChildren.push(
+                          <Component key={`tag-${cursor}`} className={className} style={style}>
+                            {parseContent(innerContent)}
+                          </Component>
+                        );
+                        cursor = closeIndex + `</${tagName}>`.length;
+                        continue;
+                      }
+                    }
+                  }
+
+                  // If we get here, we matched a token but couldn't process it (e.g. unclosed tag), treat as text
+                  currentChildren.push(fullMatch);
+                  cursor = matchIndex + fullMatch.length;
                 }
 
-                // Add the link
-                parts.push(
-                  <a
-                    key={`link-${match.index}`}
-                    href={match[2]}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-terracotta hover:text-olive-dark transition-colors border-b border-terracotta/30 hover:border-olive-dark font-medium"
-                  >
-                    {match[1]}
-                  </a>
-                );
+                return result;
+              };
 
-                lastIndex = match.index + match[0].length;
-              }
-
-              // Add remaining text
-              if (lastIndex < content.length) {
-                parts.push(content.slice(lastIndex));
-              }
-
-              if (parts.length > 0) {
-                content = <>{parts}</>;
-              }
+              content = <>{parseContent(content as string)}</>;
             }
 
-            // Apply marks (existing logic)
+            // Apply marks (existing logic) - kept as fallback or for Sanity-native marks
             if (child.marks && child.marks.length > 0) {
               // ... existing mark logic ...
-              // Note: If we already parsed markdown links, marks might wrap the whole thing or parts.
-              // Ideally, we should handle marks first or carefully combine.
-              // For simplicity, let's assume markdown links are used in plain text blocks mostly.
+              // Since we now parse content, marks might duplicate or conflict.
+              // But since we are using custom text blocks mostly, marks might not be present.
+              // If they are, they wrap the whole content.
 
               // 1. Handle Link (Sanity native)
               const linkMark = child.marks.find((mark: string) =>

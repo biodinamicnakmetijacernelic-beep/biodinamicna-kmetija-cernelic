@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Save, Search, RefreshCw, MousePointerClick, ShoppingBag, ClipboardList, Bell, Image as ImageIcon, Upload, Trash2, Pencil, ArrowLeft, AlertTriangle, Plus, Lock, Send, Eye, EyeOff, FileText, Type, Video, Check, LogOut, Link as LinkIcon } from 'lucide-react';
+import { X, Save, Search, RefreshCw, MousePointerClick, ShoppingBag, ClipboardList, Bell, Image as ImageIcon, Upload, Trash2, Pencil, ArrowLeft, AlertTriangle, Plus, Lock, Send, Eye, EyeOff, FileText, Type, Video, Check, LogOut, Link as LinkIcon, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette } from 'lucide-react';
 import { GalleryItem, PreOrderItem, NewsItem, VideoGalleryItem, Order } from '../types';
 import { uploadImageToSanity, fetchProducts, updateProductStatus, createProduct, updateProduct, deleteProduct, createNewsPost, fetchAllNews, updateNewsPost, deleteNewsPost, fetchVideoGallery, createVideo, updateVideo, deleteVideo, fetchOrders, updateOrderStatus, deleteOrder, fetchGalleryImages, updateGalleryImage, deleteGalleryImage } from '../sanityClient';
 import { sendOrderStatusUpdateEmail } from '../utils/emailService';
@@ -495,8 +495,6 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
     const block = newsBlocks.find(b => b.id === blockId);
     if (!block || block.type !== 'text') return;
 
-    // We need to access the textarea to get selection.
-    // Since we map blocks, we can try to find the element by ID if we set IDs on textareas.
     const textarea = document.getElementById(`textarea-${blockId}`) as HTMLTextAreaElement;
     if (!textarea) return;
 
@@ -510,6 +508,31 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
       const linkText = selectedText || "povezava";
       const newText = text.substring(0, start) + `[${linkText}](${url})` + text.substring(end);
       updateBlockContent(blockId, newText);
+    }
+  };
+
+  const wrapSelection = (blockId: string, startTag: string, endTag: string) => {
+    const block = newsBlocks.find(b => b.id === blockId);
+    if (!block || block.type !== 'text') return;
+
+    const textarea = document.getElementById(`textarea-${blockId}`) as HTMLTextAreaElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = block.content || '';
+    const selectedText = text.substring(start, end);
+
+    if (!selectedText) return;
+
+    const newText = text.substring(0, start) + startTag + selectedText + endTag + text.substring(end);
+    updateBlockContent(blockId, newText);
+  };
+
+  const insertColor = (blockId: string) => {
+    const color = prompt("Vnesite HEX barvo (npr. #FF5733):", "#");
+    if (color) {
+      wrapSelection(blockId, `<span style="color:${color}">`, `</span>`);
     }
   };
 
@@ -1402,6 +1425,64 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                       <div key={block.id} className="relative group">
                         {block.type === 'text' && (
                           <div className="relative">
+                            {/* Formatting Toolbar */}
+                            <div className="flex flex-wrap gap-1 mb-2 p-2 bg-gray-100 rounded-lg border border-gray-200">
+                              <button onClick={() => wrapSelection(block.id, '**', '**')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Krepko">
+                                <Bold size={14} />
+                              </button>
+                              <button onClick={() => wrapSelection(block.id, '*', '*')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Ležeče">
+                                <Italic size={14} />
+                              </button>
+                              <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
+                              <button onClick={() => wrapSelection(block.id, '<div class="text-left">', '</div>')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Poravnava levo">
+                                <AlignLeft size={14} />
+                              </button>
+                              <button onClick={() => wrapSelection(block.id, '<div class="text-center">', '</div>')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Sredinsko">
+                                <AlignCenter size={14} />
+                              </button>
+                              <button onClick={() => wrapSelection(block.id, '<div class="text-right">', '</div>')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Poravnava desno">
+                                <AlignRight size={14} />
+                              </button>
+                              <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
+                              <button onClick={() => insertColor(block.id)} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Barva besedila">
+                                <Palette size={14} />
+                              </button>
+                              <button onClick={() => insertLink(block.id)} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi povezavo">
+                                <LinkIcon size={14} />
+                              </button>
+                              <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
+                              <select
+                                onChange={(e) => {
+                                  if (e.target.value) {
+                                    wrapSelection(block.id, `<span class="${e.target.value}">`, '</span>');
+                                    e.target.value = "";
+                                  }
+                                }}
+                                className="text-xs bg-transparent border-none focus:ring-0 text-olive/70 font-medium cursor-pointer"
+                              >
+                                <option value="">Velikost</option>
+                                <option value="text-sm">Majhna</option>
+                                <option value="text-base">Normalna</option>
+                                <option value="text-lg">Velika</option>
+                                <option value="text-xl">Zelo velika</option>
+                                <option value="text-2xl">Ogromna</option>
+                              </select>
+                              <select
+                                onChange={(e) => {
+                                  if (e.target.value) {
+                                    wrapSelection(block.id, `<span class="${e.target.value}">`, '</span>');
+                                    e.target.value = "";
+                                  }
+                                }}
+                                className="text-xs bg-transparent border-none focus:ring-0 text-olive/70 font-medium cursor-pointer"
+                              >
+                                <option value="">Pisava</option>
+                                <option value="font-sans">Sans-Serif</option>
+                                <option value="font-serif">Serif</option>
+                                <option value="font-mono">Mono</option>
+                              </select>
+                            </div>
+
                             <textarea
                               id={`textarea-${block.id}`}
                               className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta font-serif min-h-[150px]"
@@ -1409,13 +1490,6 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                               onChange={(e) => updateBlockContent(block.id, e.target.value)}
                               placeholder="Vnesite besedilo..."
                             />
-                            <button
-                              onClick={() => insertLink(block.id)}
-                              className="absolute top-2 right-2 p-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-olive/60 hover:text-olive transition-colors"
-                              title="Vstavi povezavo"
-                            >
-                              <LinkIcon size={16} />
-                            </button>
                           </div>
                         )}
                         {block.type !== 'text' && (
