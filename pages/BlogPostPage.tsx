@@ -89,44 +89,41 @@ const BlogPostPage: React.FC = () => {
   };
 
   const insertImage = () => {
-    const editor = document.getElementById('editor') as HTMLElement;
-    if (!editor) return;
-
-    const url = prompt('Vnesite URL slike:');
-    if (url) {
-      const alt = prompt('Vnesite opis slike:', 'Slika') || 'Slika';
-      const imageHtml = `<div class="my-10 rounded-2xl overflow-hidden shadow-lg"><img src="${url}" alt="${alt}" class="w-full h-auto object-cover cursor-pointer hover:scale-[1.02] transition-transform duration-500" /></div>`;
-      document.execCommand('insertHTML', false, imageHtml);
-      setEditedContent(editor.innerHTML);
+    // Odpri file dialog
+    const fileInput = document.getElementById('image-upload') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
     }
   };
 
-  const changeTextColor = () => {
+  const changeTextColor = (color: string) => {
     const editor = document.getElementById('editor') as HTMLElement;
     if (!editor) return;
 
-    const color = prompt('Vnesite barvo (npr. #ff0000, red, rgb(255,0,0)):');
-    if (color) {
-      editor.focus();
-      document.execCommand('foreColor', false, color);
-      setEditedContent(editor.innerHTML);
-    }
+    editor.focus();
+    document.execCommand('foreColor', false, color);
+    setEditedContent(editor.innerHTML);
+    setShowColorPicker(false);
   };
 
   const changeFontSize = (size: string) => {
     const editor = document.getElementById('editor') as HTMLElement;
     if (!editor) return;
 
-    const sizeMap: { [key: string]: string } = {
-      'text-sm': '2',
-      'text-base': '3',
-      'text-lg': '4',
-      'text-xl': '5',
-      'text-2xl': '6'
-    };
+    if (size && size.trim()) {
+      // Če je velikost v px, pretvori v execCommand velikost (1-7)
+      let execSize = size;
+      if (size.endsWith('px')) {
+        const px = parseInt(size);
+        if (px <= 12) execSize = '1';
+        else if (px <= 14) execSize = '2';
+        else if (px <= 16) execSize = '3';
+        else if (px <= 18) execSize = '4';
+        else if (px <= 24) execSize = '5';
+        else if (px <= 32) execSize = '6';
+        else execSize = '7';
+      }
 
-    const execSize = sizeMap[size];
-    if (execSize) {
       editor.focus();
       document.execCommand('fontSize', false, execSize);
       setEditedContent(editor.innerHTML);
@@ -178,6 +175,39 @@ const BlogPostPage: React.FC = () => {
     const buttonHtml = `<div class="my-6 text-center"><a href="${url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-3 bg-terracotta text-white rounded-xl font-semibold hover:bg-terracotta-dark transition-colors">${text}</a></div>`;
     document.execCommand('insertHTML', false, buttonHtml);
     setEditedContent(editor.innerHTML);
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Preveri če je slika
+    if (!file.type.startsWith('image/')) {
+      alert('Prosimo izberite slikovno datoteko');
+      return;
+    }
+
+    // Preveri velikost (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Slika je prevelika. Največja dovoljena velikost je 5MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const imageUrl = e.target?.result as string;
+      const editor = document.getElementById('editor') as HTMLElement;
+      if (!editor) return;
+
+      // Vstavi sliko na trenutno pozicijo cursora
+      const imageHtml = `<div class="my-10 rounded-2xl overflow-hidden shadow-lg"><img src="${imageUrl}" alt="${file.name}" class="w-full h-auto object-cover cursor-pointer hover:scale-[1.02] transition-transform duration-500" /></div>`;
+      document.execCommand('insertHTML', false, imageHtml);
+      setEditedContent(editor.innerHTML);
+    };
+    reader.readAsDataURL(file);
+
+    // Reset file input
+    event.target.value = '';
   };
 
   // Helper function to extract YouTube video ID
@@ -277,6 +307,7 @@ const BlogPostPage: React.FC = () => {
   }, [location]);
 
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
 
   const handleCopyLink = () => {
     if (post) {
@@ -592,21 +623,43 @@ const BlogPostPage: React.FC = () => {
                     <AlignRight size={14} />
                   </button>
                   <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
-                  <button onClick={() => changeTextColor()} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Barva besedila">
-                    <Palette size={14} />
-                  </button>
+                  <div className="relative">
+                    <button onClick={() => setShowColorPicker(!showColorPicker)} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Barva besedila">
+                      <Palette size={14} />
+                    </button>
+                    {showColorPicker && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-40"
+                          onClick={() => setShowColorPicker(false)}
+                        />
+                        <div className="absolute top-full mt-2 left-0 z-50 bg-white rounded-xl shadow-xl border border-gray-200 p-3">
+                          <input
+                            type="color"
+                            onChange={(e) => changeTextColor(e.target.value)}
+                            className="w-12 h-8 border border-gray-300 rounded cursor-pointer"
+                            title="Izberi barvo"
+                          />
+                        </div>
+                      </>
+                    )}
+                  </div>
                   <button onClick={() => insertLink()} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi povezavo">
                     <LinkIcon size={14} />
                   </button>
                   <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
-                  <select onChange={(e) => changeFontSize(e.target.value)} className="text-xs bg-transparent border-none focus:ring-0 text-olive/70 font-medium cursor-pointer">
-                    <option value="">Velikost</option>
-                    <option value="text-sm">Majhna</option>
-                    <option value="text-base">Normalna</option>
-                    <option value="text-lg">Velika</option>
-                    <option value="text-xl">Zelo velika</option>
-                    <option value="text-2xl">Ogromna</option>
-                  </select>
+                  <input
+                    type="text"
+                    placeholder="Velikost (px)"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        changeFontSize(e.currentTarget.value);
+                        e.currentTarget.value = '';
+                      }
+                    }}
+                    className="text-xs bg-transparent border-none focus:ring-0 text-olive/70 font-medium cursor-pointer w-16 placeholder:text-olive/50"
+                    title="Vnesite velikost v px (npr. 14px) ali številko 1-7"
+                  />
                   <select onChange={(e) => changeFontFamily(e.target.value)} className="text-xs bg-transparent border-none focus:ring-0 text-olive/70 font-medium cursor-pointer">
                     <option value="">Pisava</option>
                     <option value="font-sans">Sans-Serif</option>
@@ -652,6 +705,13 @@ const BlogPostPage: React.FC = () => {
         </div>
       </FadeIn>
 
+      <input
+        id="image-upload"
+        type="file"
+        accept="image/*"
+        onChange={handleImageUpload}
+        className="hidden"
+      />
       <Lightbox image={lightboxImage} onClose={() => setLightboxImage(null)} />
       <LinkPopup url={linkPopupUrl} onClose={() => setLinkPopupUrl(null)} />
     </article>
