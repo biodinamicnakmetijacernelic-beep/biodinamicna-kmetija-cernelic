@@ -112,16 +112,24 @@ const BlogPostPage: React.FC = () => {
         return null;
 
       case 'img':
+        // Store images as HTML string in a block instead of as image asset
+        // This allows us to preserve the image URL without needing to upload to Sanity
+        const imgSrc = element.getAttribute('src') || '';
+        const imgAlt = element.getAttribute('alt') || 'Slika';
+        const imgClass = element.getAttribute('class') || 'w-full h-auto object-cover';
+        const imgLoading = element.getAttribute('loading') || 'lazy';
+        const imgHtml = `<div class="rounded-2xl overflow-hidden"><img src="${imgSrc}" alt="${imgAlt}" class="${imgClass}" loading="${imgLoading}" /></div>`;
         return {
-          _type: 'image',
+          _type: 'block',
           _key: `block-${Math.random()}`,
-          asset: { // This is a placeholder; real implementation might need asset upload
-            _type: 'reference',
-            _ref: `image-url-${element.getAttribute('src')}` // Not a valid Sanity ref, but shows intent
-          },
-          // We store the URL directly for now, assuming the renderer can handle it.
-          // This part might need adjustment based on how Sanity assets are handled.
-          _temp_src: element.getAttribute('src'),
+          style: 'normal',
+          children: [{
+            _type: 'span',
+            _key: `span-${Math.random()}`,
+            text: imgHtml,
+            marks: ['html-image']
+          }],
+          markDefs: []
         };
 
       default:
@@ -151,12 +159,16 @@ const BlogPostPage: React.FC = () => {
             if (!block.children || !Array.isArray(block.children) || block.children.length === 0) {
               return false;
             }
-            // Ensure children are valid spans
+            // Ensure children are valid spans (including HTML image spans)
             const validChildren = block.children.filter((child: any) => {
               return child && child._type === 'span' && child.text !== undefined;
             });
             if (validChildren.length === 0) return false;
             block.children = validChildren;
+          }
+          // Also allow image blocks for backwards compatibility
+          if (block._type === 'image') {
+            return true;
           }
           return true;
         });
@@ -172,14 +184,14 @@ const BlogPostPage: React.FC = () => {
       // If no valid blocks, return at least one empty block
       if (portableTextBlocks.length === 0) {
         return [{
-          _type: 'block',
+      _type: 'block',
           _key: `block-${Date.now()}`,
-          style: 'normal',
-          children: [{
-            _type: 'span',
+      style: 'normal',
+      children: [{
+        _type: 'span',
             _key: `span-${Date.now()}`,
             text: '',
-            marks: []
+        marks: []
           }],
           markDefs: []
         }];
@@ -491,9 +503,10 @@ const BlogPostPage: React.FC = () => {
       return typeof body === 'string' ? body.replace(/\n/g, '<br/>') : '';
     }
 
-    return body.map(block => {
+      return body.map(block => {
+      // Handle legacy image blocks with _temp_src (for backwards compatibility)
       if (block._type === 'image' && block._temp_src) {
-        return `<div class="rounded-2xl overflow-hidden"><img src="${block._temp_src}" alt="Image" class="w-full h-auto object-cover" /></div>`;
+        return `<div class="rounded-2xl overflow-hidden"><img src="${block._temp_src}" alt="Image" class="w-full h-auto object-cover" loading="lazy" /></div>`;
       }
 
       if (block._type !== 'block') return '';
@@ -501,11 +514,18 @@ const BlogPostPage: React.FC = () => {
       const tag = block.style === 'normal' ? 'p' : block.style;
       const childrenHtml = (block.children || []).map((span: any) => {
         let text = span.text || '';
-        // Basic HTML entity escaping
+        
+        // If this is an HTML image, return it directly without escaping
+        if (span.marks && span.marks.includes('html-image')) {
+          return text;
+        }
+        
+        // Basic HTML entity escaping for regular text
         text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
         const marks = span.marks || [];
         return marks.reduce((acc: string, markKey: string) => {
+          if (markKey === 'html-image') return acc; // Skip html-image mark
           if (markKey === 'strong') return `<strong>${acc}</strong>`;
           if (markKey === 'em') return `<em>${acc}</em>`;
 
@@ -794,7 +814,7 @@ const BlogPostPage: React.FC = () => {
             {isEditMode ? (
               <div>
                 {/* Formatting Toolbar - Sticky */}
-                <div className="sticky top-0 z-50 flex flex-wrap gap-1 mb-2 p-2 bg-white rounded-lg border border-gray-200 shadow-md">
+                <div className="sticky top-16 z-50 flex flex-wrap gap-1 mb-2 p-2 bg-white rounded-lg border border-gray-200 shadow-md">
                   <button onClick={() => formatText('bold')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Krepko">
                     <Bold size={14} />
                   </button>

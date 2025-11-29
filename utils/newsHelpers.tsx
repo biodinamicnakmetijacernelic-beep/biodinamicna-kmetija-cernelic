@@ -142,33 +142,18 @@ export const renderPortableText = (body: any[], onImageClick?: (src: string) => 
                       const linkText = linkMatch[1];
                       const linkUrl = linkMatch[2];
 
-                      if (onLinkClick) {
-                        currentChildren.push(
-                          <a
-                            key={`link-${cursor}`}
-                            href={linkUrl}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              onLinkClick(linkUrl);
-                            }}
-                            className="text-terracotta hover:text-olive-dark transition-colors border-b border-terracotta/30 hover:border-olive-dark font-medium cursor-pointer"
-                          >
-                            {linkText}
-                          </a>
-                        );
-                      } else {
-                        currentChildren.push(
-                          <a
-                            key={`link-${cursor}`}
-                            href={linkUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-terracotta hover:text-olive-dark transition-colors border-b border-terracotta/30 hover:border-olive-dark font-medium"
-                          >
-                            {linkText}
-                          </a>
-                        );
-                      }
+                      // Always open links in new tab
+                      currentChildren.push(
+                        <a
+                          key={`link-${cursor}`}
+                          href={linkUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-terracotta hover:text-olive-dark transition-colors border-b border-terracotta/30 hover:border-olive-dark font-medium"
+                        >
+                          {linkText}
+                        </a>
+                      );
                     }
                     cursor = matchIndex + fullMatch.length;
                     continue;
@@ -361,31 +346,17 @@ export const renderPortableText = (body: any[], onImageClick?: (src: string) => 
               if (linkMark) {
                 const linkDef = block.markDefs.find((def: any) => def._key === linkMark);
                 if (linkDef) {
-                  if (onLinkClick) {
-                    content = (
-                      <a
-                        href={linkDef.href}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          onLinkClick(linkDef.href);
-                        }}
-                        className="text-terracotta hover:text-olive-dark transition-colors border-b border-terracotta/30 hover:border-olive-dark cursor-pointer"
-                      >
-                        {content}
-                      </a>
-                    );
-                  } else {
-                    content = (
-                      <a
-                        href={linkDef.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-terracotta hover:text-olive-dark transition-colors border-b border-terracotta/30 hover:border-olive-dark"
-                      >
-                        {content}
-                      </a>
-                    );
-                  }
+                  // Always open links in new tab
+                  content = (
+                    <a
+                      href={linkDef.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-terracotta hover:text-olive-dark transition-colors border-b border-terracotta/30 hover:border-olive-dark"
+                    >
+                      {content}
+                    </a>
+                  );
                 }
               }
 
