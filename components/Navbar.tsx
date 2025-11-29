@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Plus, List, Image as ImageIcon, Video } from 'lucide-react';
+import { Menu, X, Plus, List, Image as ImageIcon, Video, ShoppingBag, ClipboardList } from 'lucide-react';
 import { FARM_LOGO } from '../constants';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -58,6 +58,8 @@ const Navbar: React.FC = () => {
     { name: 'Uredi novice', action: 'edit_posts' },
     { name: 'Dodaj slike', action: 'manage_gallery' },
     { name: 'Dodaj videje', action: 'manage_videos' },
+    { name: 'Zaloga', action: 'manage_inventory' },
+    { name: 'Naročila', action: 'manage_orders' },
   ];
 
   return (
@@ -136,6 +138,10 @@ const Navbar: React.FC = () => {
                           window.dispatchEvent(new CustomEvent('admin-manage-gallery'));
                         } else if (action.action === 'manage_videos') {
                           window.dispatchEvent(new CustomEvent('admin-manage-videos'));
+                        } else if (action.action === 'manage_inventory') {
+                          window.dispatchEvent(new CustomEvent('admin-manage-inventory'));
+                        } else if (action.action === 'manage_orders') {
+                          window.dispatchEvent(new CustomEvent('admin-manage-orders'));
                         }
                       }}
                       className="w-full text-left px-4 py-2 text-sm text-olive-dark hover:bg-olive/10 transition-colors flex items-center gap-3"
@@ -144,6 +150,8 @@ const Navbar: React.FC = () => {
                       <List size={16} className={action.action !== 'edit_posts' ? 'hidden' : ''} />
                       <ImageIcon size={16} className={action.action !== 'manage_gallery' ? 'hidden' : ''} />
                       <Video size={16} className={action.action !== 'manage_videos' ? 'hidden' : ''} />
+                      <ShoppingBag size={16} className={action.action !== 'manage_inventory' ? 'hidden' : ''} />
+                      <ClipboardList size={16} className={action.action !== 'manage_orders' ? 'hidden' : ''} />
                       {action.name}
                     </button>
                   ))}
@@ -181,6 +189,10 @@ const Navbar: React.FC = () => {
                           window.dispatchEvent(new CustomEvent('admin-manage-gallery'));
                         } else if (action.action === 'manage_videos') {
                           window.dispatchEvent(new CustomEvent('admin-manage-videos'));
+                        } else if (action.action === 'manage_inventory') {
+                          window.dispatchEvent(new CustomEvent('admin-manage-inventory'));
+                        } else if (action.action === 'manage_orders') {
+                          window.dispatchEvent(new CustomEvent('admin-manage-orders'));
                         }
                       }}
                       className="w-full text-left px-4 py-2 text-sm text-olive-dark hover:bg-olive/10 transition-colors flex items-center gap-3"
@@ -189,6 +201,8 @@ const Navbar: React.FC = () => {
                       <List size={16} className={action.action !== 'edit_posts' ? 'hidden' : ''} />
                       <ImageIcon size={16} className={action.action !== 'manage_gallery' ? 'hidden' : ''} />
                       <Video size={16} className={action.action !== 'manage_videos' ? 'hidden' : ''} />
+                      <ShoppingBag size={16} className={action.action !== 'manage_inventory' ? 'hidden' : ''} />
+                      <ClipboardList size={16} className={action.action !== 'manage_orders' ? 'hidden' : ''} />
                       {action.name}
                     </button>
                   ))}

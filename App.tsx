@@ -101,17 +101,23 @@ const App: React.FC = () => {
     const handleEditPosts = () => setShowAllPostsPopup(true);
     const handleManageGallery = () => openAdminWithTab('gallery');
     const handleManageVideos = () => openAdminWithTab('videos');
+    const handleManageInventory = () => openAdminWithTab('inventory');
+    const handleManageOrders = () => openAdminWithTab('orders');
 
     window.addEventListener('admin-new-post', handleNewPost);
     window.addEventListener('admin-edit-posts', handleEditPosts);
     window.addEventListener('admin-manage-gallery', handleManageGallery);
     window.addEventListener('admin-manage-videos', handleManageVideos);
+    window.addEventListener('admin-manage-inventory', handleManageInventory);
+    window.addEventListener('admin-manage-orders', handleManageOrders);
 
     return () => {
       window.removeEventListener('admin-new-post', handleNewPost);
       window.removeEventListener('admin-edit-posts', handleEditPosts);
       window.removeEventListener('admin-manage-gallery', handleManageGallery);
       window.removeEventListener('admin-manage-videos', handleManageVideos);
+      window.removeEventListener('admin-manage-inventory', handleManageInventory);
+      window.removeEventListener('admin-manage-orders', handleManageOrders);
     };
   }, []);
 
