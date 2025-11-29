@@ -94,11 +94,10 @@ const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
             {onAdminClick && (
               <button
                 onClick={onAdminClick}
-                className="flex items-center gap-2 text-olive/40 hover:text-olive-dark transition-colors"
+                className="text-olive/40 hover:text-olive-dark transition-colors"
                 title="Admin nastavitve"
               >
                 <Settings size={16} />
-                <span className="text-xs">Admin</span>
               </button>
             )}
           </div>
