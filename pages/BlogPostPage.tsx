@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useLocation, Link } from 'react-router-dom';
 import { fetchNewsBySlug, updateNewsPost } from '../sanityClient';
 import { NewsItem } from '../types';
@@ -18,6 +18,7 @@ const BlogPostPage: React.FC = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedTitle, setEditedTitle] = useState('');
   const [editedContent, setEditedContent] = useState('');
+  const editorRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
 
   // Helper function to convert HTML content to Portable Text
@@ -312,6 +313,13 @@ const BlogPostPage: React.FC = () => {
     }
   }, [location]);
 
+  // Set initial editor content when entering edit mode
+  useEffect(() => {
+    if (isEditMode && editorRef.current && editedContent) {
+      editorRef.current.innerHTML = editedContent;
+    }
+  }, [isEditMode, editedContent]);
+
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
 
@@ -509,6 +517,12 @@ const BlogPostPage: React.FC = () => {
                   // Convert Portable Text to HTML for editing
                   const htmlContent = renderPortableTextToHTML(post.body);
                   setEditedContent(htmlContent);
+                  // Set initial content in editor after render
+                  setTimeout(() => {
+                    if (editorRef.current) {
+                      editorRef.current.innerHTML = htmlContent;
+                    }
+                  }, 0);
                 }}
                 className="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-olive text-white rounded-xl font-semibold hover:bg-olive-dark transition-colors"
               >
@@ -534,7 +548,8 @@ const BlogPostPage: React.FC = () => {
                       }
 
                       // Convert edited content to Portable Text format
-                      const portableTextBody = convertToPortableText(editedContent);
+                      const currentContent = editorRef.current?.innerHTML || editedContent;
+                      const portableTextBody = convertToPortableText(currentContent);
 
                       await updateNewsPost(
                         post.id,
@@ -685,18 +700,16 @@ const BlogPostPage: React.FC = () => {
                 </div>
 
                 <div
-                  id="editor"
-                contentEditable
-                suppressContentEditableWarning
-                className="w-full bg-gray-50 border-2 border-terracotta rounded-xl px-6 py-4 min-h-[400px] focus:outline-none focus:border-terracotta-dark text-base leading-relaxed overflow-auto"
-                  onInput={(e) => setEditedContent(e.currentTarget.innerHTML)}
+                  ref={editorRef}
+                  contentEditable
+                  suppressContentEditableWarning
+                  className="w-full bg-gray-50 border-2 border-terracotta rounded-xl px-6 py-4 min-h-[400px] focus:outline-none focus:border-terracotta-dark text-base leading-relaxed overflow-auto"
                   onPaste={handlePaste}
-                  dangerouslySetInnerHTML={{ __html: editedContent }}
                   style={{
                     whiteSpace: 'pre-wrap',
                     wordBreak: 'break-word'
                   }}
-              />
+                />
               </div>
             ) : (
               renderPortableText(post.body, (src) => setLightboxImage(src), (url) => setLinkPopupUrl(url))

@@ -170,6 +170,9 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
     { id: '1', type: 'text', content: '' }
   ]);
 
+  // Refs for contentEditable editors to prevent cursor loss
+  const editorRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
   // Video Gallery State
   const [videos, setVideos] = useState<VideoGalleryItem[]>([]);
   const [isLoadingVideos, setIsLoadingVideos] = useState(false);
@@ -790,17 +793,21 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
 
       // Process blocks
       for (const block of newsBlocks) {
-        if (block.type === 'text' && block.content?.trim()) {
-          finalBody.push({
-            _type: 'block',
-            _key: block.id,
-            style: 'normal',
-            children: [{
-              _type: 'span',
-              _key: `${block.id}-span`,
-              text: block.content
-            }]
-          });
+        if (block.type === 'text') {
+          // Get current content from editor ref, fallback to block.content
+          const currentContent = editorRefs.current[block.id]?.innerHTML || block.content || '';
+          if (currentContent.trim()) {
+            finalBody.push({
+              _type: 'block',
+              _key: block.id,
+              style: 'normal',
+              children: [{
+                _type: 'span',
+                _key: `${block.id}-span`,
+                text: currentContent
+              }]
+            });
+          }
         } else if (block.type === 'image' && block.file) {
           // Upload inline image
           const asset = await authClient.assets.upload('image', block.file, { filename: block.file.name });
@@ -1650,20 +1657,20 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, currentImages = [], onA
                             </div>
 
                             <div
-                              id={`textarea-${block.id}`}
+                              ref={(el) => {
+                                editorRefs.current[block.id] = el;
+                                if (el && el.innerHTML === '' && block.content) {
+                                  el.innerHTML = block.content;
+                                }
+                              }}
                               contentEditable
                               suppressContentEditableWarning
                               className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta font-serif min-h-[300px] overflow-auto"
-                              onInput={(e) => {
-                                const content = e.currentTarget.innerHTML;
-                                updateBlockContent(block.id, content);
-                              }}
                               onPaste={(e) => {
                                 e.preventDefault();
                                 const text = e.clipboardData.getData('text/plain');
                                 document.execCommand('insertText', false, text);
                               }}
-                              dangerouslySetInnerHTML={{ __html: block.content || '' }}
                               style={{
                                 whiteSpace: 'pre-wrap',
                                 wordBreak: 'break-word'
