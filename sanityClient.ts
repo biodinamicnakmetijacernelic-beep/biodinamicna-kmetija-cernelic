@@ -43,24 +43,34 @@ export async function verifyTokenPermissions(token: string): Promise<{ valid: bo
   });
 
   try {
-    // Try to fetch a simple query to check basic read permissions
-    await authClient.fetch('*[_type == "galleryImage"][0...1]');
+    console.log('Testing token permissions...');
 
-    // Try to create a test document to check create permissions
-    const testDoc = {
-      _type: 'galleryImage',
-      title: 'Test permission check',
-      category: 'test'
-    };
+    // First, try to check if we can read any documents (basic connectivity test)
+    console.log('Testing basic read permissions...');
+    const result = await authClient.fetch('*[0...1]');
+    console.log('Read test successful, found documents:', result.length);
 
-    const createdDoc = await authClient.create(testDoc);
+    // Try to upload a test asset to check upload permissions (most reliable test)
+    console.log('Testing asset upload permissions...');
+    const testBlob = new Blob(['test content'], { type: 'text/plain' });
+    const testFile = new File([testBlob], 'test_permission_check.txt', { type: 'text/plain' });
 
-    // Clean up the test document
-    await authClient.delete(createdDoc._id);
+    const asset = await authClient.assets.upload('file', testFile, {
+      filename: 'test_permission_check.txt'
+    });
+    console.log('Asset upload successful, asset ID:', asset._id);
+
+    // Clean up the test asset
+    await authClient.delete(asset._id);
+    console.log('Asset cleanup successful');
 
     return { valid: true, canCreate: true };
   } catch (error: any) {
-    console.error('Token verification failed:', error);
+    console.error('Token verification failed:', {
+      message: error.message,
+      statusCode: error.statusCode,
+      details: error
+    });
 
     if (error.statusCode === 401) {
       return { valid: false, canCreate: false, error: 'Neveljaven API ključ' };
@@ -70,7 +80,8 @@ export async function verifyTokenPermissions(token: string): Promise<{ valid: bo
       return { valid: true, canCreate: false, error: 'API ključ nima dovoljenja za ustvarjanje' };
     }
 
-    return { valid: false, canCreate: false, error: error.message || 'Neznana napaka' };
+    // If it's a different error, the token might still be valid for basic operations
+    return { valid: true, canCreate: false, error: `Napaka pri preverjanju: ${error.message}` };
   }
 }
 
