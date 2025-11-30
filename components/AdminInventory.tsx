@@ -2123,22 +2123,42 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                               <div className="flex items-start gap-2">
                                 <Code size={16} className="text-blue-600 mt-0.5 flex-shrink-0" />
                                 <div className="text-sm text-blue-800">
-                                  <strong>Samodejna funkcionalnost:</strong> Komponenta že vključuje upload slik.
-                                  Uporabite <code className="bg-blue-100 px-1 rounded">savedImages</code> za nalaganje obstoječih slik in <code className="bg-blue-100 px-1 rounded">uploadImage(key, file)</code> za shranjevanje novih.
+                                  <strong>Živi urejevalnik:</strong> Komponenta se izvaja v živo - lahko takoj dodajate slike in vidite spremembe.
+                                  Uporabite <code className="bg-blue-100 px-1 rounded">uploadImage(key, file)</code> za shranjevanje slik.
+                                  Slike se samodejno shranijo skupaj z objavo.
                                 </div>
                               </div>
                             </div>
-                            {block.code && (
-                              <div className="border border-gray-200 rounded-xl p-4 bg-white">
-                                <label className="text-xs font-bold uppercase text-olive/50 mb-2 block">Predogled</label>
-                                <DynamicReactRenderer
-                                  code={block.code}
-                                  imageData={newsImages}
-                                  onImageUpload={handleNewsImageUpload}
-                                  sanityToken={sanityToken}
-                                />
+                            <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
+                              <div className="flex justify-between items-center mb-2">
+                                <label className="text-xs font-bold uppercase text-olive/50">Živi urejevalnik komponente</label>
+                                {Object.keys(newsImages).length > 0 && (
+                                  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                                    📸 {Object.keys(newsImages).length} slik naloženih
+                                  </span>
+                                )}
                               </div>
-                            )}
+                              {block.code ? (
+                                <div className="bg-white rounded-lg border border-gray-100 p-4">
+                                  <DynamicReactRenderer
+                                    code={block.code}
+                                    imageData={newsImages}
+                                    onImageUpload={handleNewsImageUpload}
+                                    sanityToken={sanityToken}
+                                  />
+                                </div>
+                              ) : (
+                                <div className="text-center py-8 text-gray-500">
+                                  <Code size={32} className="mx-auto mb-2 opacity-50" />
+                                  <p>Vnesite React kodo zgoraj, da vidite komponento v živo</p>
+                                </div>
+                              )}
+                              {Object.keys(newsImages).length > 0 && (
+                                <div className="mt-3 text-xs text-gray-600 bg-yellow-50 border border-yellow-200 rounded p-2">
+                                  💡 <strong>Nasvet:</strong> Slike so shranjene v komponenti. Kliknite "Shrani" na dnu strani, da shranite objavo s slikami.
+                                </div>
+                              )}
+                            </div>
                           </div>
                         )}
                       </div>
@@ -2201,10 +2221,15 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                     <button
                       onClick={handleSaveNews}
                       disabled={isUploading}
-                      className="flex-1 bg-olive text-white py-4 rounded-2xl font-bold uppercase tracking-widest shadow-lg hover:bg-olive-dark transition-all flex items-center justify-center gap-2"
+                      className="flex-1 bg-olive text-white py-4 rounded-2xl font-bold uppercase tracking-widest shadow-lg hover:bg-olive-dark transition-all flex items-center justify-center gap-2 relative"
                     >
                       {isUploading ? <RefreshCw className="animate-spin" /> : <Send size={16} />}
                       {editingNewsId ? 'Posodobi' : 'Objavi'}
+                      {Object.keys(newsImages).length > 0 && (
+                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                          {Object.keys(newsImages).length}
+                        </span>
+                      )}
                     </button>
                   </div>
                 </div>
