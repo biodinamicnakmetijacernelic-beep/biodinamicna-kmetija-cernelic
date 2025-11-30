@@ -11,6 +11,7 @@
     "setup-github": "bash setup-github-secrets.sh"
   },
   "dependencies": {
+    "@babel/standalone": "^7.28.5",
     "@sanity/client": "^7.13.0",
     "@sanity/image-url": "^1.2.0",
     "framer-motion": "^12.23.24",
@@ -22,6 +23,7 @@
     "resend": "^4.0.0"
   },
   "devDependencies": {
+    "@types/babel__standalone": "^7.1.9",
     "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.0",
     "typescript": "~5.8.2",

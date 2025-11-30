@@ -147,6 +147,18 @@ const BlogPostPage: React.FC = () => {
           };
         }
 
+        // Handle custom React marker
+        if (element.getAttribute('data-custom-react') === 'true') {
+          const content = element.getAttribute('data-content');
+          if (content) {
+            return {
+              _type: 'customReact',
+              _key: `react-${Math.random()}`,
+              code: decodeURIComponent(content)
+            };
+          }
+        }
+
         // Handle custom HTML marker
         if (element.getAttribute('data-custom-html') === 'true') {
           const content = element.getAttribute('data-content');
@@ -261,6 +273,10 @@ const BlogPostPage: React.FC = () => {
           }
           // Allow custom HTML blocks
           if (block._type === 'customHtml') {
+            return true;
+          }
+          // Allow custom React blocks
+          if (block._type === 'customReact') {
             return true;
           }
           return true;
@@ -446,15 +462,16 @@ const BlogPostPage: React.FC = () => {
     setEditedContent(editor.innerHTML);
   };
 
-  const insertCustomLayout = (type: 'preset' | 'html', content?: string) => {
+  const insertCustomLayout = (type: 'react' | 'html', content?: string) => {
     const editor = document.getElementById('editor') as HTMLElement;
     if (!editor) return;
 
     let layoutHtml = '';
 
-    if (type === 'preset') {
-      // Insert a marker that we can detect during conversion
-      layoutHtml = `<div data-custom-layout="regenerative-agriculture" class="my-8 p-6 bg-green-50 border border-green-200 rounded-xl text-center text-green-800 font-semibold">🌿 Posebna Postavitev: Regeneracija Tal (Bo prikazana v objavi)</div><p><br></p>`;
+    if (type === 'react' && content) {
+      // Encode content to store in attribute
+      const encodedContent = encodeURIComponent(content);
+      layoutHtml = `<div data-custom-react="true" data-content="${encodedContent}" class="my-8 p-4 bg-blue-50 border border-blue-200 rounded-lg font-mono text-sm text-blue-800 overflow-hidden text-ellipsis whitespace-nowrap">⚛️ React Komponenta: ${content.substring(0, 50)}...</div><p><br></p>`;
     } else if (type === 'html' && content) {
       // Encode content to store in attribute
       const encodedContent = encodeURIComponent(content);
@@ -1317,96 +1334,73 @@ const BlogPostPage: React.FC = () => {
   );
 };
 
-const LayoutSelectionModal = ({ onSelect }: { onSelect: (type: 'preset' | 'html', content?: string) => void }) => {
-  const [activeTab, setActiveTab] = useState<'preset' | 'html'>('preset');
-  const [htmlContent, setHtmlContent] = useState('');
+const LayoutSelectionModal = ({ onSelect }: { onSelect: (type: 'react' | 'html', content?: string) => void }) => {
+  const [activeTab, setActiveTab] = useState<'react' | 'html'>('react');
+  const [content, setContent] = useState('');
 
   return (
     <div className="space-y-6">
       <div className="flex gap-2 p-1 bg-gray-100 rounded-xl">
         <button
-          onClick={() => setActiveTab('preset')}
-          className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${activeTab === 'preset'
-            ? 'bg-white text-olive-dark shadow-sm'
-            : 'text-gray-500 hover:text-gray-700'
+          onClick={() => setActiveTab('react')}
+          className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${activeTab === 'react'
+              ? 'bg-white text-olive-dark shadow-sm'
+              : 'text-gray-500 hover:text-gray-700'
             }`}
         >
           <div className="flex items-center justify-center gap-2">
-            <LayoutTemplate size={16} />
-            Predloge
+            <Code size={16} />
+            React / JSX
           </div>
         </button>
         <button
           onClick={() => setActiveTab('html')}
           className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${activeTab === 'html'
-            ? 'bg-white text-olive-dark shadow-sm'
-            : 'text-gray-500 hover:text-gray-700'
+              ? 'bg-white text-olive-dark shadow-sm'
+              : 'text-gray-500 hover:text-gray-700'
             }`}
         >
           <div className="flex items-center justify-center gap-2">
-            <Code size={16} />
+            <LayoutTemplate size={16} />
             HTML Koda
           </div>
         </button>
       </div>
 
-      {activeTab === 'preset' ? (
-        <div className="space-y-4">
-          <div
-            onClick={() => onSelect('preset')}
-            className="group cursor-pointer border border-gray-200 rounded-xl p-4 hover:border-green-500 hover:bg-green-50/50 transition-all"
-          >
-            <div className="flex items-start gap-4">
-              <div className="p-3 bg-green-100 text-green-700 rounded-lg group-hover:bg-green-200 transition-colors">
-                <Sprout size={24} />
-              </div>
-              <div>
-                <h4 className="font-semibold text-gray-900 mb-1">Regeneracija Tal</h4>
-                <p className="text-sm text-gray-500">
-                  Napredna predstavitev študije primera s časovnico, primerjavo rezultatov in animacijami.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-4 bg-blue-50 text-blue-800 rounded-xl text-sm flex items-start gap-3">
-            <Info size={18} className="mt-0.5 flex-shrink-0" />
-            <p>
-              Če želite dodati novo predlogo (React komponento), kontaktirajte administratorja.
-            </p>
-          </div>
+      <div className="space-y-4">
+        <div className="relative">
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder={activeTab === 'react' ? "Prilepite React kodo tukaj..." : "Prilepite HTML kodo tukaj..."}
+            className="w-full h-64 p-4 bg-gray-50 border border-gray-200 rounded-xl font-mono text-sm focus:ring-2 focus:ring-terracotta focus:border-transparent outline-none resize-none"
+          />
         </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="relative">
-            <textarea
-              value={htmlContent}
-              onChange={(e) => setHtmlContent(e.target.value)}
-              placeholder="Prilepite HTML kodo tukaj..."
-              className="w-full h-48 p-4 bg-gray-50 border border-gray-200 rounded-xl font-mono text-sm focus:ring-2 focus:ring-terracotta focus:border-transparent outline-none resize-none"
-            />
-          </div>
 
-          <div className="p-4 bg-amber-50 text-amber-800 rounded-xl text-sm flex items-start gap-3">
-            <Info size={18} className="mt-0.5 flex-shrink-0" />
+        <div className="p-4 bg-blue-50 text-blue-800 rounded-xl text-sm flex items-start gap-3">
+          <Info size={18} className="mt-0.5 flex-shrink-0" />
+          {activeTab === 'react' ? (
             <p>
-              <strong>Pozor:</strong> Tukaj lahko uporabite samo HTML in CSS. React koda (JSX) ne bo delovala.
+              <strong>Info:</strong> Koda bo prevedena in izvedena v brskalniku. Dostop imate do <code>React</code>, <code>framer-motion</code> in <code>lucide-react</code>.
             </p>
-          </div>
-
-          <button
-            onClick={() => onSelect('html', htmlContent)}
-            disabled={!htmlContent.trim()}
-            className="w-full py-3 bg-terracotta text-white rounded-xl font-semibold hover:bg-terracotta-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Vstavi HTML
-          </button>
+          ) : (
+            <p>
+              <strong>Info:</strong> Tukaj lahko uporabite standardni HTML in CSS.
+            </p>
+          )}
         </div>
-      )}
+
+        <button
+          onClick={() => onSelect(activeTab, content)}
+          disabled={!content.trim()}
+          className="w-full py-3 bg-terracotta text-white rounded-xl font-semibold hover:bg-terracotta-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Vstavi {activeTab === 'react' ? 'React Komponento' : 'HTML Kodo'}
+        </button>
+      </div>
     </div>
   );
 };
 
 export default BlogPostPage;
-
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { urlFor } from '../sanityClient';
-import RegenerativePost from '../components/blog/RegenerativePost';
+import DynamicReactRenderer from '../components/blog/DynamicReactRenderer';
 
 export const getPreviewText = (body: any[], maxLength = 160) => {
   if (!Array.isArray(body)) {
@@ -410,15 +410,26 @@ export const renderPortableText = (body: any[], onImageClick?: (src: string) => 
             </a>
           )}
         </div>
+
+
       );
     }
 
-    if (block._type === 'customComponent' && block.component === 'regenerative-agriculture') {
+    if (block._type === 'customReact' && block.code) {
       return (
-        <div key={block._key || index} className="w-full -mx-6 md:-mx-12 lg:-mx-20 my-12">
-          <RegenerativePost />
+        <div key={block._key || index} className="w-full my-8">
+          <DynamicReactRenderer code={block.code} />
         </div>
       );
+    }
+
+    // Legacy support for the specific component if needed, or remove it
+    if (block._type === 'customComponent' && block.component === 'regenerative-agriculture') {
+      // We can either keep rendering the old component or maybe try to render it dynamically if we had the code?
+      // For now, let's assume we want to support the old way OR just remove it if the user said "delete presets".
+      // But to avoid breaking existing posts, we might want to keep it or map it.
+      // Since the user said "delete presets", I will remove the import above and this block.
+      return null;
     }
 
     if (block._type === 'customHtml' && block.html) {
