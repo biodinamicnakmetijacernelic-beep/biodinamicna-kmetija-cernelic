@@ -8,9 +8,10 @@ interface DynamicReactRendererProps {
     code: string;
     imageData?: Record<string, string>; // Saved images: { key: url }
     onImageUpload?: (key: string, url: string) => void; // Callback when image is uploaded
+    sanityToken?: string; // Optional sanity token for uploads
 }
 
-const DynamicReactRenderer: React.FC<DynamicReactRendererProps> = ({ code, imageData = {}, onImageUpload }) => {
+const DynamicReactRenderer: React.FC<DynamicReactRendererProps> = ({ code, imageData = {}, onImageUpload, sanityToken }) => {
     const [Component, setComponent] = useState<React.ComponentType | null>(null);
     const [error, setError] = useState<string | null>(null);
 
@@ -60,12 +61,23 @@ const DynamicReactRenderer: React.FC<DynamicReactRendererProps> = ({ code, image
             // Create uploadImage function to provide to component
             const uploadImage = async (key: string, file: File): Promise<string> => {
                 try {
-                    const { uploadImageToSanity } = await import('../../utils/sanityImageUpload');
-                    const url = await uploadImageToSanity(file);
-                    if (onImageUpload) {
-                        onImageUpload(key, url);
+                    // If we have a token passed from parent, use it directly
+                    if (sanityToken) {
+                        const { uploadImageToSanityWithToken } = await import('../../utils/sanityImageUpload');
+                        const url = await uploadImageToSanityWithToken(file, sanityToken);
+                        if (onImageUpload) {
+                            onImageUpload(key, url);
+                        }
+                        return url;
+                    } else {
+                        // Fallback to original function that checks localStorage
+                        const { uploadImageToSanity } = await import('../../utils/sanityImageUpload');
+                        const url = await uploadImageToSanity(file);
+                        if (onImageUpload) {
+                            onImageUpload(key, url);
+                        }
+                        return url;
                     }
-                    return url;
                 } catch (error) {
                     console.error('Image upload failed:', error);
                     throw error;

@@ -2111,9 +2111,8 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                               <div className="flex items-start gap-2">
                                 <Code size={16} className="text-blue-600 mt-0.5 flex-shrink-0" />
                                 <div className="text-sm text-blue-800">
-                                  <strong>Samodejna funkcionalnost:</strong> Ta komponenta že vključuje gumb za nalaganje slik, urejanje besedila in interaktivne elemente.
-                                  Slike se shranijo pod ključem <code className="bg-blue-100 px-1 rounded">heroImage</code>.
-                                  Lahko poljubno spremenite kodo po želji.
+                                  <strong>Samodejna funkcionalnost:</strong> Komponenta že vključuje upload slik.
+                                  Uporabite <code className="bg-blue-100 px-1 rounded">savedImages</code> za nalaganje obstoječih slik in <code className="bg-blue-100 px-1 rounded">uploadImage(key, file)</code> za shranjevanje novih.
                                 </div>
                               </div>
                             </div>
@@ -2124,6 +2123,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                                   code={block.code}
                                   imageData={newsImages}
                                   onImageUpload={handleNewsImageUpload}
+                                  sanityToken={sanityToken}
                                 />
                               </div>
                             )}
