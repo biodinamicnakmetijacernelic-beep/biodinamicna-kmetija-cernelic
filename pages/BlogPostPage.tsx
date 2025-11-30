@@ -669,14 +669,23 @@ const BlogPostPage: React.FC = () => {
           const element = node as HTMLElement;
           const tagName = element.tagName.toLowerCase();
 
+          // Handle links
           if (tagName === 'a') {
             const href = element.getAttribute('href') || '';
             const text = element.textContent || '';
             return `<a href="${href}" target="_blank" rel="noopener noreferrer">${text}</a>`;
           }
 
-          // Handle paragraph-like elements
-          if (['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'li', 'ul', 'ol'].includes(tagName)) {
+          // Handle formatting tags - preserve them
+          if (['b', 'strong', 'i', 'em', 'u', 's', 'strike', 'sub', 'sup', 'code'].includes(tagName)) {
+            const children = Array.from(element.childNodes)
+              .map(child => extractContent(child))
+              .join('');
+            return `<${tagName}>${children}</${tagName}>`;
+          }
+
+          // Handle block elements
+          if (['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'li', 'ul', 'ol', 'pre'].includes(tagName)) {
             const children = Array.from(element.childNodes)
               .map(child => extractContent(child))
               .join('');
@@ -688,6 +697,7 @@ const BlogPostPage: React.FC = () => {
               if (tagName === 'ol') return `<ol>${trimmed}</ol>`;
               if (tagName.startsWith('h')) return `<${tagName}>${trimmed}</${tagName}>`;
               if (tagName === 'blockquote') return `<blockquote>${trimmed}</blockquote>`;
+              if (tagName === 'pre') return `<pre>${trimmed}</pre>`;
 
               // For p, return p
               if (tagName === 'p') return `<p>${trimmed}</p>`;
@@ -695,7 +705,7 @@ const BlogPostPage: React.FC = () => {
               // For div, if it contains block elements, don't wrap
               if (tagName === 'div') {
                 // Check if it looks like it has block tags
-                if (/<(p|div|h[1-6]|ul|ol|li|blockquote)/.test(trimmed)) {
+                if (/<(p|div|h[1-6]|ul|ol|li|blockquote|pre)/.test(trimmed)) {
                   return trimmed;
                 }
                 return `<p>${trimmed}</p>`;
@@ -710,12 +720,28 @@ const BlogPostPage: React.FC = () => {
             return '<br>';
           }
 
-          // Handle line breaks and spacing in spans
-          if (tagName === 'span' && element.style.display === 'block') {
-            const children = Array.from(element.childNodes)
+          // Handle spans - check for bold/italic styles if needed, otherwise just extract content
+          if (tagName === 'span') {
+            const style = element.getAttribute('style') || '';
+            let content = Array.from(element.childNodes)
               .map(child => extractContent(child))
               .join('');
-            return children.trim() ? `<p>${children}</p>` : '';
+
+            // Simple style preservation (optional, can be expanded)
+            if (style.includes('font-weight: bold') || style.includes('font-weight: 700')) {
+              content = `<strong>${content}</strong>`;
+            }
+            if (style.includes('font-style: italic')) {
+              content = `<em>${content}</em>`;
+            }
+            if (style.includes('text-decoration: underline')) {
+              content = `<u>${content}</u>`;
+            }
+
+            if (element.style.display === 'block') {
+              return content.trim() ? `<p>${content}</p>` : '';
+            }
+            return content;
           }
 
           // For other elements, extract their content
@@ -736,7 +762,7 @@ const BlogPostPage: React.FC = () => {
         const extracted = extractContent(node);
         if (extracted) {
           // Check if this is a block element (or starts with one)
-          const isBlock = /^(<p>|<h[1-6]>|<blockquote>|<li>|<ul>|<ol>|<div)/.test(extracted);
+          const isBlock = /^(<p>|<h[1-6]>|blockquote|<li>|<ul>|<ol>|<div|<pre)/.test(extracted);
 
           if (isBlock) {
             if (currentBlock.trim()) {
