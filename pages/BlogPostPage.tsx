@@ -66,15 +66,24 @@ const BlogPostPage: React.FC = () => {
 
   const nodeToPortableText = (node: Node, markDefs: any[]): any => {
     if (node.nodeType === 3) { // Text node
-      // Ignore whitespace-only text nodes between block elements
-      if (node.nodeValue && node.nodeValue.trim() === '') {
-        const parent = node.parentNode?.nodeName.toLowerCase();
-        if (parent === 'body' || parent === 'div') return null;
-      }
+      // Preserve whitespace, but maybe collapse multiple spaces if needed?
+      // For now, let's keep it as is but be careful about trimming.
+      // If we trim everything, we lose spaces between inline elements.
+      const text = node.nodeValue || '';
+      // Only ignore if it's purely whitespace AND it's a direct child of a container that handles blocks (like body)
+      // But here we are recursive.
+      // If the parent is a block element (p, div, etc), we should keep the text.
+      // If the parent is body, and it's just whitespace between divs, we might want to ignore it OR treat it as a break?
+
+      // Let's try to keep it, but maybe normalize newlines?
+      // If we return null, it's gone.
+
+      if (!text) return null;
+
       return {
         _type: 'span',
         _key: `span-${Math.random()}`,
-        text: node.nodeValue || '',
+        text: text,
         marks: [],
       };
     }
@@ -105,6 +114,14 @@ const BlogPostPage: React.FC = () => {
         });
         return children;
 
+      case 'u':
+        children.forEach((child: any) => {
+          if (child._type === 'span' && !child.marks.includes('underline')) {
+            child.marks.push('underline'); // Note: Sanity needs 'underline' decorator in schema
+          }
+        });
+        return children;
+
       case 'a':
         const linkDef = {
           _type: 'link',
@@ -119,6 +136,14 @@ const BlogPostPage: React.FC = () => {
         });
         return children;
 
+      case 'br':
+        return {
+          _type: 'span',
+          _key: `span-${Math.random()}`,
+          text: '\n',
+          marks: []
+        };
+
       case 'p':
       case 'h1':
       case 'h2':
@@ -128,19 +153,53 @@ const BlogPostPage: React.FC = () => {
       case 'h6':
       case 'blockquote':
       case 'li':
-        // If children list is empty or contains only empty text, return null
-        if (!children.length || children.every((c: any) => c._type === 'span' && !c.text?.trim())) {
-          return null;
+      case 'pre':
+        // If children list is empty, we still want to return a block to preserve the vertical space/structure
+        // unless it's completely empty and useless?
+        // But <p><br></p> is common for empty lines.
+
+        // Flatten children arrays
+        const flatChildren = children.flat();
+
+        // If no children, add an empty span to make it a valid block
+        if (flatChildren.length === 0) {
+          flatChildren.push({
+            _type: 'span',
+            _key: `span-${Math.random()}`,
+            text: '',
+            marks: []
+          });
         }
+
         return {
           _type: 'block',
           _key: `block-${Math.random()}`,
           style: tagName === 'p' ? 'normal' : tagName,
-          children: children.flat(),
+          children: flatChildren,
           markDefs: [],
         };
 
+      case 'ul':
+      case 'ol':
+        // Lists in Portable Text are just blocks with listItem property.
+        // But here we are returning an array of blocks (li's).
+        // We need to process children (which should be li's) and add listItem property.
+        // However, our recursive structure returns blocks for li's already.
+        // We just need to flatten them and maybe ensure they have listItem set?
+        // Actually, 'li' case above returns a block. We need to add 'listItem' to it.
 
+        // Wait, standard Portable Text has `listItem: 'bullet'` property on the block itself.
+        // Our `li` case returns a block. We should modify it here.
+
+        return children.flat().map((child: any) => {
+          if (child._type === 'block') {
+            return {
+              ...child,
+              listItem: tagName === 'ul' ? 'bullet' : 'number'
+            };
+          }
+          return child;
+        });
 
       case 'div':
         // Handle custom layout marker
@@ -193,18 +252,26 @@ const BlogPostPage: React.FC = () => {
         }
 
         // Handle divs that act as block containers
-        if (children.length > 0) {
-          // If a div only contains other block elements, flatten them.
-          // Otherwise, wrap inline content in a 'normal' paragraph block.
-          const containsBlock = children.some((c: any) => c._type === 'block');
+        // If a div contains blocks, return them flattened.
+        // If it contains inline content, wrap in a block.
+        const flatDivChildren = children.flat();
+
+        if (flatDivChildren.length > 0) {
+          const containsBlock = flatDivChildren.some((c: any) => c._type === 'block' || c._type === 'image' || c._type === 'customReact' || c._type === 'customHtml' || c._type === 'pdfEmbed');
+
           if (containsBlock) {
-            return children;
+            // If it contains blocks, we just return the children. 
+            // Inline elements between blocks might need to be wrapped?
+            // For simplicity, let's assume handlePaste normalized this.
+            return flatDivChildren;
           }
+
+          // Wrap inline content in a 'normal' paragraph block
           return {
             _type: 'block',
             _key: `block-${Math.random()}`,
             style: 'normal',
-            children: children.flat(),
+            children: flatDivChildren,
             markDefs: [],
           };
         }
@@ -251,7 +318,7 @@ const BlogPostPage: React.FC = () => {
         };
 
       default:
-        return children; // Flatten unknown tags
+        return children.flat(); // Flatten unknown tags
     }
   };
 
