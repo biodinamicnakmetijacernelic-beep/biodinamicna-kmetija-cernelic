@@ -2430,7 +2430,6 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                         : 'API ključ potrebuje "Create" pravice za slike in dokumente.'
                       }
                     </p>
-                    </div>
                     <p className="text-xs text-olive/60 mt-2">
                       Token je potreben za urejanje zaloge in nalaganje slik. Če je polje prazno, se uporabi sistemska nastavitev.
                     </p>
