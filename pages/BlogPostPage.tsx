@@ -676,25 +676,31 @@ const BlogPostPage: React.FC = () => {
           }
 
           // Handle paragraph-like elements
-          if (['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'li'].includes(tagName)) {
+          if (['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'li', 'ul', 'ol'].includes(tagName)) {
             const children = Array.from(element.childNodes)
               .map(child => extractContent(child))
               .join('');
             const trimmed = children.trim();
+
             if (trimmed) {
-              // For list items, don't wrap in additional p tag
-              if (tagName === 'li') {
-                return `<li>${trimmed}</li>`;
+              if (tagName === 'li') return `<li>${trimmed}</li>`;
+              if (tagName === 'ul') return `<ul>${trimmed}</ul>`;
+              if (tagName === 'ol') return `<ol>${trimmed}</ol>`;
+              if (tagName.startsWith('h')) return `<${tagName}>${trimmed}</${tagName}>`;
+              if (tagName === 'blockquote') return `<blockquote>${trimmed}</blockquote>`;
+
+              // For p, return p
+              if (tagName === 'p') return `<p>${trimmed}</p>`;
+
+              // For div, if it contains block elements, don't wrap
+              if (tagName === 'div') {
+                // Check if it looks like it has block tags
+                if (/<(p|div|h[1-6]|ul|ol|li|blockquote)/.test(trimmed)) {
+                  return trimmed;
+                }
+                return `<p>${trimmed}</p>`;
               }
-              // For headings, preserve the tag
-              if (tagName.startsWith('h')) {
-                return `<${tagName}>${trimmed}</${tagName}>`;
-              }
-              // For blockquotes, preserve the tag
-              if (tagName === 'blockquote') {
-                return `<blockquote>${trimmed}</blockquote>`;
-              }
-              // For everything else, use p
+
               return `<p>${trimmed}</p>`;
             }
             return '';
@@ -704,7 +710,7 @@ const BlogPostPage: React.FC = () => {
             return '<br>';
           }
 
-          // Handle line breaks and spacing
+          // Handle line breaks and spacing in spans
           if (tagName === 'span' && element.style.display === 'block') {
             const children = Array.from(element.childNodes)
               .map(child => extractContent(child))
@@ -729,34 +735,29 @@ const BlogPostPage: React.FC = () => {
       for (const node of bodyNodes) {
         const extracted = extractContent(node);
         if (extracted) {
-          // Check if this is a block element
-          if (extracted.startsWith('<p>') || extracted.startsWith('<h') || extracted.startsWith('<blockquote>') || extracted.startsWith('<li>')) {
+          // Check if this is a block element (or starts with one)
+          const isBlock = /^(<p>|<h[1-6]>|<blockquote>|<li>|<ul>|<ol>|<div)/.test(extracted);
+
+          if (isBlock) {
             if (currentBlock.trim()) {
-              extractedBlocks.push(currentBlock.trim());
+              extractedBlocks.push(`<p>${currentBlock.trim()}</p>`);
               currentBlock = '';
             }
             extractedBlocks.push(extracted);
-          } else if (extracted.includes('<br>') || extracted.trim()) {
+          } else {
+            // It's inline content or just text
             currentBlock += extracted;
           }
         }
       }
 
       if (currentBlock.trim()) {
-        extractedBlocks.push(currentBlock.trim());
+        extractedBlocks.push(`<p>${currentBlock.trim()}</p>`);
       }
 
-      // Filter out empty blocks and join
-      contentToInsert = extractedBlocks
-        .filter(block => block.trim())
-        .map(block => {
-          // If block doesn't start with a tag, wrap it in p
-          if (!block.startsWith('<')) {
-            return `<p>${block}</p>`;
-          }
-          return block;
-        })
-        .join('');
+      // Join blocks
+      contentToInsert = extractedBlocks.join('');
+
     } else {
       // Handle plain text
       const paragraphs = pastedText
