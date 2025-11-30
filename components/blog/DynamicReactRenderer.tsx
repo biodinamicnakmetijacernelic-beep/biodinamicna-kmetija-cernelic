@@ -18,7 +18,7 @@ const DynamicReactRenderer: React.FC<DynamicReactRendererProps> = ({ code }) => 
         try {
             // 1. Transpile the code using Babel
             const transpiled = Babel.transform(code, {
-                presets: ['react', 'env'],
+                presets: ['react', 'env', 'typescript'],
                 filename: 'dynamic.tsx',
             }).code;
 
