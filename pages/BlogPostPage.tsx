@@ -5,7 +5,7 @@ import { NewsItem } from '../types';
 import { renderPortableText } from '../utils/newsHelpers';
 import getCroppedImg from '../utils/imageHelpers';
 import Cropper from 'react-easy-crop';
-import { ArrowLeft, Calendar, Share2, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette, Link as LinkIcon, Image as ImageIcon, Video, MousePointerClick, Heading2, Heading3, ZoomIn, ZoomOut, Check, X, Pencil, Sprout, Code, LayoutTemplate, Info } from 'lucide-react';
+import { ArrowLeft, Calendar, Share2, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette, Link as LinkIcon, Image as ImageIcon, Video, MousePointerClick, Heading2, Heading3, ZoomIn, ZoomOut, Check, X, Pencil, Sprout, Code, LayoutTemplate, Info, FileText } from 'lucide-react';
 import FadeIn from '../components/FadeIn';
 import Lightbox from '../components/Lightbox';
 import LinkPopup from '../components/LinkPopup';
@@ -159,6 +159,22 @@ const BlogPostPage: React.FC = () => {
           }
         }
 
+        // Handle PDF marker
+        if (element.getAttribute('data-pdf') === 'true') {
+          const pdfUrl = element.getAttribute('data-pdf-url');
+          const pdfName = element.getAttribute('data-pdf-name');
+          const pdfSize = element.getAttribute('data-pdf-size');
+          if (pdfUrl && pdfName && pdfSize) {
+            return {
+              _type: 'pdfEmbed',
+              _key: `pdf-${Math.random()}`,
+              url: pdfUrl,
+              name: pdfName,
+              size: pdfSize
+            };
+          }
+        }
+
         // Handle custom HTML marker
         if (element.getAttribute('data-custom-html') === 'true') {
           const content = element.getAttribute('data-content');
@@ -277,6 +293,10 @@ const BlogPostPage: React.FC = () => {
           }
           // Allow custom React blocks
           if (block._type === 'customReact') {
+            return true;
+          }
+          // Allow PDF embed blocks
+          if (block._type === 'pdfEmbed') {
             return true;
           }
           return true;
@@ -449,6 +469,68 @@ const BlogPostPage: React.FC = () => {
         alert('Neveljaven YouTube URL');
       }
     }
+  };
+
+  const insertPDF = async () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/pdf';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      if (file.type !== 'application/pdf') {
+        alert('Prosimo izberite PDF datoteko');
+        return;
+      }
+
+      if (file.size > 10 * 1024 * 1024) {
+        alert('PDF je prevelik. Največja dovoljena velikost je 10MB.');
+        return;
+      }
+
+      try {
+        const token = (import.meta as any).env.VITE_SANITY_TOKEN;
+        if (!token) {
+          alert('Napaka: Manjka Sanity token');
+          return;
+        }
+
+        // Upload PDF to Sanity
+        const { uploadPDFFileToSanityWithToken } = await import('../utils/sanityImageUpload');
+        const pdfUrl = await uploadPDFFileToSanityWithToken(file, token);
+
+        const editor = document.getElementById('editor') as HTMLElement;
+        if (!editor) return;
+
+        const pdfHtml = `<div class="my-4 p-4 bg-gray-50 rounded-xl border border-gray-200" data-pdf="true" data-pdf-url="${pdfUrl}" data-pdf-name="${file.name}" data-pdf-size="${(file.size / 1024 / 1024).toFixed(2)}">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="p-2 bg-red-100 rounded-lg">
+              <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h4 class="font-semibold text-gray-900">${file.name}</h4>
+              <p class="text-sm text-gray-600">${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+            </div>
+            <a href="${pdfUrl}" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-terracotta text-white rounded-lg hover:bg-terracotta-dark transition-colors text-sm font-medium">
+              Odpri PDF
+            </a>
+          </div>
+          <div class="mt-3">
+            <iframe src="${pdfUrl}" class="w-full h-96 border border-gray-300 rounded-lg" title="${file.name}"></iframe>
+          </div>
+        </div>\n\n`;
+
+        document.execCommand('insertHTML', false, pdfHtml);
+        setEditedContent(editor.innerHTML);
+      } catch (error) {
+        console.error('PDF upload failed:', error);
+        alert(`Napaka pri nalaganju PDF: ${error instanceof Error ? error.message : 'Neznana napaka'}`);
+      }
+    };
+    input.click();
   };
 
   const insertButton = () => {
@@ -683,6 +765,29 @@ const BlogPostPage: React.FC = () => {
       // Handle legacy image blocks with _temp_src (for backwards compatibility)
       if (block._type === 'image' && block._temp_src) {
         return `<div class="rounded-2xl overflow-hidden"><img src="${block._temp_src}" alt="Image" class="w-full h-auto object-cover" loading="lazy" /></div>`;
+      }
+
+      // Handle PDF embed blocks
+      if (block._type === 'pdfEmbed') {
+        return `<div class="my-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="p-2 bg-red-100 rounded-lg">
+              <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h4 class="font-semibold text-gray-900">${block.name}</h4>
+              <p class="text-sm text-gray-600">${block.size} MB</p>
+            </div>
+            <a href="${block.url}" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-terracotta text-white rounded-lg hover:bg-terracotta-dark transition-colors text-sm font-medium">
+              Odpri PDF
+            </a>
+          </div>
+          <div class="mt-3">
+            <iframe src="${block.url}" class="w-full h-96 border border-gray-300 rounded-lg" title="${block.name}"></iframe>
+          </div>
+        </div>`;
       }
 
       if (block._type !== 'block') return '';
@@ -1179,6 +1284,9 @@ const BlogPostPage: React.FC = () => {
                   </button>
                   <button onClick={() => insertYouTube()} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi video (YouTube)">
                     <Video size={14} />
+                  </button>
+                  <button onClick={() => insertPDF()} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi PDF">
+                    <FileText size={14} />
                   </button>
                   <button
                     onClick={insertButton}

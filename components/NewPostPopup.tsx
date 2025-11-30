@@ -107,6 +107,55 @@ const NewPostPopup: React.FC<NewPostPopupProps> = ({ onClose, onSuccess }) => {
                         };
 
                     case 'div':
+                        // Handle custom layout marker
+                        if (element.getAttribute('data-custom-layout') === 'regenerative-agriculture') {
+                            return {
+                                _type: 'customComponent',
+                                _key: `custom-${Math.random()}`,
+                                component: 'regenerative-agriculture'
+                            };
+                        }
+
+                        // Handle custom React marker
+                        if (element.getAttribute('data-custom-react') === 'true') {
+                            const content = element.getAttribute('data-content');
+                            if (content) {
+                                return {
+                                    _type: 'customReact',
+                                    _key: `react-${Math.random()}`,
+                                    code: decodeURIComponent(content)
+                                };
+                            }
+                        }
+
+                        // Handle custom HTML marker
+                        if (element.getAttribute('data-custom-html') === 'true') {
+                            const content = element.getAttribute('data-content');
+                            if (content) {
+                                return {
+                                    _type: 'customHtml',
+                                    _key: `html-${Math.random()}`,
+                                    html: decodeURIComponent(content)
+                                };
+                            }
+                        }
+
+                        // Handle PDF marker
+                        if (element.getAttribute('data-pdf') === 'true') {
+                            const pdfUrl = element.getAttribute('data-pdf-url');
+                            const pdfName = element.getAttribute('data-pdf-name');
+                            const pdfSize = element.getAttribute('data-pdf-size');
+                            if (pdfUrl && pdfName && pdfSize) {
+                                return {
+                                    _type: 'pdfEmbed',
+                                    _key: `pdf-${Math.random()}`,
+                                    url: pdfUrl,
+                                    name: pdfName,
+                                    size: pdfSize
+                                };
+                            }
+                        }
+
                         if (children.length > 0) {
                             const containsBlock = children.some((c: any) => c._type === 'block');
                             if (containsBlock) {
@@ -161,6 +210,10 @@ const NewPostPopup: React.FC<NewPostPopupProps> = ({ onClose, onSuccess }) => {
                         });
                         if (validChildren.length === 0) return false;
                         block.children = validChildren;
+                    }
+                    // Allow PDF embed blocks
+                    if (block._type === 'pdfEmbed') {
+                        return true;
                     }
                     return true;
                 });
@@ -433,7 +486,7 @@ const NewPostPopup: React.FC<NewPostPopupProps> = ({ onClose, onSuccess }) => {
                 const editor = editorRef.current;
                 if (!editor) return;
 
-                const pdfHtml = `<div class="my-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                const pdfHtml = `<div class="my-4 p-4 bg-gray-50 rounded-xl border border-gray-200" data-pdf="true" data-pdf-url="${pdfUrl}" data-pdf-name="${file.name}" data-pdf-size="${(file.size / 1024 / 1024).toFixed(2)}">
                     <div class="flex items-center gap-3 mb-2">
                         <div class="p-2 bg-red-100 rounded-lg">
                             <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">

@@ -26,6 +26,31 @@ export const renderPortableText = (body: any[], onImageClick?: (src: string) => 
   }
 
   return body.map((block, index) => {
+    // Handle PDF embed blocks
+    if (block._type === 'pdfEmbed') {
+      return (
+        <div key={block._key || index} className="my-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-red-100 rounded-lg">
+              <svg className="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd"/>
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h4 className="font-semibold text-gray-900">{block.name}</h4>
+              <p className="text-sm text-gray-600">{block.size} MB</p>
+            </div>
+            <a href={block.url} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-terracotta text-white rounded-lg hover:bg-terracotta-dark transition-colors text-sm font-medium">
+              Odpri PDF
+            </a>
+          </div>
+          <div className="mt-3">
+            <iframe src={block.url} className="w-full h-96 border border-gray-300 rounded-lg" title={block.name}></iframe>
+          </div>
+        </div>
+      );
+    }
+
     if (block._type === 'block') {
       const style = block.style || 'normal';
 
