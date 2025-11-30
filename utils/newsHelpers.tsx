@@ -33,7 +33,7 @@ export const renderPortableText = (body: any[], onImageClick?: (src: string) => 
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 bg-red-100 rounded-lg">
               <svg className="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd"/>
+                <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
               </svg>
             </div>
             <div className="flex-1">
@@ -108,45 +108,13 @@ export const renderPortableText = (body: any[], onImageClick?: (src: string) => 
                 // 3. HTML close tag: <\/([a-z]+)>
                 // 4. Bold: \*\*([^*]+)\*\*
                 // 5. Italic: \*([^*]+)\*
-                const tokenRegex = /(\[([^\]]+)\]\(([^)]+)\))|(<([a-z]+)([^>]*)>)|(<\/([a-z]+)>)|(\*\*([^*]+)\*\*)|(\*([^*]+)\*)/gi;
-
-                let lastIndex = 0;
-                let match;
-
-                // We need a stack for HTML tags to handle nesting properly
-                // But a full parser is complex. Let's try a simpler approach: 
-                // Since our tags are mostly wrapping, we can try to replace them with React elements.
-                // However, string replacement doesn't work for React elements.
-
-                // Let's iterate through the string and build the tree.
-
-                const tokens = text.split(/((?:\[[^\]]+\]\([^)]+\))|(?:<\/?(?:div|span)[^>]*>)|(?:\*\*[^*]+\*\*)|(?:\*[^*]+\*))/g);
-
-                // This split gives us: ["text", "token", "text", ...] (flat list)
-                // This doesn't handle nesting well (e.g. <b><i>text</i></b>).
-                // But our toolbar wraps selection. If user wraps twice, it nests.
-
-                // If we want to support nesting, we need to parse properly.
-                // Given the constraints, let's try to handle the most common cases or use a recursive parser.
-
-                // Let's try a recursive parser that finds the *first* open tag or token, finds its matching close, and recurses.
-
-                // Simplified parser for our specific use cases:
-                // We support:
-                // - [text](url) -> Link
-                // - **text** -> Bold
-                // - *text* -> Italic
-                // - <div class="...">...</div> -> Div with class
-                // - <span class="...">...</span> -> Span with class
-                // - <span style="...">...</span> -> Span with style
-
-                // We can use a regex to find the *next* interesting thing.
+                // 6. Newline: \n
 
                 let cursor = 0;
                 let currentChildren = result; // This is the array we're building
                 while (cursor < text.length) {
-                  // Find next start token - updated to include img, iframe, button
-                  const nextToken = text.slice(cursor).match(/(\[([^\]]+)\]\(([^)]+)\))|(\*\*)|(\*)|(<(div|span|img|iframe|button)([^>]*)>)|(<\/(div|span|iframe|button)>)/);
+                  // Find next start token - updated to include img, iframe, button, and newline
+                  const nextToken = text.slice(cursor).match(/(\[([^\]]+)\]\(([^)]+)\))|(\*\*)|(\*)|(<(div|span|img|iframe|button)([^>]*)>)|(<\/(div|span|iframe|button)>)|(\n)/);
                   if (!nextToken) {
                     currentChildren.push(text.slice(cursor));
                     break;
@@ -160,6 +128,13 @@ export const renderPortableText = (body: any[], onImageClick?: (src: string) => 
                   }
 
                   const fullMatch = nextToken[0];
+
+                  // Handle Newline
+                  if (fullMatch === '\n') {
+                    currentChildren.push(<br key={`br-${cursor}`} />);
+                    cursor = matchIndex + 1;
+                    continue;
+                  }
 
                   // Handle Link (Self-contained)
                   if (fullMatch.startsWith('[')) {
