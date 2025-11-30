@@ -1,4 +1,4 @@
-import { client } from '../sanityClient';
+import { writeClient } from '../sanityClient';
 
 /**
  * Upload an image file to Sanity
@@ -8,7 +8,7 @@ import { client } from '../sanityClient';
 export async function uploadImageToSanity(file: File): Promise<string> {
     try {
         // Upload the image asset to Sanity
-        const imageAsset = await client.assets.upload('image', file, {
+        const imageAsset = await writeClient.assets.upload('image', file, {
             filename: file.name,
         });
 
