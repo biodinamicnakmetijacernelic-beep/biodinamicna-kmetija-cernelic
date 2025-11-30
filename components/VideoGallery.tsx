@@ -71,7 +71,7 @@ const VideoGallery: React.FC = () => {
                      >
                         {/* Thumbnail Image (Auto-fetched from YouTube) */}
                         <img
-                           src={`https://img.youtube.com/vi/${video.videoId}/maxresdefault.jpg`}
+                           src={`https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`}
                            alt={video.title}
                            className="w-full h-full object-cover opacity-80 group-hover:opacity-60 group-hover:scale-105 transition-all duration-700"
                         />
