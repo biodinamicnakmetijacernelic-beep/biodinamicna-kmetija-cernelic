@@ -2429,18 +2429,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                         ? 'API ključ nima pravic za ustvarjanje. Pojdite v Sanity.io -> API -> Tokens in dodajte "Create" pravice.'
                         : 'API ključ potrebuje "Create" pravice za slike in dokumente.'
                       }
-                        {verifyingToken ? (
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-terracotta"></div>
-                        ) : sanityToken && tokenVerified === true ? (
-                          <Check size={16} className="text-green-500" />
-                        ) : sanityToken && tokenVerified === false ? (
-                          <AlertTriangle size={16} className="text-red-500" />
-                        ) : sanityToken ? (
-                          <div className="h-2 w-2 bg-yellow-400 rounded-full"></div>
-                        ) : (
-                          <AlertTriangle size={16} className="text-yellow-500" />
-                        )}
-                      </div>
+                    </p>
                     </div>
                     <p className="text-xs text-olive/60 mt-2">
                       Token je potreben za urejanje zaloge in nalaganje slik. Če je polje prazno, se uporabi sistemska nastavitev.
