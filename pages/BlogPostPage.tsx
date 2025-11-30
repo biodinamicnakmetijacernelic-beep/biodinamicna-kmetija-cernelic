@@ -5,7 +5,7 @@ import { NewsItem } from '../types';
 import { renderPortableText } from '../utils/newsHelpers';
 import getCroppedImg from '../utils/imageHelpers';
 import Cropper from 'react-easy-crop';
-import { ArrowLeft, Calendar, Share2, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette, Link as LinkIcon, Image as ImageIcon, Video, MousePointerClick, Heading2, Heading3, ZoomIn, ZoomOut, Check, X } from 'lucide-react';
+import { ArrowLeft, Calendar, Share2, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette, Link as LinkIcon, Image as ImageIcon, Video, MousePointerClick, Heading2, Heading3, ZoomIn, ZoomOut, Check, X, Pencil } from 'lucide-react';
 import FadeIn from '../components/FadeIn';
 import Lightbox from '../components/Lightbox';
 import LinkPopup from '../components/LinkPopup';
@@ -828,12 +828,41 @@ const BlogPostPage: React.FC = () => {
                     onClick={() => thumbnailInputRef.current?.click()}
                   >
                     {thumbnailPreview ? (
-                      <img src={thumbnailPreview} alt="Thumbnail preview" className="w-full h-full object-cover" />
+                      <div className="relative w-full h-full group">
+                        <img src={thumbnailPreview} alt="Thumbnail preview" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setTempImageSrc(thumbnailPreview);
+                              setIsCropping(true);
+                              setZoom(1);
+                              setCrop({ x: 0, y: 0 });
+                            }}
+                            className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+                            title="Uredi sliko"
+                          >
+                            <Pencil size={20} className="text-olive-dark" />
+                          </button>
+                        </div>
+                      </div>
                     ) : post.image ? (
-                      <div className="relative w-full h-full">
+                      <div className="relative w-full h-full group">
                         <img src={post.image} alt="Current thumbnail" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                          <span className="text-white text-sm font-semibold bg-black/50 px-4 py-2 rounded-lg">Kliknite za spremembo</span>
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setTempImageSrc(post.image);
+                              setIsCropping(true);
+                              setZoom(1);
+                              setCrop({ x: 0, y: 0 });
+                            }}
+                            className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+                            title="Uredi sliko"
+                          >
+                            <Pencil size={20} className="text-olive-dark" />
+                          </button>
                         </div>
                       </div>
                     ) : (
@@ -1097,65 +1126,6 @@ const BlogPostPage: React.FC = () => {
             )}
           </div>
 
-          {/* Cropping Modal */}
-          {isCropping && tempImageSrc && (
-            <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col h-[80vh]">
-                <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                  <h3 className="text-lg font-serif text-olive-dark font-semibold">Uredi sliko</h3>
-                  <button onClick={handleCropCancel} className="text-gray-400 hover:text-gray-600">
-                    <X size={24} />
-                  </button>
-                </div>
-
-                <div className="relative flex-1 bg-black">
-                  <Cropper
-                    image={tempImageSrc}
-                    crop={crop}
-                    zoom={zoom}
-                    aspect={16 / 9}
-                    onCropChange={setCrop}
-                    onCropComplete={onCropComplete}
-                    onZoomChange={setZoom}
-                  />
-                </div>
-
-                <div className="p-4 bg-white border-t border-gray-100 space-y-4">
-                  <div className="flex items-center gap-4">
-                    <ZoomOut size={20} className="text-gray-400" />
-                    <input
-                      type="range"
-                      value={zoom}
-                      min={1}
-                      max={3}
-                      step={0.1}
-                      aria-labelledby="Zoom"
-                      onChange={(e) => setZoom(Number(e.target.value))}
-                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-terracotta"
-                    />
-                    <ZoomIn size={20} className="text-gray-400" />
-                  </div>
-
-                  <div className="flex justify-end gap-3">
-                    <button
-                      onClick={handleCropCancel}
-                      className="px-4 py-2 rounded-xl font-semibold text-gray-600 hover:bg-gray-100 transition-colors"
-                    >
-                      Prekliči
-                    </button>
-                    <button
-                      onClick={handleCropSave}
-                      className="px-6 py-2 rounded-xl font-semibold bg-terracotta text-white hover:bg-terracotta-dark transition-colors flex items-center gap-2"
-                    >
-                      <Check size={18} />
-                      Potrdi in obreži
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Back to Blog CTA */}
           <div className="mt-16 pt-12 border-t border-black/5">
             <Link
@@ -1168,6 +1138,65 @@ const BlogPostPage: React.FC = () => {
           </div>
         </div>
       </FadeIn>
+
+      {/* Cropping Modal - Moved outside FadeIn for correct positioning */}
+      {isCropping && tempImageSrc && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col h-[80vh]">
+            <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+              <h3 className="text-lg font-serif text-olive-dark font-semibold">Uredi sliko</h3>
+              <button onClick={handleCropCancel} className="text-gray-400 hover:text-gray-600">
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="relative flex-1 bg-black">
+              <Cropper
+                image={tempImageSrc}
+                crop={crop}
+                zoom={zoom}
+                aspect={16 / 9}
+                onCropChange={setCrop}
+                onCropComplete={onCropComplete}
+                onZoomChange={setZoom}
+              />
+            </div>
+
+            <div className="p-4 bg-white border-t border-gray-100 space-y-4">
+              <div className="flex items-center gap-4">
+                <ZoomOut size={20} className="text-gray-400" />
+                <input
+                  type="range"
+                  value={zoom}
+                  min={1}
+                  max={3}
+                  step={0.1}
+                  aria-labelledby="Zoom"
+                  onChange={(e) => setZoom(Number(e.target.value))}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-terracotta"
+                />
+                <ZoomIn size={20} className="text-gray-400" />
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={handleCropCancel}
+                  className="px-4 py-2 rounded-xl font-semibold text-gray-600 hover:bg-gray-100 transition-colors"
+                >
+                  Prekliči
+                </button>
+                <button
+                  onClick={handleCropSave}
+                  className="px-6 py-2 rounded-xl font-semibold bg-terracotta text-white hover:bg-terracotta-dark transition-colors flex items-center gap-2"
+                >
+                  <Check size={18} />
+                  Potrdi in obreži
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <input
         id="image-upload"
