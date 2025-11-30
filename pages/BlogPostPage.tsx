@@ -466,20 +466,64 @@ const BlogPostPage: React.FC = () => {
     const editor = document.getElementById('editor') as HTMLElement;
     if (!editor) return;
 
-    let layoutHtml = '';
+    let layoutNode: HTMLElement | null = null;
 
     if (type === 'react' && content) {
-      // Encode content to store in attribute
       const encodedContent = encodeURIComponent(content);
-      layoutHtml = `<div data-custom-react="true" data-content="${encodedContent}" class="my-8 p-4 bg-blue-50 border border-blue-200 rounded-lg font-mono text-sm text-blue-800 overflow-hidden text-ellipsis whitespace-nowrap">⚛️ React Komponenta: ${content.substring(0, 50)}...</div><p><br></p>`;
+      const div = document.createElement('div');
+      div.setAttribute('data-custom-react', 'true');
+      div.setAttribute('data-content', encodedContent);
+      div.className = "my-8 p-4 bg-blue-50 border border-blue-200 rounded-lg font-mono text-sm text-blue-800 overflow-hidden text-ellipsis whitespace-nowrap";
+      div.textContent = `⚛️ React Komponenta: ${content.substring(0, 50)}...`;
+      layoutNode = div;
     } else if (type === 'html' && content) {
-      // Encode content to store in attribute
       const encodedContent = encodeURIComponent(content);
-      layoutHtml = `<div data-custom-html="true" data-content="${encodedContent}" class="my-8 p-4 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm text-gray-600 overflow-hidden text-ellipsis whitespace-nowrap">💻 HTML Koda: ${content.substring(0, 50)}...</div><p><br></p>`;
+      const div = document.createElement('div');
+      div.setAttribute('data-custom-html', 'true');
+      div.setAttribute('data-content', encodedContent);
+      div.className = "my-8 p-4 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm text-gray-600 overflow-hidden text-ellipsis whitespace-nowrap";
+      div.textContent = `💻 HTML Koda: ${content.substring(0, 50)}...`;
+      layoutNode = div;
     }
 
-    if (layoutHtml) {
-      document.execCommand('insertHTML', false, layoutHtml);
+    if (layoutNode) {
+      editor.focus();
+      const selection = window.getSelection();
+
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+
+        // Check if range is inside editor
+        if (editor.contains(range.commonAncestorContainer)) {
+          range.deleteContents();
+          range.insertNode(layoutNode);
+
+          // Insert a break after
+          const br = document.createElement('p');
+          br.innerHTML = '<br>';
+          range.setStartAfter(layoutNode);
+          range.insertNode(br);
+
+          // Move cursor to new line
+          range.setStart(br, 0);
+          range.setEnd(br, 0);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        } else {
+          // Fallback: append to end
+          editor.appendChild(layoutNode);
+          const br = document.createElement('p');
+          br.innerHTML = '<br>';
+          editor.appendChild(br);
+        }
+      } else {
+        // No selection, append to end
+        editor.appendChild(layoutNode);
+        const br = document.createElement('p');
+        br.innerHTML = '<br>';
+        editor.appendChild(br);
+      }
+
       setEditedContent(editor.innerHTML);
     }
     setShowLayoutModal(false);
@@ -1344,8 +1388,8 @@ const LayoutSelectionModal = ({ onSelect }: { onSelect: (type: 'react' | 'html',
         <button
           onClick={() => setActiveTab('react')}
           className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${activeTab === 'react'
-              ? 'bg-white text-olive-dark shadow-sm'
-              : 'text-gray-500 hover:text-gray-700'
+            ? 'bg-white text-olive-dark shadow-sm'
+            : 'text-gray-500 hover:text-gray-700'
             }`}
         >
           <div className="flex items-center justify-center gap-2">
@@ -1356,8 +1400,8 @@ const LayoutSelectionModal = ({ onSelect }: { onSelect: (type: 'react' | 'html',
         <button
           onClick={() => setActiveTab('html')}
           className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${activeTab === 'html'
-              ? 'bg-white text-olive-dark shadow-sm'
-              : 'text-gray-500 hover:text-gray-700'
+            ? 'bg-white text-olive-dark shadow-sm'
+            : 'text-gray-500 hover:text-gray-700'
             }`}
         >
           <div className="flex items-center justify-center gap-2">
