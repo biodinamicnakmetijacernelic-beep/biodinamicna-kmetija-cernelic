@@ -852,235 +852,237 @@ const BlogPostPage: React.FC = () => {
 
   return (
     <article className="bg-white min-h-screen">
-      {/* Hero Section - Apple Style */}
-      <div className="pt-32 pb-16">
-        <div className="container mx-auto px-6 max-w-4xl">
-          <FadeIn>
-            {/* Back Button */}
-            <Link
-              to="/blog-novice"
-              className="inline-flex items-center gap-2 text-olive/60 text-sm font-medium mb-8 hover:text-olive transition-colors group"
-            >
-              <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-              Vse objave
-            </Link>
+      {/* Hero Section - Apple Style - Hidden for custom React posts */}
+      {!hasCustomReact && (
+        <div className="pt-32 pb-16">
+          <div className="container mx-auto px-6 max-w-4xl">
+            <FadeIn>
+              {/* Back Button */}
+              <Link
+                to="/blog-novice"
+                className="inline-flex items-center gap-2 text-olive/60 text-sm font-medium mb-8 hover:text-olive transition-colors group"
+              >
+                <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+                Vse objave
+              </Link>
 
-            {/* Date & Share */}
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-2 text-sm text-olive/60">
-                <Calendar size={16} />
-                {new Date(post.publishedAt).toLocaleDateString('sl-SI', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric'
-                })}
-              </div>
+              {/* Date & Share */}
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-2 text-sm text-olive/60">
+                  <Calendar size={16} />
+                  {new Date(post.publishedAt).toLocaleDateString('sl-SI', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                  })}
+                </div>
 
-              {/* Share Menu */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowShareMenu(!showShareMenu)}
-                  className="flex items-center gap-2 text-sm text-olive/60 hover:text-olive transition-colors"
-                >
-                  <Share2 size={16} />
-                  Deli
-                </button>
-
-                {showShareMenu && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-40"
-                      onClick={() => setShowShareMenu(false)}
-                    />
-                    <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50">
-                      <button
-                        onClick={handleCopyLink}
-                        className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors flex items-center gap-3"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                        </svg>
-                        Kopiraj povezavo
-                      </button>
-                      <button
-                        onClick={handleShareFacebook}
-                        className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors flex items-center gap-3"
-                      >
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                        </svg>
-                        Facebook
-                      </button>
-                      <button
-                        onClick={handleShareTwitter}
-                        className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors flex items-center gap-3"
-                      >
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                        </svg>
-                        Twitter / X
-                      </button>
-                      <button
-                        onClick={handleShareEmail}
-                        className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors flex items-center gap-3"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                        Email
-                      </button>
-                      <button
-                        onClick={handleShareSMS}
-                        className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors flex items-center gap-3"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                        </svg>
-                        SMS
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Title */}
-            {isEditMode ? (
-              <div className="mb-8 space-y-4">
-                <input
-                  type="text"
-                  value={editedTitle}
-                  onChange={(e) => setEditedTitle(e.target.value)}
-                  className="w-full font-serif text-xl md:text-2xl text-olive-dark leading-tight bg-gray-50 border-2 border-terracotta rounded-xl px-4 py-3 focus:outline-none focus:border-terracotta-dark"
-                  placeholder="Naslov"
-                />
-
-                {/* Thumbnail Image Upload */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-olive-dark">
-                    Thumbnail slika (opcijsko)
-                  </label>
-                  <div
-                    className={`relative bg-gray-100 rounded-xl overflow-hidden border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-50 transition-colors ${thumbnailPreview ? 'h-auto w-64 aspect-video' : 'h-48'}`}
-                    onClick={() => thumbnailInputRef.current?.click()}
+                {/* Share Menu */}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowShareMenu(!showShareMenu)}
+                    className="flex items-center gap-2 text-sm text-olive/60 hover:text-olive transition-colors"
                   >
-                    {thumbnailPreview ? (
-                      <div className="relative w-full h-full group">
-                        <img src={thumbnailPreview} alt="Thumbnail preview" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setTempImageSrc(thumbnailPreview);
-                              setIsCropping(true);
-                              setZoom(1);
-                              setCrop({ x: 0, y: 0 });
-                            }}
-                            className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
-                            title="Uredi sliko"
-                          >
-                            <Pencil size={20} className="text-olive-dark" />
-                          </button>
-                        </div>
-                      </div>
-                    ) : post.image ? (
-                      <div className="relative w-full h-full group">
-                        <img src={post.image} alt="Current thumbnail" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setTempImageSrc(post.image);
-                              setIsCropping(true);
-                              setZoom(1);
-                              setCrop({ x: 0, y: 0 });
-                            }}
-                            className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
-                            title="Uredi sliko"
-                          >
-                            <Pencil size={20} className="text-olive-dark" />
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center h-full text-olive/40">
-                        <ImageIcon size={32} />
-                        <span className="text-xs font-bold uppercase mt-2">Kliknite za dodajanje thumbnail slike</span>
-                      </div>
-                    )}
-                    <input
-                      ref={thumbnailInputRef}
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          if (!file.type.startsWith('image/')) {
-                            alert('Prosimo izberite slikovno datoteko');
-                            return;
-                          }
-                          if (file.size > 10 * 1024 * 1024) {
-                            alert('Slika je prevelika. Največja dovoljena velikost je 10MB.');
-                            return;
-                          }
+                    <Share2 size={16} />
+                    Deli
+                  </button>
 
-                          const reader = new FileReader();
-                          reader.onload = (e) => {
-                            setTempImageSrc(e.target?.result as string);
-                            setIsCropping(true);
-                            setZoom(1);
-                            setCrop({ x: 0, y: 0 });
-                          };
-                          reader.readAsDataURL(file);
-                        }
-                      }}
-                    />
-                  </div>
-                  {thumbnailPreview && (
-                    <button
-                      onClick={() => {
-                        setThumbnailFile(null);
-                        setThumbnailPreview(null);
-                        if (thumbnailInputRef.current) {
-                          thumbnailInputRef.current.value = '';
-                        }
-                      }}
-                      className="text-sm text-red-600 hover:text-red-700 font-semibold"
-                    >
-                      Odstrani sliko
-                    </button>
+                  {showShareMenu && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setShowShareMenu(false)}
+                      />
+                      <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50">
+                        <button
+                          onClick={handleCopyLink}
+                          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors flex items-center gap-3"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                          Kopiraj povezavo
+                        </button>
+                        <button
+                          onClick={handleShareFacebook}
+                          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors flex items-center gap-3"
+                        >
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                          </svg>
+                          Facebook
+                        </button>
+                        <button
+                          onClick={handleShareTwitter}
+                          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors flex items-center gap-3"
+                        >
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                          </svg>
+                          Twitter / X
+                        </button>
+                        <button
+                          onClick={handleShareEmail}
+                          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors flex items-center gap-3"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                          Email
+                        </button>
+                        <button
+                          onClick={handleShareSMS}
+                          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors flex items-center gap-3"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                          </svg>
+                          SMS
+                        </button>
+                      </div>
+                    </>
                   )}
                 </div>
               </div>
-            ) : (
-              !hasCustomReact && (
-                <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-olive-dark leading-[0.95] tracking-tight mb-6">
-                  {post.title}
-                </h1>
-              )
-            )}
 
-            {/* Admin Edit Button */}
-            {isAdmin && !isEditMode && (
-              <button
-                onClick={() => {
-                  setIsEditMode(true);
-                  setEditedTitle(post.title);
-                  // Initial setup is now handled by useEffect
-                }}
-                className="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-olive text-white rounded-xl font-semibold hover:bg-olive-dark transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-                Uredi
-              </button>
-            )}
+              {/* Title */}
+              {isEditMode ? (
+                <div className="mb-8 space-y-4">
+                  <input
+                    type="text"
+                    value={editedTitle}
+                    onChange={(e) => setEditedTitle(e.target.value)}
+                    className="w-full font-serif text-xl md:text-2xl text-olive-dark leading-tight bg-gray-50 border-2 border-terracotta rounded-xl px-4 py-3 focus:outline-none focus:border-terracotta-dark"
+                    placeholder="Naslov"
+                  />
 
-          </FadeIn>
+                  {/* Thumbnail Image Upload */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-olive-dark">
+                      Thumbnail slika (opcijsko)
+                    </label>
+                    <div
+                      className={`relative bg-gray-100 rounded-xl overflow-hidden border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-50 transition-colors ${thumbnailPreview ? 'h-auto w-64 aspect-video' : 'h-48'}`}
+                      onClick={() => thumbnailInputRef.current?.click()}
+                    >
+                      {thumbnailPreview ? (
+                        <div className="relative w-full h-full group">
+                          <img src={thumbnailPreview} alt="Thumbnail preview" className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setTempImageSrc(thumbnailPreview);
+                                setIsCropping(true);
+                                setZoom(1);
+                                setCrop({ x: 0, y: 0 });
+                              }}
+                              className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+                              title="Uredi sliko"
+                            >
+                              <Pencil size={20} className="text-olive-dark" />
+                            </button>
+                          </div>
+                        </div>
+                      ) : post.image ? (
+                        <div className="relative w-full h-full group">
+                          <img src={post.image} alt="Current thumbnail" className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setTempImageSrc(post.image);
+                                setIsCropping(true);
+                                setZoom(1);
+                                setCrop({ x: 0, y: 0 });
+                              }}
+                              className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+                              title="Uredi sliko"
+                            >
+                              <Pencil size={20} className="text-olive-dark" />
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center h-full text-olive/40">
+                          <ImageIcon size={32} />
+                          <span className="text-xs font-bold uppercase mt-2">Kliknite za dodajanje thumbnail slike</span>
+                        </div>
+                      )}
+                      <input
+                        ref={thumbnailInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            if (!file.type.startsWith('image/')) {
+                              alert('Prosimo izberite slikovno datoteko');
+                              return;
+                            }
+                            if (file.size > 10 * 1024 * 1024) {
+                              alert('Slika je prevelika. Največja dovoljena velikost je 10MB.');
+                              return;
+                            }
+
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                              setTempImageSrc(e.target?.result as string);
+                              setIsCropping(true);
+                              setZoom(1);
+                              setCrop({ x: 0, y: 0 });
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                    </div>
+                    {thumbnailPreview && (
+                      <button
+                        onClick={() => {
+                          setThumbnailFile(null);
+                          setThumbnailPreview(null);
+                          if (thumbnailInputRef.current) {
+                            thumbnailInputRef.current.value = '';
+                          }
+                        }}
+                        className="text-sm text-red-600 hover:text-red-700 font-semibold"
+                      >
+                        Odstrani sliko
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                !hasCustomReact && (
+                  <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-olive-dark leading-[0.95] tracking-tight mb-6">
+                    {post.title}
+                  </h1>
+                )
+              )}
+
+              {/* Admin Edit Button */}
+              {isAdmin && !isEditMode && (
+                <button
+                  onClick={() => {
+                    setIsEditMode(true);
+                    setEditedTitle(post.title);
+                    // Initial setup is now handled by useEffect
+                  }}
+                  className="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-olive text-white rounded-xl font-semibold hover:bg-olive-dark transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Uredi
+                </button>
+              )}
+
+            </FadeIn>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Featured Image */}
       {/* Featured Image - HIDDEN per user request */}
@@ -1100,7 +1102,7 @@ const BlogPostPage: React.FC = () => {
 
       {/* Content - Apple Typography */}
       <FadeIn>
-        <div className={`container mx-auto px-6 pb-24 ${hasCustomReact ? 'max-w-full' : 'max-w-3xl'}`}>
+        <div className={`container mx-auto px-6 pb-24 ${hasCustomReact ? 'max-w-full pt-20' : 'max-w-3xl'}`}>
           <div className="prose max-w-none">
             {isEditMode ? (
               <div>
