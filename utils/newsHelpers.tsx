@@ -421,6 +421,16 @@ export const renderPortableText = (body: any[], onImageClick?: (src: string) => 
       );
     }
 
+    if (block._type === 'customHtml' && block.html) {
+      return (
+        <div
+          key={block._key || index}
+          className="w-full my-8"
+          dangerouslySetInnerHTML={{ __html: block.html }}
+        />
+      );
+    }
+
     return null;
   });
 };

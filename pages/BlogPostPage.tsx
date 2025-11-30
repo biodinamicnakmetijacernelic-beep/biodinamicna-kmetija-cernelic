@@ -5,7 +5,7 @@ import { NewsItem } from '../types';
 import { renderPortableText } from '../utils/newsHelpers';
 import getCroppedImg from '../utils/imageHelpers';
 import Cropper from 'react-easy-crop';
-import { ArrowLeft, Calendar, Share2, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette, Link as LinkIcon, Image as ImageIcon, Video, MousePointerClick, Heading2, Heading3, ZoomIn, ZoomOut, Check, X, Pencil, Sprout } from 'lucide-react';
+import { ArrowLeft, Calendar, Share2, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette, Link as LinkIcon, Image as ImageIcon, Video, MousePointerClick, Heading2, Heading3, ZoomIn, ZoomOut, Check, X, Pencil, Sprout, Code, LayoutTemplate, Info } from 'lucide-react';
 import FadeIn from '../components/FadeIn';
 import Lightbox from '../components/Lightbox';
 import LinkPopup from '../components/LinkPopup';
@@ -22,6 +22,7 @@ const BlogPostPage: React.FC = () => {
   const [editedContent, setEditedContent] = useState('');
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [showLayoutModal, setShowLayoutModal] = useState(false);
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
@@ -146,6 +147,18 @@ const BlogPostPage: React.FC = () => {
           };
         }
 
+        // Handle custom HTML marker
+        if (element.getAttribute('data-custom-html') === 'true') {
+          const content = element.getAttribute('data-content');
+          if (content) {
+            return {
+              _type: 'customHtml',
+              _key: `html-${Math.random()}`,
+              html: decodeURIComponent(content)
+            };
+          }
+        }
+
         // Handle divs that act as block containers
         if (children.length > 0) {
           // If a div only contains other block elements, flatten them.
@@ -244,6 +257,10 @@ const BlogPostPage: React.FC = () => {
           }
           // Allow custom component blocks
           if (block._type === 'customComponent') {
+            return true;
+          }
+          // Allow custom HTML blocks
+          if (block._type === 'customHtml') {
             return true;
           }
           return true;
@@ -429,14 +446,26 @@ const BlogPostPage: React.FC = () => {
     setEditedContent(editor.innerHTML);
   };
 
-  const insertCustomLayout = () => {
+  const insertCustomLayout = (type: 'preset' | 'html', content?: string) => {
     const editor = document.getElementById('editor') as HTMLElement;
     if (!editor) return;
 
-    // Insert a marker that we can detect during conversion
-    const layoutHtml = `<div data-custom-layout="regenerative-agriculture" class="my-8 p-6 bg-green-50 border border-green-200 rounded-xl text-center text-green-800 font-semibold">🌿 Posebna Postavitev: Regeneracija Tal (Bo prikazana v objavi)</div><p><br></p>`;
-    document.execCommand('insertHTML', false, layoutHtml);
-    setEditedContent(editor.innerHTML);
+    let layoutHtml = '';
+
+    if (type === 'preset') {
+      // Insert a marker that we can detect during conversion
+      layoutHtml = `<div data-custom-layout="regenerative-agriculture" class="my-8 p-6 bg-green-50 border border-green-200 rounded-xl text-center text-green-800 font-semibold">🌿 Posebna Postavitev: Regeneracija Tal (Bo prikazana v objavi)</div><p><br></p>`;
+    } else if (type === 'html' && content) {
+      // Encode content to store in attribute
+      const encodedContent = encodeURIComponent(content);
+      layoutHtml = `<div data-custom-html="true" data-content="${encodedContent}" class="my-8 p-4 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm text-gray-600 overflow-hidden text-ellipsis whitespace-nowrap">💻 HTML Koda: ${content.substring(0, 50)}...</div><p><br></p>`;
+    }
+
+    if (layoutHtml) {
+      document.execCommand('insertHTML', false, layoutHtml);
+      setEditedContent(editor.innerHTML);
+    }
+    setShowLayoutModal(false);
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -1094,11 +1123,11 @@ const BlogPostPage: React.FC = () => {
                   </button>
                   <div className="w-px h-6 bg-gray-200 mx-1"></div>
                   <button
-                    onClick={insertCustomLayout}
+                    onClick={() => setShowLayoutModal(true)}
                     className="p-2 hover:bg-green-50 rounded-lg text-green-600 transition-colors"
-                    title="Vstavi posebno postavitev (Regeneracija)"
+                    title="Vstavi postavitev / kodo"
                   >
-                    <Sprout size={20} />
+                    <LayoutTemplate size={20} />
                   </button>
                   <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
                   <button
@@ -1195,6 +1224,27 @@ const BlogPostPage: React.FC = () => {
         </div>
       </FadeIn>
 
+      {/* Layout Selection Modal */}
+      {showLayoutModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+              <h3 className="text-xl font-serif font-semibold text-olive-dark">Vstavi Postavitev</h3>
+              <button
+                onClick={() => setShowLayoutModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X size={20} className="text-gray-500" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              <LayoutSelectionModal onSelect={insertCustomLayout} />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Cropping Modal - Moved outside FadeIn for correct positioning */}
       {isCropping && tempImageSrc && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
@@ -1264,6 +1314,96 @@ const BlogPostPage: React.FC = () => {
       <Lightbox image={lightboxImage} onClose={() => setLightboxImage(null)} />
       <LinkPopup url={linkPopupUrl} onClose={() => setLinkPopupUrl(null)} />
     </article>
+  );
+};
+
+const LayoutSelectionModal = ({ onSelect }: { onSelect: (type: 'preset' | 'html', content?: string) => void }) => {
+  const [activeTab, setActiveTab] = useState<'preset' | 'html'>('preset');
+  const [htmlContent, setHtmlContent] = useState('');
+
+  return (
+    <div className="space-y-6">
+      <div className="flex gap-2 p-1 bg-gray-100 rounded-xl">
+        <button
+          onClick={() => setActiveTab('preset')}
+          className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${activeTab === 'preset'
+            ? 'bg-white text-olive-dark shadow-sm'
+            : 'text-gray-500 hover:text-gray-700'
+            }`}
+        >
+          <div className="flex items-center justify-center gap-2">
+            <LayoutTemplate size={16} />
+            Predloge
+          </div>
+        </button>
+        <button
+          onClick={() => setActiveTab('html')}
+          className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${activeTab === 'html'
+            ? 'bg-white text-olive-dark shadow-sm'
+            : 'text-gray-500 hover:text-gray-700'
+            }`}
+        >
+          <div className="flex items-center justify-center gap-2">
+            <Code size={16} />
+            HTML Koda
+          </div>
+        </button>
+      </div>
+
+      {activeTab === 'preset' ? (
+        <div className="space-y-4">
+          <div
+            onClick={() => onSelect('preset')}
+            className="group cursor-pointer border border-gray-200 rounded-xl p-4 hover:border-green-500 hover:bg-green-50/50 transition-all"
+          >
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-green-100 text-green-700 rounded-lg group-hover:bg-green-200 transition-colors">
+                <Sprout size={24} />
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-1">Regeneracija Tal</h4>
+                <p className="text-sm text-gray-500">
+                  Napredna predstavitev študije primera s časovnico, primerjavo rezultatov in animacijami.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-4 bg-blue-50 text-blue-800 rounded-xl text-sm flex items-start gap-3">
+            <Info size={18} className="mt-0.5 flex-shrink-0" />
+            <p>
+              Če želite dodati novo predlogo (React komponento), kontaktirajte administratorja.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div className="relative">
+            <textarea
+              value={htmlContent}
+              onChange={(e) => setHtmlContent(e.target.value)}
+              placeholder="Prilepite HTML kodo tukaj..."
+              className="w-full h-48 p-4 bg-gray-50 border border-gray-200 rounded-xl font-mono text-sm focus:ring-2 focus:ring-terracotta focus:border-transparent outline-none resize-none"
+            />
+          </div>
+
+          <div className="p-4 bg-amber-50 text-amber-800 rounded-xl text-sm flex items-start gap-3">
+            <Info size={18} className="mt-0.5 flex-shrink-0" />
+            <p>
+              <strong>Pozor:</strong> Tukaj lahko uporabite samo HTML in CSS. React koda (JSX) ne bo delovala.
+            </p>
+          </div>
+
+          <button
+            onClick={() => onSelect('html', htmlContent)}
+            disabled={!htmlContent.trim()}
+            className="w-full py-3 bg-terracotta text-white rounded-xl font-semibold hover:bg-terracotta-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Vstavi HTML
+          </button>
+        </div>
+      )}
+    </div>
   );
 };
 
