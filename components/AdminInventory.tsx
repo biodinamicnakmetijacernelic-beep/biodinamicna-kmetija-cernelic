@@ -198,7 +198,12 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
 
   // Handle image uploads from custom React components
   const handleNewsImageUpload = (key: string, url: string) => {
-    setNewsImages(prev => ({ ...prev, [key]: url }));
+    console.log('[AdminInventory] handleNewsImageUpload called:', { key, url });
+    setNewsImages(prev => {
+      const newImages = { ...prev, [key]: url };
+      console.log('[AdminInventory] Updated newsImages:', newImages);
+      return newImages;
+    });
   };
 
   // Refs for contentEditable editors to prevent cursor loss
@@ -1115,6 +1120,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
           });
           // Load associated images
           if (block.images) {
+            console.log('[startEditNews] Loading images for customReact block:', block.images);
             Object.assign(loadedImages, block.images);
           }
         }
@@ -1122,6 +1128,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
     }
     setNewsBlocks(blocks.length > 0 ? blocks : [{ id: Date.now().toString(), type: 'text', content: '' }]);
     setNewsImages(loadedImages);
+    console.log('[startEditNews] Loaded blocks and images:', { blocks: blocks.length, images: Object.keys(loadedImages).length, loadedImages });
     setIsEditingNews(true);
   };
 
@@ -1179,6 +1186,11 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
             url: block.url
           });
         } else if (block.type === 'customReact') {
+          console.log('[handleSaveNews] Saving customReact block:', {
+            id: block.id,
+            code: block.code?.substring(0, 100) + '...',
+            images: newsImages
+          });
           finalBody.push({
             _type: 'customReact',
             _key: block.id,
