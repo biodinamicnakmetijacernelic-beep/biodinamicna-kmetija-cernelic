@@ -6,7 +6,6 @@ import { renderPortableText } from '../utils/newsHelpers';
 import getCroppedImg from '../utils/imageHelpers';
 import Cropper from 'react-easy-crop';
 import { ArrowLeft, Calendar, Share2, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette, Link as LinkIcon, Image as ImageIcon, Video, MousePointerClick, Heading2, Heading3, ZoomIn, ZoomOut, Check, X, Pencil, Sprout, Code, LayoutTemplate, Info, FileText } from 'lucide-react';
-import FadeIn from '../components/FadeIn';
 import Lightbox from '../components/Lightbox';
 import LinkPopup from '../components/LinkPopup';
 
@@ -1113,7 +1112,7 @@ const BlogPostPage: React.FC = () => {
       {/* Hero Section - Apple Style */}
       <div className="pt-32 pb-16">
         <div className="container mx-auto px-6 max-w-4xl">
-          <FadeIn>
+          <div>
             {/* Back Button */}
             <Link
               to="/blog-novice"
@@ -1336,13 +1335,13 @@ const BlogPostPage: React.FC = () => {
               </button>
             )}
 
-          </FadeIn>
+          </div>
         </div>
       </div>
 
 
       {/* Content - Apple Typography */}
-      <FadeIn>
+      <div>
         <div className={`container mx-auto px-6 pb-24 ${hasCustomReact ? 'max-w-full' : 'max-w-3xl'}`}>
           <div className="prose max-w-none">
             {isEditMode ? (
@@ -1534,7 +1533,7 @@ const BlogPostPage: React.FC = () => {
             </Link>
           </div>
         </div>
-      </FadeIn>
+      </div>
 
       {/* Layout Selection Modal */}
       {showLayoutModal && (
