@@ -418,7 +418,10 @@ export const renderPortableText = (body: any[], onImageClick?: (src: string) => 
     if (block._type === 'customReact' && block.code) {
       return (
         <div key={block._key || index} className="w-full my-8">
-          <DynamicReactRenderer code={block.code} />
+          <DynamicReactRenderer
+            code={block.code}
+            imageData={block.images || {}}
+          />
         </div>
       );
     }

@@ -6,9 +6,11 @@ import * as LucideReact from 'lucide-react';
 
 interface DynamicReactRendererProps {
     code: string;
+    imageData?: Record<string, string>; // Saved images: { key: url }
+    onImageUpload?: (key: string, url: string) => void; // Callback when image is uploaded
 }
 
-const DynamicReactRenderer: React.FC<DynamicReactRendererProps> = ({ code }) => {
+const DynamicReactRenderer: React.FC<DynamicReactRendererProps> = ({ code, imageData = {}, onImageUpload }) => {
     const [Component, setComponent] = useState<React.ComponentType | null>(null);
     const [error, setError] = useState<string | null>(null);
 
@@ -55,9 +57,32 @@ const DynamicReactRenderer: React.FC<DynamicReactRendererProps> = ({ code }) => 
                 throw new Error(`Module '${moduleName}' not found in dynamic scope.`);
             };
 
-            const executeCode = new Function('require', 'exports', 'module', 'React', transpiled);
+            // Create uploadImage function to provide to component
+            const uploadImage = async (key: string, file: File): Promise<string> => {
+                try {
+                    const { uploadImageToSanity } = await import('../utils/sanityImageUpload');
+                    const url = await uploadImageToSanity(file);
+                    if (onImageUpload) {
+                        onImageUpload(key, url);
+                    }
+                    return url;
+                } catch (error) {
+                    console.error('Image upload failed:', error);
+                    throw error;
+                }
+            };
 
-            executeCode(require, exports, module, ReactModule);
+            const executeCode = new Function(
+                'require',
+                'exports',
+                'module',
+                'React',
+                'uploadImage',
+                'savedImages',
+                transpiled
+            );
+
+            executeCode(require, exports, module, ReactModule, uploadImage, imageData);
 
             const ResultComponent = module.exports.default || exports.default;
 
