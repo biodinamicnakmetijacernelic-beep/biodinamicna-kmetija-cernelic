@@ -427,7 +427,7 @@ const NewPostPopup: React.FC<NewPostPopupProps> = ({ onClose, onSuccess }) => {
                 }
 
                 // Upload PDF to Sanity
-                const { uploadPDFFileToSanityWithToken } = await import('../../utils/sanityImageUpload');
+                const { uploadPDFFileToSanityWithToken } = await import('../utils/sanityImageUpload');
                 const pdfUrl = await uploadPDFFileToSanityWithToken(file, token);
 
                 const editor = editorRef.current;
