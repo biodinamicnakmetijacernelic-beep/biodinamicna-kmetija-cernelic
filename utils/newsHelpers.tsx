@@ -1,5 +1,6 @@
 import React from 'react';
 import { urlFor } from '../sanityClient';
+import RegenerativePost from '../components/blog/RegenerativePost';
 
 export const getPreviewText = (body: any[], maxLength = 160) => {
   if (!Array.isArray(body)) {
@@ -408,6 +409,14 @@ export const renderPortableText = (body: any[], onImageClick?: (src: string) => 
               <img src={imageUrl} alt="Slika v novici" className="w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-500" loading="lazy" />
             </a>
           )}
+        </div>
+      );
+    }
+
+    if (block._type === 'customComponent' && block.component === 'regenerative-agriculture') {
+      return (
+        <div key={block._key || index} className="w-full -mx-6 md:-mx-12 lg:-mx-20 my-12">
+          <RegenerativePost />
         </div>
       );
     }

@@ -5,7 +5,7 @@ import { NewsItem } from '../types';
 import { renderPortableText } from '../utils/newsHelpers';
 import getCroppedImg from '../utils/imageHelpers';
 import Cropper from 'react-easy-crop';
-import { ArrowLeft, Calendar, Share2, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette, Link as LinkIcon, Image as ImageIcon, Video, MousePointerClick, Heading2, Heading3, ZoomIn, ZoomOut, Check, X, Pencil } from 'lucide-react';
+import { ArrowLeft, Calendar, Share2, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette, Link as LinkIcon, Image as ImageIcon, Video, MousePointerClick, Heading2, Heading3, ZoomIn, ZoomOut, Check, X, Pencil, Sprout } from 'lucide-react';
 import FadeIn from '../components/FadeIn';
 import Lightbox from '../components/Lightbox';
 import LinkPopup from '../components/LinkPopup';
@@ -134,7 +134,18 @@ const BlogPostPage: React.FC = () => {
           markDefs: [],
         };
 
+
+
       case 'div':
+        // Handle custom layout marker
+        if (element.getAttribute('data-custom-layout') === 'regenerative-agriculture') {
+          return {
+            _type: 'customComponent',
+            _key: `custom-${Math.random()}`,
+            component: 'regenerative-agriculture'
+          };
+        }
+
         // Handle divs that act as block containers
         if (children.length > 0) {
           // If a div only contains other block elements, flatten them.
@@ -229,6 +240,10 @@ const BlogPostPage: React.FC = () => {
           }
           // Also allow image blocks for backwards compatibility
           if (block._type === 'image') {
+            return true;
+          }
+          // Allow custom component blocks
+          if (block._type === 'customComponent') {
             return true;
           }
           return true;
@@ -411,6 +426,16 @@ const BlogPostPage: React.FC = () => {
     const url = prompt('Vnesite URL povezave:', 'https://') || 'https://';
     const buttonHtml = `<div class="my-6 text-center"><a href="${url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-3 bg-terracotta text-white rounded-xl font-semibold hover:bg-terracotta-dark transition-colors">${text}</a></div>`;
     document.execCommand('insertHTML', false, buttonHtml);
+    setEditedContent(editor.innerHTML);
+  };
+
+  const insertCustomLayout = () => {
+    const editor = document.getElementById('editor') as HTMLElement;
+    if (!editor) return;
+
+    // Insert a marker that we can detect during conversion
+    const layoutHtml = `<div data-custom-layout="regenerative-agriculture" class="my-8 p-6 bg-green-50 border border-green-200 rounded-xl text-center text-green-800 font-semibold">🌿 Posebna Postavitev: Regeneracija Tal (Bo prikazana v objavi)</div><p><br></p>`;
+    document.execCommand('insertHTML', false, layoutHtml);
     setEditedContent(editor.innerHTML);
   };
 
@@ -1060,8 +1085,20 @@ const BlogPostPage: React.FC = () => {
                   <button onClick={() => insertYouTube()} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi video (YouTube)">
                     <Video size={14} />
                   </button>
-                  <button onClick={() => insertButton()} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi gumb">
-                    <MousePointerClick size={14} />
+                  <button
+                    onClick={insertButton}
+                    className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 transition-colors"
+                    title="Vstavi gumb"
+                  >
+                    <MousePointerClick size={20} />
+                  </button>
+                  <div className="w-px h-6 bg-gray-200 mx-1"></div>
+                  <button
+                    onClick={insertCustomLayout}
+                    className="p-2 hover:bg-green-50 rounded-lg text-green-600 transition-colors"
+                    title="Vstavi posebno postavitev (Regeneracija)"
+                  >
+                    <Sprout size={20} />
                   </button>
                   <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
                   <button
