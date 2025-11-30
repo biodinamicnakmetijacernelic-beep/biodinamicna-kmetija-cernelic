@@ -847,6 +847,9 @@ const BlogPostPage: React.FC = () => {
     );
   }
 
+  // Detect if post contains custom React component
+  const hasCustomReact = post?.body?.some((block: any) => block._type === 'customReact') || false;
+
   return (
     <article className="bg-white min-h-screen">
       {/* Hero Section - Apple Style */}
