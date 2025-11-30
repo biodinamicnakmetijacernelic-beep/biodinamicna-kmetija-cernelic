@@ -1,4 +1,4 @@
-import React, { useRef, useState, ChangeEvent } from 'react';
+import React, { useRef, useState, ChangeEvent, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { MapPin, BarChart3, Info, Camera, Play, ExternalLink, ImagePlus, Sprout } from 'lucide-react';
 
@@ -28,12 +28,17 @@ interface TimelineItemData {
     links?: { label: string; url: string }[];
 }
 
+interface RegenerativePostProps {
+    uploadImage?: (key: string, file: File) => Promise<string>;
+    savedImages?: Record<string, string>;
+}
+
 // --- Content Data (Initial State) ---
-const INITIAL_CONTENT = {
+const getInitialContent = (savedImages?: Record<string, string>) => ({
     header: {
-        // Initial placeholders for logos
-        leftLogo: "https://placehold.co/200x80/f3f4f6/9ca3af?text=Logo+Levo",
-        rightLogo: "https://placehold.co/200x80/f3f4f6/9ca3af?text=Logo+Desno"
+        // Use saved images or fall back to placeholders
+        leftLogo: savedImages?.leftLogo || "https://placehold.co/200x80/f3f4f6/9ca3af?text=Logo+Levo",
+        rightLogo: savedImages?.rightLogo || "https://placehold.co/200x80/f3f4f6/9ca3af?text=Logo+Desno"
     },
     hero: {
         title: "Učinkovitost biodinamičnega pristopa pri regeneraciji zbitih nepropustnih tal",
@@ -47,14 +52,14 @@ const INITIAL_CONTENT = {
             title: "Začasna Deponija",
             description: "Začasna deponija materiala v času gradbenih del ob Hidroelektrarni Brežice. Tla so bila v tem obdobju močno zbita in nepropustna zaradi težke mehanizacije.",
             imageCaption: "Začasna deponija materiala (od 2014 do 2017)",
-            image: "https://picsum.photos/seed/img1_deponija/1200/800",
+            image: savedImages?.img1_deponija || "https://picsum.photos/seed/img1_deponija/1200/800",
         },
         {
             year: "2014",
             title: "Atlas Okolja",
             description: "Pogled na lokacijo iz zraka v času deponije. Rdeči krog označuje območje parcele 4338/1, ki je bila uporabljena za odlaganje materiala.",
             imageCaption: "Začasna deponija materiala leta 2014, parcela 4338/1, ortofoto",
-            image: "https://picsum.photos/seed/img2_ortofoto2014/1200/800",
+            image: savedImages?.img2_ortofoto2014 || "https://picsum.photos/seed/img2_ortofoto2014/1200/800",
         },
 
         // --- Page 2 ---
@@ -63,21 +68,21 @@ const INITIAL_CONTENT = {
             title: "Stanje po Odstranitvi",
             description: "Vzpostavitev prvotnega stanja kmetijskih zemljišč. Tla so bila gola in vidno prizadeta.",
             imageCaption: "Pogled na parcelo junija 2017",
-            image: "https://picsum.photos/seed/img3_junij2017/1200/800",
+            image: savedImages?.img3_junij2017 || "https://picsum.photos/seed/img3_junij2017/1200/800",
         },
         {
             year: "Junij 2017",
             title: "Lokacije Profilov",
             description: "Strokovno mnenje Univerze v Ljubljani (Biotehniška fakulteta). Na sliki so označene točke odvzemov vzorcev (Profil 1, 2 in 3).",
             imageCaption: "Zračni posnetek z označenimi profili (Φ1, Φ2, Φ3)",
-            image: "https://picsum.photos/seed/img4_profili/1200/800",
+            image: savedImages?.img4_profili || "https://picsum.photos/seed/img4_profili/1200/800",
         },
         {
             year: "Junij 2017",
             title: "Analiza Profila 1",
             description: "Izkop profila do globine, kjer so bila analizirana tla. Rezultati so pokazali nizko vsebnost organske snovi.",
             imageCaption: "Profil 1 - Izkop in meritve",
-            image: "https://picsum.photos/seed/img5_profil1/1200/800",
+            image: savedImages?.img5_profil1 || "https://picsum.photos/seed/img5_profil1/1200/800",
             stats: {
                 om: "2.6%",
                 p2o5: "0.7",
@@ -91,7 +96,7 @@ const INITIAL_CONTENT = {
             title: "GERK Ortofoto",
             description: "Javni pregledovalnik grafičnih podatkov prikazuje stanje parcele spomladi 2018, preden se je vegetacija v celoti razvila.",
             imageCaption: "Ortofoto april 2018 (http://rkg.gov.si/GERK/WebViewer)",
-            image: "https://picsum.photos/seed/img6_gerk2018/1200/800",
+            image: savedImages?.img6_gerk2018 || "https://picsum.photos/seed/img6_gerk2018/1200/800",
             details: "Številka GERK-a: 987836, k.o. Krška vas"
         },
 
@@ -101,7 +106,7 @@ const INITIAL_CONTENT = {
             title: "Mulčenje",
             description: "Mulčenje biodiverzitetne mešanice za regenerativno kmetovanje. Mešanica je vsebovala 25 vrst rastlin za povečanje humusa.",
             imageCaption: "Traktor pri mulčenju mešanice",
-            image: "https://picsum.photos/seed/img7_tractor_front/1200/800",
+            image: savedImages?.img7_tractor_front || "https://picsum.photos/seed/img7_tractor_front/1200/800",
             videos: [
                 { title: "Video mulčenja (25 sek)", url: "#" }
             ],
@@ -114,7 +119,7 @@ const INITIAL_CONTENT = {
             title: "Visoka Biomasa",
             description: "Rastline so dosegle višino preko 2 metrov, kar zagotavlja ogromno organske mase za tla.",
             imageCaption: "Pogled na polje med mulčenjem",
-            image: "https://picsum.photos/seed/img8_field_view/1200/800",
+            image: savedImages?.img8_field_view || "https://picsum.photos/seed/img8_field_view/1200/800",
         },
 
         // --- Page 5 ---
@@ -123,7 +128,7 @@ const INITIAL_CONTENT = {
             title: "Podrahljavanje",
             description: "Podrahljavanje z riperjem 30 cm globoko. Oblika nogače je zelo pomembna za pravilno rahljanje brez obračanja plasti. Hitrost vožnje max 5 km/h.",
             imageCaption: "Podrahljavanje z riperjem (30 cm globoko)",
-            image: "https://picsum.photos/seed/img9_subsoiling/1200/800",
+            image: savedImages?.img9_subsoiling || "https://picsum.photos/seed/img9_subsoiling/1200/800",
             videos: [
                 { title: "Video podrahljavanje (20 sek)", url: "#" }
             ]
@@ -134,7 +139,7 @@ const INITIAL_CONTENT = {
             description: "Škropljenje biodinamičnih preparatov z nahrbtno škropilnico. Za 1,4 ha veliko parcelo je to vzelo le 20 minut.",
             subtext: "Uporabljeni preparati: 500, 500P ali preparat po Mariji Thun.",
             imageCaption: "Ročno škropljenje na polju",
-            image: "https://picsum.photos/seed/img10_spraying/1200/800",
+            image: savedImages?.img10_spraying || "https://picsum.photos/seed/img10_spraying/1200/800",
             videos: [
                 { title: "Video škropljenja (20 sek)", url: "#" }
             ]
@@ -146,7 +151,7 @@ const INITIAL_CONTENT = {
             title: "Mulčenje",
             description: "28. maj 2019: Mulčenje prezimne mešanice (Wintergrün, 7 vrst rastlin). Ponovno visoka biomasa za regeneracijo.",
             imageCaption: "Zračni posnetek mulčenja - maj 2019",
-            image: "https://picsum.photos/seed/img11_drone2019/1200/800",
+            image: savedImages?.img11_drone2019 || "https://picsum.photos/seed/img11_drone2019/1200/800",
             videos: [
                 { title: "Video mulčenja 2019 (12 sek)", url: "#" }
             ],
@@ -159,7 +164,7 @@ const INITIAL_CONTENT = {
             title: "Višina Rastlin",
             description: "Prikaz višine rastlin v primerjavi s človekom. Mešanica je bila ponovno višja od 2 metrov.",
             imageCaption: "Človek v visoki travi - maj 2019",
-            image: "https://picsum.photos/seed/img12_man_grass/1200/800",
+            image: savedImages?.img12_man_grass || "https://picsum.photos/seed/img12_man_grass/1200/800",
         },
 
         // --- Page 7 ---
@@ -168,14 +173,14 @@ const INITIAL_CONTENT = {
             title: "Potek Dela",
             description: "Pogled na potek mulčenja prezimne mešanice.",
             imageCaption: "Traktor sredi dela - maj 2019",
-            image: "https://picsum.photos/seed/img13_mowing_may/1200/800",
+            image: savedImages?.img13_mowing_may || "https://picsum.photos/seed/img13_mowing_may/1200/800",
         },
         {
             year: "April 2020",
             title: "Travno Deteljna Mešanica",
             description: "Stanje parcele spomladi 2020. Travno deteljna mešanica je bila posejana septembra 2019.",
             imageCaption: "Zelenje na polju - april 2020",
-            image: "https://picsum.photos/seed/img14_april2020/1200/800",
+            image: savedImages?.img14_april2020 || "https://picsum.photos/seed/img14_april2020/1200/800",
         },
 
         // --- Page 8 ---
@@ -184,14 +189,14 @@ const INITIAL_CONTENT = {
             title: "1. Košnja",
             description: "Uspešna prva košnja, ki je prinesla 19 bal sena s parcele velikosti 1,4 hektarja.",
             imageCaption: "19 bal sena na parceli - junij 2020",
-            image: "https://picsum.photos/seed/img15_bales/1200/800",
+            image: savedImages?.img15_bales || "https://picsum.photos/seed/img15_bales/1200/800",
         },
         {
             year: "Sept 2020",
             title: "Mulčenje 3. Košnje",
             description: "Vzdrževanje travne ruše z mulčenjem tretje košnje v letu.",
             imageCaption: "Zračni posnetek mulčenja - sept 2020",
-            image: "https://picsum.photos/seed/img16_drone2020/1200/800",
+            image: savedImages?.img16_drone2020 || "https://picsum.photos/seed/img16_drone2020/1200/800",
             videos: [
                 { title: "Video mulčenja (2 min)", url: "#" }
             ]
@@ -203,14 +208,14 @@ const INITIAL_CONTENT = {
             title: "Struktura Tal",
             description: "Vidno izboljšana struktura tal, polna življenja in korenin.",
             imageCaption: "Gruda zemlje in koreninski sistem - jan 2021",
-            image: "https://picsum.photos/seed/img17_soil_shovel/1200/800",
+            image: savedImages?.img17_soil_shovel || "https://picsum.photos/seed/img17_soil_shovel/1200/800",
         },
         {
             year: "Januar 2021",
             title: "Zaključno Stanje",
             description: "Primož Černelič na parceli. Rezultati analiz kažejo izjemno izboljšanje v samo 3.5 letih.",
             imageCaption: "Primož na polju - jan 2021",
-            image: "https://picsum.photos/seed/img18_primoz/1200/800",
+            image: savedImages?.img18_primoz || "https://picsum.photos/seed/img18_primoz/1200/800",
         }
     ],
     finalResults: {
@@ -229,7 +234,15 @@ const INITIAL_CONTENT = {
         credits: "Fotografije in video posnetki: Primož in Zvone Černelič",
         preparedBy: "Zapis pripravila: Vesna Čuček, univ. dipl. ekon. in univ. dipl. inž. agr., vodja oddelka za kmetijsko svetovanje na KGZS-Zavodu CE"
     }
-};
+});
+
+interface HeaderProps {
+    leftLogo: string;
+    rightLogo: string;
+    onUpdateLeft: (src: string) => void;
+    onUpdateRight: (src: string) => void;
+    uploadImage?: (key: string, file: File) => Promise<string>;
+}
 
 // --- Helper Components ---
 
@@ -252,15 +265,25 @@ interface HeaderProps {
     rightLogo: string;
     onUpdateLeft: (src: string) => void;
     onUpdateRight: (src: string) => void;
+    uploadImage?: (key: string, file: File) => Promise<string>;
 }
 
-const Header: React.FC<HeaderProps> = ({ leftLogo, rightLogo, onUpdateLeft, onUpdateRight }) => {
+const Header: React.FC<HeaderProps> = ({ leftLogo, rightLogo, onUpdateLeft, onUpdateRight, uploadImage }) => {
     const leftInputRef = useRef<HTMLInputElement>(null);
     const rightInputRef = useRef<HTMLInputElement>(null);
 
-    const handleFileChange = (e: ChangeEvent<HTMLInputElement>, callback: (src: string) => void) => {
+    const handleFileChange = async (e: ChangeEvent<HTMLInputElement>, callback: (src: string) => void, key: string) => {
         const file = e.target.files?.[0];
-        if (file) {
+        if (file && uploadImage) {
+            try {
+                const url = await uploadImage(key, file);
+                callback(url);
+            } catch (error) {
+                console.error('Image upload failed:', error);
+                alert('Napaka pri nalaganju slike');
+            }
+        } else if (file) {
+            // Fallback to FileReader if no uploadImage function provided
             const reader = new FileReader();
             reader.onload = (ev) => {
                 if (typeof ev.target?.result === 'string') callback(ev.target.result);
@@ -286,7 +309,7 @@ const Header: React.FC<HeaderProps> = ({ leftLogo, rightLogo, onUpdateLeft, onUp
                     <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
                         <ImagePlus className="w-5 h-5 text-gray-600 bg-white/80 rounded-full p-1" />
                     </div>
-                    <input type="file" ref={leftInputRef} onChange={(e) => handleFileChange(e, onUpdateLeft)} className="hidden" accept="image/*" />
+                    <input type="file" ref={leftInputRef} onChange={(e) => handleFileChange(e, onUpdateLeft, 'leftLogo')} className="hidden" accept="image/*" />
                 </div>
 
                 {/* Right Logo */}
@@ -299,7 +322,7 @@ const Header: React.FC<HeaderProps> = ({ leftLogo, rightLogo, onUpdateLeft, onUp
                     <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
                         <ImagePlus className="w-5 h-5 text-gray-600 bg-white/80 rounded-full p-1" />
                     </div>
-                    <input type="file" ref={rightInputRef} onChange={(e) => handleFileChange(e, onUpdateRight)} className="hidden" accept="image/*" />
+                    <input type="file" ref={rightInputRef} onChange={(e) => handleFileChange(e, onUpdateRight, 'rightLogo')} className="hidden" accept="image/*" />
                 </div>
             </div>
         </motion.header>
@@ -356,9 +379,10 @@ interface TimelineItemProps {
     data: TimelineItemData;
     index: number;
     onImageUpdate: (newSrc: string) => void;
+    uploadImage?: (key: string, file: File) => Promise<string>;
 }
 
-const TimelineItem: React.FC<TimelineItemProps> = ({ data, index, onImageUpdate }) => {
+const TimelineItem: React.FC<TimelineItemProps> = ({ data, index, onImageUpdate, uploadImage }) => {
     const isEven = index % 2 === 0;
     const fileInputRef = useRef<HTMLInputElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -378,9 +402,20 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ data, index, onImageUpdate 
         fileInputRef.current?.click();
     };
 
-    const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if (file) {
+        if (file && uploadImage) {
+            try {
+                // Create a unique key for this timeline image
+                const key = `img${index + 1}_${data.title.replace(/\s+/g, '_').toLowerCase()}`;
+                const url = await uploadImage(key, file);
+                onImageUpdate(url);
+            } catch (error) {
+                console.error('Image upload failed:', error);
+                alert('Napaka pri nalaganju slike');
+            }
+        } else if (file) {
+            // Fallback to FileReader if no uploadImage function provided
             const reader = new FileReader();
             reader.onload = (e) => {
                 if (typeof e.target?.result === 'string') {
@@ -616,12 +651,32 @@ const Footer = () => (
     </footer>
 );
 
-export default function RegenerativePost() {
-    const [timelineData, setTimelineData] = useState<TimelineItemData[]>(INITIAL_CONTENT.timeline);
+export default function RegenerativePost({ uploadImage, savedImages }: RegenerativePostProps = {}) {
+    // Check for global uploadImage and savedImages if not provided as props
+    // This allows the component to work both as a standalone component and within DynamicReactRenderer
+    const globalUploadImage = (globalThis as any).uploadImage;
+    const globalSavedImages = (globalThis as any).savedImages;
+
+    const effectiveUploadImage = uploadImage || globalUploadImage;
+    const effectiveSavedImages = savedImages || globalSavedImages;
+    const initialContent = getInitialContent(effectiveSavedImages);
+    const [timelineData, setTimelineData] = useState<TimelineItemData[]>(initialContent.timeline);
     const [logos, setLogos] = useState({
-        left: INITIAL_CONTENT.header.leftLogo,
-        right: INITIAL_CONTENT.header.rightLogo
+        left: initialContent.header.leftLogo,
+        right: initialContent.header.rightLogo
     });
+
+    // Update state when savedImages prop changes
+    useEffect(() => {
+        if (effectiveSavedImages) {
+            const updatedContent = getInitialContent(effectiveSavedImages);
+            setTimelineData(updatedContent.timeline);
+            setLogos({
+                left: updatedContent.header.leftLogo,
+                right: updatedContent.header.rightLogo
+            });
+        }
+    }, [effectiveSavedImages]);
 
     const handleUpdateImage = (index: number, newImageUrl: string) => {
         setTimelineData(prevData => {
@@ -642,6 +697,7 @@ export default function RegenerativePost() {
                 rightLogo={logos.right}
                 onUpdateLeft={(src) => updateLogo('left', src)}
                 onUpdateRight={(src) => updateLogo('right', src)}
+                uploadImage={effectiveUploadImage}
             />
 
             <Hero />
@@ -661,6 +717,7 @@ export default function RegenerativePost() {
                         data={item}
                         index={index}
                         onImageUpdate={(newUrl) => handleUpdateImage(index, newUrl)}
+                        uploadImage={effectiveUploadImage}
                     />
                 ))}
             </main>

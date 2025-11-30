@@ -55,6 +55,114 @@ async function sendStatusUpdateEmail(orderData: any, oldStatus: string, newStatu
     return false;
   }
 }
+
+// Function to validate React code for custom components
+function validateReactCode(code: string): { isValid: boolean; errors: string[]; suggestions: string[] } {
+  const errors: string[] = [];
+  const suggestions: string[] = [];
+
+  if (!code.trim()) {
+    return {
+      isValid: false,
+      errors: ['Koda ne sme biti prazna'],
+      suggestions: ['Dodajte React komponento z export default function']
+    };
+  }
+
+  // Check for basic syntax errors
+  try {
+    // Simple syntax check - try to parse with a basic function
+    new Function('React', 'uploadImage', 'savedImages', code);
+  } catch (syntaxError: any) {
+    errors.push(`Sintaktična napaka: ${syntaxError.message}`);
+    suggestions.push('Preverite oklepaje, narekovaje in podpičja');
+  }
+
+  // Check for default export
+  if (!code.includes('export default') && !code.includes('export default function') && !code.includes('export default class')) {
+    errors.push('Manjka "export default" stavek');
+    suggestions.push('Dodajte "export default" pred vašo komponento funkcijo ali razred');
+  }
+
+  // Check for React import
+  if (!code.includes('import React') && !code.includes("from 'react'") && !code.includes('from "react"')) {
+    if (!code.includes('React.') && !code.includes('<')) {
+      // Only suggest React import if React is actually used
+    } else {
+      suggestions.push('Dodajte: import React from \'react\';');
+    }
+  }
+
+  // Check for function component structure
+  if (code.includes('function') && code.includes('return')) {
+    const functionMatch = code.match(/function\s+(\w+)/);
+    if (functionMatch) {
+      const functionName = functionMatch[1];
+      if (!code.includes(`export default ${functionName}`) && !code.includes('export default function')) {
+        suggestions.push(`Dodajte "export default ${functionName};" na konec datoteke`);
+      }
+    }
+  }
+
+  // Check for arrow function component
+  if (code.includes('=>') && code.includes('return')) {
+    if (!code.includes('export default') && !code.includes('const') && !code.includes('let')) {
+      suggestions.push('Za arrow funkcije uporabite: const MyComponent = () => { ... }; export default MyComponent;');
+    }
+  }
+
+  // Check for proper JSX structure
+  const jsxElements = code.match(/<\w+/g);
+  if (jsxElements && jsxElements.length > 0) {
+    if (!code.includes('return')) {
+      errors.push('JSX elementi morajo biti znotraj return stavka');
+      suggestions.push('Ovijte JSX v return: return (<div>...</div>);');
+    }
+  }
+
+  // Check for uploadImage usage
+  if (code.includes('uploadImage') && !code.includes('uploadImage(')) {
+    suggestions.push('uploadImage je funkcija: uploadImage(\'key\', file)');
+  }
+
+  // Check for savedImages usage
+  if (code.includes('savedImages') && !code.includes('savedImages.')) {
+    suggestions.push('savedImages je objekt: savedImages.keyName');
+  }
+
+  // Check for common mistakes
+  if (code.includes('className=')) {
+    if (code.match(/className=['"][^'"]*['"]/g)?.some(cls => cls.includes(' '))) {
+      suggestions.push('Za več CSS razredov uporabite samo en niz: className="razred1 razred2"');
+    }
+  }
+
+  // Check for RegenerativePost import
+  if (code.includes('RegenerativePost') && !code.includes("from '../components/blog/RegenerativePost'")) {
+    suggestions.push('Dodajte: import RegenerativePost from \'../components/blog/RegenerativePost\';');
+  }
+
+  // Check for proper component usage
+  if (code.includes('<RegenerativePost') && !code.includes('</RegenerativePost>')) {
+    errors.push('RegenerativePost komponenta ni pravilno zaprta');
+    suggestions.push('Dodajte zaključni tag: </RegenerativePost>');
+  }
+
+  // Check for missing brackets in JSX
+  const openTags = (code.match(/<\w+/g) || []).length;
+  const closeTags = (code.match(/<\/\w+/g) || []).length;
+  const selfClosingTags = (code.match(/<\w+[^>]*\/>/g) || []).length;
+
+  if (openTags + selfClosingTags !== closeTags && openTags > 0) {
+    suggestions.push('Preverite, če so vsi JSX tagi pravilno zaprti');
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+    suggestions
+  };
+}
 import { sanityConfig } from '../sanityConfig';
 
 // Order management
@@ -196,6 +304,14 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
   ]);
   const [newsImages, setNewsImages] = useState<Record<string, string>>({}); // Store uploaded images for customReact blocks
 
+  // React code validation state
+  const [codeValidation, setCodeValidation] = useState<{
+    blockId: string;
+    errors: string[];
+    suggestions: string[];
+    isValid: boolean;
+  } | null>(null);
+
   // Handle image uploads from custom React components
   const handleNewsImageUpload = (key: string, url: string) => {
     console.log('[AdminInventory] handleNewsImageUpload called:', { key, url });
@@ -297,6 +413,26 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
       }
     }
   }, [isLoggedIn]);
+
+  // Validate React code when blocks change
+  useEffect(() => {
+    const customReactBlock = newsBlocks.find(block => block.type === 'customReact' && block.code);
+    if (customReactBlock) {
+      const validation = validateReactCode(customReactBlock.code);
+      if (validation.errors.length > 0 || validation.suggestions.length > 0) {
+        setCodeValidation({
+          blockId: customReactBlock.id,
+          errors: validation.errors,
+          suggestions: validation.suggestions,
+          isValid: validation.isValid
+        });
+      } else {
+        setCodeValidation(null);
+      }
+    } else {
+      setCodeValidation(null);
+    }
+  }, [newsBlocks]);
 
   const loadInventory = async () => {
     setIsLoadingProducts(true);
@@ -813,6 +949,65 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
 
   const updateButtonBlock = (id: string, field: 'text' | 'url', value: string) => {
     setNewsBlocks(newsBlocks.map(b => b.id === id ? { ...b, [field]: value } : b));
+  };
+
+  const updateBlockField = (id: string, field: string, value: string) => {
+    setNewsBlocks(newsBlocks.map(b => b.id === id ? { ...b, [field]: value } : b));
+
+    // Validate React code when it changes
+    if (field === 'code') {
+      const validation = validateReactCode(value);
+      if (validation.errors.length > 0 || validation.suggestions.length > 0) {
+        setCodeValidation({
+          blockId: id,
+          errors: validation.errors,
+          suggestions: validation.suggestions,
+          isValid: validation.isValid
+        });
+      } else {
+        // Clear validation if code is valid
+        setCodeValidation(prev => prev?.blockId === id ? null : prev);
+      }
+    }
+  };
+
+  // Function to auto-fix common React code issues
+  const autoFixReactCode = (code: string): string => {
+    let fixedCode = code.trim();
+
+    // Add React import if missing and React is used
+    if (!fixedCode.includes('import React') && (fixedCode.includes('React.') || fixedCode.includes('<'))) {
+      fixedCode = "import React from 'react';\n\n" + fixedCode;
+    }
+
+    // Add RegenerativePost import if used
+    if (fixedCode.includes('RegenerativePost') && !fixedCode.includes("from '../components/blog/RegenerativePost'")) {
+      if (fixedCode.includes('import React')) {
+        fixedCode = fixedCode.replace("import React from 'react';", "import React from 'react';\nimport RegenerativePost from '../components/blog/RegenerativePost';");
+      } else {
+        fixedCode = "import RegenerativePost from '../components/blog/RegenerativePost';\n\n" + fixedCode;
+      }
+    }
+
+    // Add export default if missing
+    if (!fixedCode.includes('export default')) {
+      const functionMatch = fixedCode.match(/function\s+(\w+)/);
+      if (functionMatch) {
+        fixedCode += `\n\nexport default ${functionMatch[1]};`;
+      } else if (fixedCode.includes('=>')) {
+        fixedCode += '\n\nexport default MyComponent;';
+      }
+    }
+
+    return fixedCode;
+  };
+
+  const applyAutoFix = (blockId: string) => {
+    const block = newsBlocks.find(b => b.id === blockId);
+    if (block && block.code) {
+      const fixedCode = autoFixReactCode(block.code);
+      updateBlockField(blockId, 'code', fixedCode);
+    }
   };
 
   const insertLink = (blockId: string) => {
@@ -2106,25 +2301,71 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                                 className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta font-mono min-h-[200px]"
                                 value={block.code || ''}
                                 onChange={(e) => updateBlockField(block.id, 'code', e.target.value)}
-                                placeholder={`export default function MyComponent() {
+                                placeholder={`import React from 'react';
+import RegenerativePost from '../components/blog/RegenerativePost';
+
+export default function MyBlogComponent() {
   return (
-    <div>
-      <h2>Moja komponenta</h2>
-      <p>Klikni tukaj za upload slike:</p>
-      <button onClick={() => uploadImage('myImage', file)}>
-        Upload
-      </button>
-    </div>
+    <RegenerativePost />
   );
 }`}
                               />
+
+                              {/* Code Validation Results */}
+                              {codeValidation && codeValidation.blockId === block.id && (
+                                <div className={`mt-3 rounded-xl p-4 border ${codeValidation.isValid ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                                  <div className="flex items-start gap-2">
+                                    {codeValidation.isValid ? (
+                                      <Check size={16} className="text-green-600 mt-0.5 flex-shrink-0" />
+                                    ) : (
+                                      <AlertTriangle size={16} className="text-red-600 mt-0.5 flex-shrink-0" />
+                                    )}
+                                    <div className="flex-1 text-sm">
+                                      {codeValidation.errors.length > 0 && (
+                                        <div className="mb-2">
+                                          <strong className="text-red-800">Napake:</strong>
+                                          <ul className="mt-1 space-y-1">
+                                            {codeValidation.errors.map((error, idx) => (
+                                              <li key={idx} className="text-red-700 text-xs">• {error}</li>
+                                            ))}
+                                          </ul>
+                                        </div>
+                                      )}
+                                      {codeValidation.suggestions.length > 0 && (
+                                        <div>
+                                          <strong className={codeValidation.errors.length > 0 ? 'text-blue-800' : 'text-green-800'}>
+                                            {codeValidation.errors.length > 0 ? 'Predlogi:' : 'Izboljšave:'}
+                                          </strong>
+                                          <ul className="mt-1 space-y-1">
+                                            {codeValidation.suggestions.map((suggestion, idx) => (
+                                              <li key={idx} className={`text-xs ${codeValidation.errors.length > 0 ? 'text-blue-700' : 'text-green-700'}`}>
+                                                • {suggestion}
+                                              </li>
+                                            ))}
+                                          </ul>
+                                        </div>
+                                      )}
+                                    </div>
+                                    {!codeValidation.isValid && codeValidation.errors.length > 0 && (
+                                      <button
+                                        onClick={() => applyAutoFix(block.id)}
+                                        className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors flex-shrink-0"
+                                        title="Poskusi samodejno popraviti pogoste napake"
+                                      >
+                                        🔧 Popravi
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
                             </div>
                             <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
                               <div className="flex items-start gap-2">
                                 <Code size={16} className="text-blue-600 mt-0.5 flex-shrink-0" />
                                 <div className="text-sm text-blue-800">
                                   <strong>Živi urejevalnik:</strong> Komponenta se izvaja v živo - lahko takoj dodajate slike in vidite spremembe.
-                                  Uporabite <code className="bg-blue-100 px-1 rounded">uploadImage(key, file)</code> za shranjevanje slik.
+                                  Za RegenerativePost uporabite: <code className="bg-blue-100 px-1 rounded">import RegenerativePost from '../components/blog/RegenerativePost'; export default function MyComponent() {'{'} return &lt;RegenerativePost /&gt;; {'}'}</code>
+                                  Sistem samodejno preveri sintakso in da predloge za izboljšave.
                                   Slike se samodejno shranijo skupaj z objavo.
                                 </div>
                               </div>

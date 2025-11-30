@@ -34,6 +34,31 @@ export function urlFor(source: any) {
   return builder.image(source);
 }
 
+// Test token with a simple asset upload (for manual testing)
+export async function testTokenWithAssetUpload(token: string): Promise<boolean> {
+  const authClient = createClient({
+    ...sanityConfig,
+    token: token,
+    ignoreBrowserTokenWarning: true
+  });
+
+  try {
+    const testBlob = new Blob(['test content for token validation'], { type: 'text/plain' });
+    const testFile = new File([testBlob], 'token_test.txt', { type: 'text/plain' });
+
+    const asset = await authClient.assets.upload('file', testFile, {
+      filename: 'token_test.txt'
+    });
+
+    // Clean up
+    await authClient.delete(asset._id);
+    return true;
+  } catch (error) {
+    console.error('Token test failed:', error);
+    return false;
+  }
+}
+
 // Verify token permissions
 export async function verifyTokenPermissions(token: string): Promise<{ valid: boolean; canCreate: boolean; error?: string }> {
   const authClient = createClient({
