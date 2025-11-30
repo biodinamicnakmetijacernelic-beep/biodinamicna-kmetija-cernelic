@@ -519,7 +519,7 @@ const BlogPostPage: React.FC = () => {
             </a>
           </div>
           <div class="mt-3">
-            <iframe src="${pdfUrl}" class="w-full h-96 border border-gray-300 rounded-lg" title="${file.name}"></iframe>
+            <iframe src="${pdfUrl}" class="w-full h-full min-h-screen border border-gray-300 rounded-lg" title="${file.name}"></iframe>
           </div>
         </div>\n\n`;
 
@@ -785,7 +785,7 @@ const BlogPostPage: React.FC = () => {
             </a>
           </div>
           <div class="mt-3">
-            <iframe src="${block.url}" class="w-full h-96 border border-gray-300 rounded-lg" title="${block.name}"></iframe>
+            <iframe src="${block.url}" class="w-full h-full min-h-screen border border-gray-300 rounded-lg" title="${block.name}"></iframe>
           </div>
         </div>`;
       }

@@ -45,7 +45,7 @@ export const renderPortableText = (body: any[], onImageClick?: (src: string) => 
             </a>
           </div>
           <div className="mt-3">
-            <iframe src={block.url} className="w-full h-96 border border-gray-300 rounded-lg" title={block.name}></iframe>
+            <iframe src={block.url} className="w-full h-full min-h-screen border border-gray-300 rounded-lg" title={block.name}></iframe>
           </div>
         </div>
       );
