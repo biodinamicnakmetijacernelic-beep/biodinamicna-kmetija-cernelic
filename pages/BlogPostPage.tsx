@@ -120,9 +120,14 @@ const BlogPostPage: React.FC = () => {
         return children;
 
       case 'p':
+      case 'h1':
       case 'h2':
       case 'h3':
+      case 'h4':
+      case 'h5':
+      case 'h6':
       case 'blockquote':
+      case 'li':
         // If children list is empty or contains only empty text, return null
         if (!children.length || children.every((c: any) => c._type === 'span' && !c.text?.trim())) {
           return null;
