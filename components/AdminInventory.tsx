@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Save, Search, RefreshCw, MousePointerClick, ShoppingBag, ClipboardList, Bell, Image as ImageIcon, Upload, Trash2, Pencil, ArrowLeft, AlertTriangle, Plus, Lock, Send, Eye, EyeOff, FileText, Type, Video, Check, LogOut, Link as LinkIcon, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette } from 'lucide-react';
+import { X, Save, Search, RefreshCw, MousePointerClick, ShoppingBag, ClipboardList, Bell, Image as ImageIcon, Upload, Trash2, Pencil, ArrowLeft, AlertTriangle, Plus, Lock, Send, Eye, EyeOff, FileText, Type, Video, Check, LogOut, Link as LinkIcon, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette, Code } from 'lucide-react';
 import { GalleryItem, PreOrderItem, NewsItem, VideoGalleryItem, Order } from '../types';
 import { uploadImageToSanity, fetchProducts, updateProductStatus, createProduct, updateProduct, deleteProduct, createNewsPost, fetchAllNews, updateNewsPost, deleteNewsPost, fetchVideoGallery, createVideo, updateVideo, deleteVideo, fetchOrders, updateOrderStatus, deleteOrder, fetchGalleryImages, updateGalleryImage, deleteGalleryImage, verifyTokenPermissions } from '../sanityClient';
 import { createClient } from '@sanity/client';
@@ -194,6 +194,12 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
   const [newsBlocks, setNewsBlocks] = useState<NewsBlock[]>([
     { id: '1', type: 'text', content: '' }
   ]);
+  const [newsImages, setNewsImages] = useState<Record<string, string>>({}); // Store uploaded images for customReact blocks
+
+  // Handle image uploads from custom React components
+  const handleNewsImageUpload = (key: string, url: string) => {
+    setNewsImages(prev => ({ ...prev, [key]: url }));
+  };
 
   // Refs for contentEditable editors to prevent cursor loss
   const editorRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
@@ -526,6 +532,51 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
     setNewsBlocks([...newsBlocks, { id: Date.now().toString(), type: 'button', text: 'Klikni me', url: 'https://' }]);
   };
 
+  const addCustomReactBlock = () => {
+    setNewsBlocks([...newsBlocks, {
+      id: Date.now().toString(),
+      type: 'customReact',
+      code: `export default function MyComponent() {
+  const [imageUrl, setImageUrl] = React.useState(savedImages.myImage || '');
+
+  const handleUpload = async () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        try {
+          const url = await uploadImage('myImage', file);
+          setImageUrl(url);
+        } catch (error) {
+          alert('Napaka pri nalaganju slike: ' + error.message);
+        }
+      }
+    };
+    input.click();
+  };
+
+  return (
+    <div className="p-4 bg-gray-50 rounded-lg">
+      <h3 className="text-lg font-bold mb-2">Moja interaktivna komponenta</h3>
+      <button
+        onClick={handleUpload}
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+      >
+        {imageUrl ? 'Spremeni sliko' : 'Naloži sliko'}
+      </button>
+      {imageUrl && (
+        <div className="mt-4">
+          <img src={imageUrl} alt="Uploaded" className="max-w-full h-auto rounded" />
+        </div>
+      )}
+    </div>
+  );
+}`
+    }]);
+  };
+
   const removeBlock = (id: string) => {
     setNewsBlocks(newsBlocks.filter(b => b.id !== id));
   };
@@ -813,6 +864,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
 
     // Convert body back to blocks for editing
     const blocks: NewsBlock[] = [];
+    const loadedImages: Record<string, string> = {};
     if (Array.isArray(post.body)) {
       post.body.forEach((block: any, index: number) => {
         if (block._type === 'block') {
@@ -834,10 +886,21 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
             text: block.text || 'Gumb',
             url: block.url || 'https://'
           });
+        } else if (block._type === 'customReact') {
+          blocks.push({
+            id: block._key || `react-${index}`,
+            type: 'customReact',
+            code: block.code || ''
+          });
+          // Load associated images
+          if (block.images) {
+            Object.assign(loadedImages, block.images);
+          }
         }
       });
     }
     setNewsBlocks(blocks.length > 0 ? blocks : [{ id: Date.now().toString(), type: 'text', content: '' }]);
+    setNewsImages(loadedImages);
     setIsEditingNews(true);
   };
 
@@ -894,6 +957,13 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
             text: block.text,
             url: block.url
           });
+        } else if (block.type === 'customReact') {
+          finalBody.push({
+            _type: 'customReact',
+            _key: block.id,
+            code: block.code,
+            images: newsImages // Include uploaded images for this custom React block
+          });
         }
       }
 
@@ -928,6 +998,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
       setNewsImageFile(null);
       setNewsImagePreview(null);
       setNewsBlocks([{ id: Date.now().toString(), type: 'text', content: '' }]);
+      setNewsImages({});
       setIsEditingNews(false);
       setEditingNewsId(null);
 
@@ -1614,7 +1685,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
               </>
             ) : (
               <div className={`bg-white rounded-3xl p-6 shadow-sm border border-black/5 ${!sanityToken ? 'opacity-50 pointer-events-none' : ''}`}>
-                <div className="flex items-center gap-2 mb-6 text-olive/50 cursor-pointer" onClick={() => { setIsEditingNews(false); setEditingNewsId(null); setNewsForm({ title: '', date: new Date().toISOString().split('T')[0], link: '' }); setNewsImageFile(null); setNewsImagePreview(null); setNewsBlocks([{ id: Date.now().toString(), type: 'text', content: '' }]); }}><ArrowLeft size={16} /><span className="text-xs font-bold uppercase">Nazaj</span></div>
+                <div className="flex items-center gap-2 mb-6 text-olive/50 cursor-pointer" onClick={() => { setIsEditingNews(false); setEditingNewsId(null); setNewsForm({ title: '', date: new Date().toISOString().split('T')[0], link: '' }); setNewsImageFile(null); setNewsImagePreview(null); setNewsBlocks([{ id: Date.now().toString(), type: 'text', content: '' }]); setNewsImages({}); }}><ArrowLeft size={16} /><span className="text-xs font-bold uppercase">Nazaj</span></div>
 
                 <h3 className="font-serif text-xl text-olive-dark mb-4">{editingNewsId ? 'Uredi Objavo' : 'Nova Objava'}</h3>
 
@@ -1793,8 +1864,86 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                             </div>
                           </div>
                         )}
+
+                        {block.type === 'customReact' && (
+                          <div className="space-y-4">
+                            <div>
+                              <label className="text-xs font-bold uppercase text-olive/50 mb-1 block">React koda (JavaScript)</label>
+                              <textarea
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta font-mono min-h-[200px]"
+                                value={block.code || ''}
+                                onChange={(e) => updateBlockField(block.id, 'code', e.target.value)}
+                                placeholder={`export default function MyComponent() {
+  return (
+    <div>
+      <h2>Moja komponenta</h2>
+      <p>Klikni tukaj za upload slike:</p>
+      <button onClick={() => uploadImage('myImage', file)}>
+        Upload
+      </button>
+    </div>
+  );
+}`}
+                              />
+                            </div>
+                            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                              <div className="flex items-start gap-2">
+                                <Code size={16} className="text-blue-600 mt-0.5 flex-shrink-0" />
+                                <div className="text-sm text-blue-800">
+                                  <strong>Namig:</strong> Uporabite funkcijo <code className="bg-blue-100 px-1 rounded">uploadImage(key, file)</code> za nalaganje slik.
+                                  Slike bodo shranjene skupaj z objavo.
+                                </div>
+                              </div>
+                            </div>
+                            {block.code && (
+                              <div className="border border-gray-200 rounded-xl p-4 bg-white">
+                                <label className="text-xs font-bold uppercase text-olive/50 mb-2 block">Predogled</label>
+                                <DynamicReactRenderer
+                                  code={block.code}
+                                  imageData={newsImages}
+                                  onImageUpload={handleNewsImageUpload}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))}
+                  </div>
+
+                  {/* Block Type Selector */}
+                  <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                    <label className="text-xs font-bold uppercase text-olive/50 mb-3 block">Dodaj nov blok</label>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={addTextBlock}
+                        className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm hover:bg-gray-100 transition-colors"
+                      >
+                        <Type size={16} />
+                        Besedilo
+                      </button>
+                      <button
+                        onClick={addImageBlock}
+                        className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm hover:bg-gray-100 transition-colors"
+                      >
+                        <ImageIcon size={16} />
+                        Slika
+                      </button>
+                      <button
+                        onClick={addButtonBlock}
+                        className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm hover:bg-gray-100 transition-colors"
+                      >
+                        <MousePointerClick size={16} />
+                        Gumb
+                      </button>
+                      <button
+                        onClick={addCustomReactBlock}
+                        className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-sm hover:bg-blue-100 transition-colors text-blue-700"
+                      >
+                        <Code size={16} />
+                        React Komponenta
+                      </button>
+                    </div>
                   </div>
 
                   <div className="flex gap-2 mt-6">
