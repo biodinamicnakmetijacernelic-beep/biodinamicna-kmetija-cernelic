@@ -1,9 +1,11 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useLocation, Link } from 'react-router-dom';
 import { fetchNewsBySlug, updateNewsPost } from '../sanityClient';
 import { NewsItem } from '../types';
 import { renderPortableText } from '../utils/newsHelpers';
-import { ArrowLeft, Calendar, Share2, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette, Link as LinkIcon, Image as ImageIcon, Video, MousePointerClick, Heading2, Heading3 } from 'lucide-react';
+import getCroppedImg from '../utils/imageHelpers';
+import Cropper from 'react-easy-crop';
+import { ArrowLeft, Calendar, Share2, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette, Link as LinkIcon, Image as ImageIcon, Video, MousePointerClick, Heading2, Heading3, ZoomIn, ZoomOut, Check, X } from 'lucide-react';
 import FadeIn from '../components/FadeIn';
 import Lightbox from '../components/Lightbox';
 import LinkPopup from '../components/LinkPopup';
@@ -23,6 +25,43 @@ const BlogPostPage: React.FC = () => {
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
+
+  // Image Cropping State
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const [isCropping, setIsCropping] = useState(false);
+  const [tempImageSrc, setTempImageSrc] = useState<string | null>(null);
+
+  const onCropComplete = useCallback((croppedArea: any, croppedAreaPixels: any) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
+  const handleCropSave = async () => {
+    if (tempImageSrc && croppedAreaPixels) {
+      try {
+        const croppedImageBlob = await getCroppedImg(tempImageSrc, croppedAreaPixels);
+        if (croppedImageBlob) {
+          const file = new File([croppedImageBlob], "thumbnail.jpg", { type: "image/jpeg" });
+          setThumbnailFile(file);
+          setThumbnailPreview(URL.createObjectURL(croppedImageBlob));
+          setIsCropping(false);
+          setTempImageSrc(null);
+        }
+      } catch (e) {
+        console.error(e);
+        alert('Napaka pri obrezovanju slike.');
+      }
+    }
+  };
+
+  const handleCropCancel = () => {
+    setIsCropping(false);
+    setTempImageSrc(null);
+    if (thumbnailInputRef.current) {
+      thumbnailInputRef.current.value = '';
+    }
+  };
 
   const nodeToPortableText = (node: Node, markDefs: any[]): any => {
     if (node.nodeType === 3) { // Text node
@@ -785,7 +824,7 @@ const BlogPostPage: React.FC = () => {
                     Thumbnail slika (opcijsko)
                   </label>
                   <div
-                    className="relative h-48 bg-gray-100 rounded-xl overflow-hidden border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-50 transition-colors"
+                    className={`relative bg-gray-100 rounded-xl overflow-hidden border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-50 transition-colors ${thumbnailPreview ? 'h-auto w-64 aspect-video' : 'h-48'}`}
                     onClick={() => thumbnailInputRef.current?.click()}
                   >
                     {thumbnailPreview ? (
@@ -815,14 +854,17 @@ const BlogPostPage: React.FC = () => {
                             alert('Prosimo izberite slikovno datoteko');
                             return;
                           }
-                          if (file.size > 5 * 1024 * 1024) {
-                            alert('Slika je prevelika. Največja dovoljena velikost je 5MB.');
+                          if (file.size > 10 * 1024 * 1024) {
+                            alert('Slika je prevelika. Največja dovoljena velikost je 10MB.');
                             return;
                           }
-                          setThumbnailFile(file);
+
                           const reader = new FileReader();
                           reader.onload = (e) => {
-                            setThumbnailPreview(e.target?.result as string);
+                            setTempImageSrc(e.target?.result as string);
+                            setIsCropping(true);
+                            setZoom(1);
+                            setCrop({ x: 0, y: 0 });
                           };
                           reader.readAsDataURL(file);
                         }
@@ -1054,6 +1096,65 @@ const BlogPostPage: React.FC = () => {
               renderPortableText(post.body, (src) => setLightboxImage(src), (url) => setLinkPopupUrl(url))
             )}
           </div>
+
+          {/* Cropping Modal */}
+          {isCropping && tempImageSrc && (
+            <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col h-[80vh]">
+                <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                  <h3 className="text-lg font-serif text-olive-dark font-semibold">Uredi sliko</h3>
+                  <button onClick={handleCropCancel} className="text-gray-400 hover:text-gray-600">
+                    <X size={24} />
+                  </button>
+                </div>
+
+                <div className="relative flex-1 bg-black">
+                  <Cropper
+                    image={tempImageSrc}
+                    crop={crop}
+                    zoom={zoom}
+                    aspect={16 / 9}
+                    onCropChange={setCrop}
+                    onCropComplete={onCropComplete}
+                    onZoomChange={setZoom}
+                  />
+                </div>
+
+                <div className="p-4 bg-white border-t border-gray-100 space-y-4">
+                  <div className="flex items-center gap-4">
+                    <ZoomOut size={20} className="text-gray-400" />
+                    <input
+                      type="range"
+                      value={zoom}
+                      min={1}
+                      max={3}
+                      step={0.1}
+                      aria-labelledby="Zoom"
+                      onChange={(e) => setZoom(Number(e.target.value))}
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-terracotta"
+                    />
+                    <ZoomIn size={20} className="text-gray-400" />
+                  </div>
+
+                  <div className="flex justify-end gap-3">
+                    <button
+                      onClick={handleCropCancel}
+                      className="px-4 py-2 rounded-xl font-semibold text-gray-600 hover:bg-gray-100 transition-colors"
+                    >
+                      Prekliči
+                    </button>
+                    <button
+                      onClick={handleCropSave}
+                      className="px-6 py-2 rounded-xl font-semibold bg-terracotta text-white hover:bg-terracotta-dark transition-colors flex items-center gap-2"
+                    >
+                      <Check size={18} />
+                      Potrdi in obreži
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Back to Blog CTA */}
           <div className="mt-16 pt-12 border-t border-black/5">
