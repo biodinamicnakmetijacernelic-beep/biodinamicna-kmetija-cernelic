@@ -174,6 +174,23 @@ const BlogPostPage: React.FC = () => {
           markDefs: []
         };
 
+      case 'iframe':
+        // Handle YouTube embeds
+        const iframeSrc = element.getAttribute('src') || '';
+        const iframeHtml = `<div class="relative w-full" style="padding-bottom: 56.25%"><iframe src="${iframeSrc}" class="absolute top-0 left-0 w-full h-full rounded-2xl" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+        return {
+          _type: 'block',
+          _key: `block-${Math.random()}`,
+          style: 'normal',
+          children: [{
+            _type: 'span',
+            _key: `span-${Math.random()}`,
+            text: iframeHtml,
+            marks: ['html-image']
+          }],
+          markDefs: []
+        };
+
       default:
         return children; // Flatten unknown tags
     }
@@ -375,7 +392,7 @@ const BlogPostPage: React.FC = () => {
       // Extract video ID from URL
       const videoId = extractYouTubeId(url);
       if (videoId) {
-        const embedHtml = `<div class="relative w-full" style="padding-bottom: 56.25%"><iframe src="https://www.youtube.com/embed/${videoId}" class="absolute top-0 left-0 w-full h-full rounded-2xl" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+        const embedHtml = `<div class="relative w-full" style="padding-bottom: 56.25%"><iframe src="https://www.youtube.com/embed/${videoId}" class="absolute top-0 left-0 w-full h-full rounded-2xl" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div><p><br></p>`;
         document.execCommand('insertHTML', false, embedHtml);
         setEditedContent(editor.innerHTML);
       } else {
