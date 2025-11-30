@@ -683,7 +683,7 @@ const BlogPostPage: React.FC = () => {
     setShowLayoutModal(false);
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -699,9 +699,17 @@ const BlogPostPage: React.FC = () => {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const imageUrl = e.target?.result as string;
+    try {
+      const token = (import.meta as any).env.VITE_SANITY_TOKEN;
+      if (!token) {
+        alert('Napaka: Manjka Sanity token');
+        return;
+      }
+
+      // Upload image to Sanity
+      const { uploadImageToSanityWithToken } = await import('../utils/sanityImageUpload');
+      const imageUrl = await uploadImageToSanityWithToken(file, token);
+
       const editor = document.getElementById('editor') as HTMLElement;
       if (!editor) return;
 
@@ -709,8 +717,10 @@ const BlogPostPage: React.FC = () => {
       const imageHtml = `<div class="rounded-2xl overflow-hidden"><img src="${imageUrl}" alt="${file.name}" class="w-full h-auto object-cover cursor-pointer hover:scale-[1.02] transition-transform duration-500" loading="lazy" /></div>\n\n`;
       document.execCommand('insertHTML', false, imageHtml);
       setEditedContent(editor.innerHTML);
-    };
-    reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Image upload failed:', error);
+      alert(`Napaka pri nalaganju slike: ${error instanceof Error ? error.message : 'Neznana napaka'}`);
+    }
 
     // Reset file input
     event.target.value = '';
@@ -977,14 +987,13 @@ const BlogPostPage: React.FC = () => {
       const data = await fetchNewsBySlug(slug);
       setPost(data);
       setLoading(false);
+      // Scroll to top after post is loaded
+      window.scrollTo({ top: 0, behavior: 'instant' });
     };
     loadPost();
   }, [slug]);
 
   useEffect(() => {
-    // Scroll to top when component mounts
-    window.scrollTo(0, 0);
-
     // Check if admin is logged in
     const adminSession = localStorage.getItem('admin_session');
     setIsAdmin(!!adminSession);
@@ -1332,8 +1341,7 @@ const BlogPostPage: React.FC = () => {
       </div>
 
       {/* Featured Image */}
-      {/* Featured Image - HIDDEN per user request */}
-      {/* {post.image && (
+      {post.image && (
         <FadeIn delay={200}>
           <div className="container mx-auto px-6 max-w-4xl mb-16">
             <div className="relative w-full h-48 md:h-64 lg:h-80 rounded-[1.75rem] overflow-hidden bg-gray-100 shadow-xl">
@@ -1341,11 +1349,12 @@ const BlogPostPage: React.FC = () => {
                 src={post.image}
                 alt={post.title}
                 className="w-full h-full object-cover"
+                loading="eager"
               />
             </div>
           </div>
         </FadeIn>
-      )} */}
+      )}
 
       {/* Content - Apple Typography */}
       <FadeIn>
