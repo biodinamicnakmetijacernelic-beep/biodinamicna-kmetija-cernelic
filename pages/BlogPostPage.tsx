@@ -1051,9 +1051,11 @@ const BlogPostPage: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-olive-dark leading-[0.95] tracking-tight mb-6">
-                {post.title}
-              </h1>
+              !hasCustomReact && (
+                <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-olive-dark leading-[0.95] tracking-tight mb-6">
+                  {post.title}
+                </h1>
+              )
             )}
 
             {/* Admin Edit Button */}
@@ -1095,7 +1097,7 @@ const BlogPostPage: React.FC = () => {
 
       {/* Content - Apple Typography */}
       <FadeIn>
-        <div className="container mx-auto px-6 max-w-3xl pb-24">
+        <div className={`container mx-auto px-6 pb-24 ${hasCustomReact ? 'max-w-full' : 'max-w-3xl'}`}>
           <div className="prose max-w-none">
             {isEditMode ? (
               <div>
