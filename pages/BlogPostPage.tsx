@@ -399,8 +399,8 @@ const BlogPostPage: React.FC = () => {
 
   const handleGrammarCheck = async () => {
     // Check if API key is available
-    const envApiKey = import.meta.env.VITE_OPENAI_API_KEY;
-    const storedApiKey = localStorage.getItem('openai_api_key');
+    const envApiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    const storedApiKey = localStorage.getItem('gemini_api_key');
     const keyToUse = envApiKey || storedApiKey || apiKey;
 
     if (!keyToUse) {
@@ -455,7 +455,7 @@ const BlogPostPage: React.FC = () => {
 
   const saveApiKey = () => {
     if (apiKey.trim()) {
-      localStorage.setItem('openai_api_key', apiKey.trim());
+      localStorage.setItem('gemini_api_key', apiKey.trim());
       setShowApiKeyModal(false);
       handleGrammarCheck();
     }
@@ -1191,9 +1191,9 @@ const BlogPostPage: React.FC = () => {
                   <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
                     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
                       <div className="p-6 border-b border-gray-100">
-                        <h3 className="text-xl font-serif text-olive-dark">OpenAI API Ključ</h3>
+                        <h3 className="text-xl font-serif text-olive-dark">Google Gemini API Ključ</h3>
                         <p className="text-sm text-gray-500 mt-1">
-                          Za uporabo AI pomočnika potrebujete veljaven OpenAI API ključ.
+                          Za uporabo AI pomočnika potrebujete veljaven Google Gemini API ključ.
                         </p>
                       </div>
 
