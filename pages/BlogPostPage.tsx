@@ -1340,21 +1340,6 @@ const BlogPostPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Featured Image */}
-      {post.image && (
-        <FadeIn delay={200}>
-          <div className="container mx-auto px-6 max-w-4xl mb-16">
-            <div className="relative w-full h-48 md:h-64 lg:h-80 rounded-[1.75rem] overflow-hidden bg-gray-100 shadow-xl">
-              <img
-                src={post.image}
-                alt={post.title}
-                className="w-full h-full object-cover"
-                loading="eager"
-              />
-            </div>
-          </div>
-        </FadeIn>
-      )}
 
       {/* Content - Apple Typography */}
       <FadeIn>
