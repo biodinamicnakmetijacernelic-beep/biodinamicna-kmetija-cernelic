@@ -3,8 +3,7 @@ import { useParams, useLocation, Link } from 'react-router-dom';
 import { fetchNewsBySlug, updateNewsPost } from '../sanityClient';
 import { NewsItem } from '../types';
 import { renderPortableText } from '../utils/newsHelpers';
-import { checkGrammarWithAI } from '../utils/aiHelpers';
-import { ArrowLeft, Calendar, Share2, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette, Link as LinkIcon, Image as ImageIcon, Video, MousePointerClick, Heading2, Heading3, Sparkles, X, Check } from 'lucide-react';
+import { ArrowLeft, Calendar, Share2, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette, Link as LinkIcon, Image as ImageIcon, Video, MousePointerClick, Heading2, Heading3 } from 'lucide-react';
 import FadeIn from '../components/FadeIn';
 import Lightbox from '../components/Lightbox';
 import LinkPopup from '../components/LinkPopup';
@@ -24,13 +23,6 @@ const BlogPostPage: React.FC = () => {
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
-
-  // AI Grammar Check State
-  const [isCheckingGrammar, setIsCheckingGrammar] = useState(false);
-  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
-  const [apiKey, setApiKey] = useState('');
-  const [grammarSuggestion, setGrammarSuggestion] = useState<string | null>(null);
-  const [grammarError, setGrammarError] = useState<string | null>(null);
 
   const nodeToPortableText = (node: Node, markDefs: any[]): any => {
     if (node.nodeType === 3) { // Text node
@@ -397,70 +389,6 @@ const BlogPostPage: React.FC = () => {
     event.target.value = '';
   };
 
-  const handleGrammarCheck = async () => {
-    // Check if API key is available
-    const envApiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    const storedApiKey = localStorage.getItem('gemini_api_key');
-    const keyToUse = envApiKey || storedApiKey || apiKey;
-
-    if (!keyToUse) {
-      setShowApiKeyModal(true);
-      return;
-    }
-
-    const editor = document.getElementById('editor') as HTMLElement;
-    if (!editor) return;
-
-    const content = editor.innerHTML;
-    if (!content || !content.trim()) {
-      alert('Vnesite besedilo za preverjanje.');
-      return;
-    }
-
-    setIsCheckingGrammar(true);
-    setGrammarError(null);
-    setGrammarSuggestion(null);
-
-    try {
-      const result = await checkGrammarWithAI(content, keyToUse);
-
-      if (result.correctedText === content) {
-        alert('Besedilo je slovnično pravilno! Ni predlaganih sprememb.');
-      } else {
-        setGrammarSuggestion(result.correctedText);
-      }
-    } catch (error) {
-      console.error('Grammar check failed:', error);
-      setGrammarError(error instanceof Error ? error.message : 'Neznana napaka');
-      // If error is auth related, prompt for key
-      if (error instanceof Error && (error.message.includes('401') || error.message.includes('key'))) {
-        setShowApiKeyModal(true);
-      }
-    } finally {
-      setIsCheckingGrammar(false);
-    }
-  };
-
-  const applyGrammarSuggestion = () => {
-    if (grammarSuggestion) {
-      const editor = document.getElementById('editor') as HTMLElement;
-      if (editor) {
-        editor.innerHTML = grammarSuggestion;
-        setEditedContent(grammarSuggestion);
-        setGrammarSuggestion(null);
-        alert('Besedilo uspešno posodobljeno!');
-      }
-    }
-  };
-
-  const saveApiKey = () => {
-    if (apiKey.trim()) {
-      localStorage.setItem('gemini_api_key', apiKey.trim());
-      setShowApiKeyModal(false);
-      handleGrammarCheck();
-    }
-  };
-
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
     const pastedHtml = e.clipboardData.getData('text/html');
@@ -572,13 +500,13 @@ const BlogPostPage: React.FC = () => {
     return null;
   };
 
-  const renderPortableTextToHTML = (body: any[]): string => {
+  const renderPortableTextToHTML = (body: any): string => {
     if (!Array.isArray(body)) {
       // Fallback for old string content
       return typeof body === 'string' ? body.replace(/\n/g, '<br/>') : '';
     }
 
-    return body.map(block => {
+    return body.map((block: any) => {
       // Handle legacy image blocks with _temp_src (for backwards compatibility)
       if (block._type === 'image' && block._temp_src) {
         return `<div class="rounded-2xl overflow-hidden"><img src="${block._temp_src}" alt="Image" class="w-full h-auto object-cover" loading="lazy" /></div>`;
@@ -1047,21 +975,11 @@ const BlogPostPage: React.FC = () => {
                   </button>
                   <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
                   <button
-                    onClick={handleGrammarCheck}
-                    className={`p-1.5 hover:bg-white rounded transition-colors flex items-center gap-1 ${isCheckingGrammar ? 'text-terracotta animate-pulse' : 'text-olive/70 hover:text-olive'}`}
-                    title="Preveri slovnico in izboljšaj besedilo"
-                    disabled={isCheckingGrammar}
-                  >
-                    <Sparkles size={14} />
-                    <span className="text-xs font-medium hidden md:inline">AI Preverjanje</span>
-                  </button>
-                  <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
-                  <button
                     onClick={async () => {
                       if (!post) return;
 
                       try {
-                        const token = import.meta.env.VITE_SANITY_TOKEN;
+                        const token = (import.meta as any).env.VITE_SANITY_TOKEN;
                         if (!token) {
                           alert('Napaka: Manjka Sanity token');
                           return;
@@ -1131,110 +1049,6 @@ const BlogPostPage: React.FC = () => {
                     wordBreak: 'break-word'
                   }}
                 />
-
-
-                {/* Grammar Suggestion Modal */}
-                {grammarSuggestion && (
-                  <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
-                      <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50">
-                        <h3 className="text-xl font-serif text-olive-dark flex items-center gap-2">
-                          <Sparkles className="text-terracotta" size={24} />
-                          Predlog izboljšave
-                        </h3>
-                        <button
-                          onClick={() => setGrammarSuggestion(null)}
-                          className="text-gray-400 hover:text-gray-600 transition-colors"
-                        >
-                          <X size={24} />
-                        </button>
-                      </div>
-
-                      <div className="flex-1 overflow-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <h4 className="font-semibold text-sm text-gray-500 uppercase tracking-wider">Original</h4>
-                          <div
-                            className="p-4 bg-red-50 border border-red-100 rounded-xl text-gray-600 text-sm leading-relaxed"
-                            dangerouslySetInnerHTML={{ __html: editedContent }}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <h4 className="font-semibold text-sm text-green-600 uppercase tracking-wider">Predlog</h4>
-                          <div
-                            className="p-4 bg-green-50 border border-green-100 rounded-xl text-gray-800 text-sm leading-relaxed"
-                            dangerouslySetInnerHTML={{ __html: grammarSuggestion }}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
-                        <button
-                          onClick={() => setGrammarSuggestion(null)}
-                          className="px-6 py-2.5 rounded-xl font-semibold text-gray-600 hover:bg-gray-200 transition-colors"
-                        >
-                          Prekliči
-                        </button>
-                        <button
-                          onClick={applyGrammarSuggestion}
-                          className="px-6 py-2.5 rounded-xl font-semibold bg-terracotta text-white hover:bg-terracotta-dark transition-colors flex items-center gap-2 shadow-lg shadow-terracotta/20"
-                        >
-                          <Check size={18} />
-                          Sprejmi spremembe
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* API Key Modal */}
-                {showApiKeyModal && (
-                  <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-                      <div className="p-6 border-b border-gray-100">
-                        <h3 className="text-xl font-serif text-olive-dark">Google Gemini API Ključ</h3>
-                        <p className="text-sm text-gray-500 mt-1">
-                          Za uporabo AI pomočnika potrebujete veljaven Google Gemini API ključ.
-                        </p>
-                      </div>
-
-                      <div className="p-6 space-y-4">
-                        {grammarError && (
-                          <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-100">
-                            {grammarError}
-                          </div>
-                        )}
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">API Ključ</label>
-                          <input
-                            type="password"
-                            value={apiKey}
-                            onChange={(e) => setApiKey(e.target.value)}
-                            placeholder="sk-..."
-                            className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta outline-none transition-all"
-                          />
-                          <p className="text-xs text-gray-400 mt-2">
-                            Ključ bo shranjen lokalno v vašem brskalniku.
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
-                        <button
-                          onClick={() => setShowApiKeyModal(false)}
-                          className="px-4 py-2 rounded-xl font-semibold text-gray-600 hover:bg-gray-200 transition-colors"
-                        >
-                          Prekliči
-                        </button>
-                        <button
-                          onClick={saveApiKey}
-                          className="px-6 py-2 rounded-xl font-semibold bg-olive text-white hover:bg-olive-dark transition-colors"
-                        >
-                          Shrani in nadaljuj
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             ) : (
               renderPortableText(post.body, (src) => setLightboxImage(src), (url) => setLinkPopupUrl(url))
