@@ -10,20 +10,22 @@ export const client = createClient({
   ignoreBrowserTokenWarning: true
 });
 
-// Initialize the write client (for admin operations like image upload)
-// This uses the token from environment variable or localStorage
-const getWriteToken = () => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('sanityToken') || '';
-  }
-  return '';
-};
 
-export const writeClient = createClient({
-  ...sanityConfig,
-  token: getWriteToken(),
-  ignoreBrowserTokenWarning: true
-});
+// Initialize the write client (for admin operations like image upload)
+// This function creates a new client with the current token from localStorage
+export const getWriteClient = () => {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('sanityToken') || '' : '';
+
+  if (!token) {
+    console.warn('No Sanity token found in localStorage. Image upload may fail.');
+  }
+
+  return createClient({
+    ...sanityConfig,
+    token,
+    ignoreBrowserTokenWarning: true
+  });
+};
 
 // Helper to generate image URLs
 const builder = imageUrlBuilder(client);

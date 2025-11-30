@@ -1,4 +1,4 @@
-import { writeClient } from '../sanityClient';
+import { getWriteClient } from '../sanityClient';
 
 /**
  * Upload an image file to Sanity
@@ -7,6 +7,9 @@ import { writeClient } from '../sanityClient';
  */
 export async function uploadImageToSanity(file: File): Promise<string> {
     try {
+        // Get write client with fresh token from localStorage
+        const writeClient = getWriteClient();
+
         // Upload the image asset to Sanity
         const imageAsset = await writeClient.assets.upload('image', file, {
             filename: file.name,
