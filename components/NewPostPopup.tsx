@@ -810,61 +810,115 @@ const NewPostPopup: React.FC<NewPostPopupProps> = ({ onClose, onSuccess }) => {
                                 const pastedText = e.clipboardData.getData('text/plain');
 
                                 let contentToInsert = '';
-                                
+
                                 if (pastedHtml && pastedHtml.length > 0) {
                                     const parser = new DOMParser();
                                     const doc = parser.parseFromString(pastedHtml, 'text/html');
-                                    
+
                                     const extractContent = (node: Node): string => {
                                         if (node.nodeType === 3) {
                                             return node.textContent || '';
                                         }
-                                        
+
                                         if (node.nodeType === 1) {
                                             const element = node as HTMLElement;
                                             const tagName = element.tagName.toLowerCase();
-                                            
+
                                             if (tagName === 'a') {
                                                 const href = element.getAttribute('href') || '';
                                                 const text = element.textContent || '';
                                                 return `<a href="${href}" target="_blank" rel="noopener noreferrer">${text}</a>`;
                                             }
-                                            
-                                            if (tagName === 'p' || tagName === 'div') {
+
+                                            // Handle paragraph-like elements
+                                            if (['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'li'].includes(tagName)) {
+                                                const children = Array.from(element.childNodes)
+                                                    .map(child => extractContent(child))
+                                                    .join('');
+                                                const trimmed = children.trim();
+                                                if (trimmed) {
+                                                    // For list items, don't wrap in additional p tag
+                                                    if (tagName === 'li') {
+                                                        return `<li>${trimmed}</li>`;
+                                                    }
+                                                    // For headings, preserve the tag
+                                                    if (tagName.startsWith('h')) {
+                                                        return `<${tagName}>${trimmed}</${tagName}>`;
+                                                    }
+                                                    // For blockquotes, preserve the tag
+                                                    if (tagName === 'blockquote') {
+                                                        return `<blockquote>${trimmed}</blockquote>`;
+                                                    }
+                                                    // For everything else, use p
+                                                    return `<p>${trimmed}</p>`;
+                                                }
+                                                return '';
+                                            }
+
+                                            if (tagName === 'br') {
+                                                return '<br>';
+                                            }
+
+                                            // Handle line breaks and spacing
+                                            if (tagName === 'span' && element.style.display === 'block') {
                                                 const children = Array.from(element.childNodes)
                                                     .map(child => extractContent(child))
                                                     .join('');
                                                 return children.trim() ? `<p>${children}</p>` : '';
                                             }
-                                            
-                                            if (tagName === 'br') {
-                                                return '<br>';
-                                            }
-                                            
+
+                                            // For other elements, extract their content
                                             return Array.from(element.childNodes)
                                                 .map(child => extractContent(child))
                                                 .join('');
                                         }
-                                        
+
                                         return '';
                                     };
-                                    
-                                    const bodyContent = Array.from(doc.body.childNodes)
-                                        .map(node => extractContent(node))
-                                        .filter(content => content.trim())
-                                        .join('');
-                                    
-                                    contentToInsert = bodyContent;
-                                    
-                                    if (contentToInsert && !contentToInsert.includes('<p>')) {
-                                        contentToInsert = `<p>${contentToInsert}</p>`;
+
+                                    const bodyNodes = Array.from(doc.body.childNodes);
+                                    const extractedBlocks: string[] = [];
+
+                                    // Process nodes and group content into logical blocks
+                                    let currentBlock = '';
+                                    for (const node of bodyNodes) {
+                                        const extracted = extractContent(node);
+                                        if (extracted) {
+                                            // Check if this is a block element
+                                            if (extracted.startsWith('<p>') || extracted.startsWith('<h') || extracted.startsWith('<blockquote>') || extracted.startsWith('<li>')) {
+                                                if (currentBlock.trim()) {
+                                                    extractedBlocks.push(currentBlock.trim());
+                                                    currentBlock = '';
+                                                }
+                                                extractedBlocks.push(extracted);
+                                            } else if (extracted.includes('<br>') || extracted.trim()) {
+                                                currentBlock += extracted;
+                                            }
+                                        }
                                     }
+
+                                    if (currentBlock.trim()) {
+                                        extractedBlocks.push(currentBlock.trim());
+                                    }
+
+                                    // Filter out empty blocks and join
+                                    contentToInsert = extractedBlocks
+                                        .filter(block => block.trim())
+                                        .map(block => {
+                                            // If block doesn't start with a tag, wrap it in p
+                                            if (!block.startsWith('<')) {
+                                                return `<p>${block}</p>`;
+                                            }
+                                            return block;
+                                        })
+                                        .join('');
                                 } else {
+                                    // Handle plain text
                                     const paragraphs = pastedText
-                                        .split(/\n\n+/)
+                                        .split(/\n\s*\n/)
                                         .map(para => para.trim())
                                         .filter(para => para);
-                                    
+
                                     if (paragraphs.length > 0) {
                                         contentToInsert = paragraphs
                                             .map(para => `<p>${para.replace(/\n/g, '<br>')}</p>`)

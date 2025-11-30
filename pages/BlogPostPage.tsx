@@ -652,40 +652,62 @@ const BlogPostPage: React.FC = () => {
     let contentToInsert = '';
 
     if (pastedHtml && pastedHtml.length > 0) {
-      // Parse HTML and extract only links and paragraphs
       const parser = new DOMParser();
       const doc = parser.parseFromString(pastedHtml, 'text/html');
 
-      // Function to extract text and links from a node
       const extractContent = (node: Node): string => {
-        if (node.nodeType === 3) { // Text node
+        if (node.nodeType === 3) {
           return node.textContent || '';
         }
 
-        if (node.nodeType === 1) { // Element node
+        if (node.nodeType === 1) {
           const element = node as HTMLElement;
           const tagName = element.tagName.toLowerCase();
 
           if (tagName === 'a') {
-            // Keep links with their href
             const href = element.getAttribute('href') || '';
             const text = element.textContent || '';
             return `<a href="${href}" target="_blank" rel="noopener noreferrer">${text}</a>`;
           }
 
-          if (tagName === 'p' || tagName === 'div') {
-            // Extract content from paragraph/div
+          // Handle paragraph-like elements
+          if (['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'li'].includes(tagName)) {
             const children = Array.from(element.childNodes)
               .map(child => extractContent(child))
               .join('');
-            return children.trim() ? `<p>${children}</p>` : '';
+            const trimmed = children.trim();
+            if (trimmed) {
+              // For list items, don't wrap in additional p tag
+              if (tagName === 'li') {
+                return `<li>${trimmed}</li>`;
+              }
+              // For headings, preserve the tag
+              if (tagName.startsWith('h')) {
+                return `<${tagName}>${trimmed}</${tagName}>`;
+              }
+              // For blockquotes, preserve the tag
+              if (tagName === 'blockquote') {
+                return `<blockquote>${trimmed}</blockquote>`;
+              }
+              // For everything else, use p
+              return `<p>${trimmed}</p>`;
+            }
+            return '';
           }
 
           if (tagName === 'br') {
             return '<br>';
           }
 
-          // For other tags, just extract their text content (no formatting)
+          // Handle line breaks and spacing
+          if (tagName === 'span' && element.style.display === 'block') {
+            const children = Array.from(element.childNodes)
+              .map(child => extractContent(child))
+              .join('');
+            return children.trim() ? `<p>${children}</p>` : '';
+          }
+
+          // For other elements, extract their content
           return Array.from(element.childNodes)
             .map(child => extractContent(child))
             .join('');
@@ -694,22 +716,46 @@ const BlogPostPage: React.FC = () => {
         return '';
       };
 
-      // Extract content from body
-      const bodyContent = Array.from(doc.body.childNodes)
-        .map(node => extractContent(node))
-        .filter(content => content.trim())
-        .join('');
+      const bodyNodes = Array.from(doc.body.childNodes);
+      const extractedBlocks: string[] = [];
 
-      contentToInsert = bodyContent;
-
-      // If no paragraphs found, wrap in paragraph
-      if (contentToInsert && !contentToInsert.includes('<p>')) {
-        contentToInsert = `<p>${contentToInsert}</p>`;
+      // Process nodes and group content into logical blocks
+      let currentBlock = '';
+      for (const node of bodyNodes) {
+        const extracted = extractContent(node);
+        if (extracted) {
+          // Check if this is a block element
+          if (extracted.startsWith('<p>') || extracted.startsWith('<h') || extracted.startsWith('<blockquote>') || extracted.startsWith('<li>')) {
+            if (currentBlock.trim()) {
+              extractedBlocks.push(currentBlock.trim());
+              currentBlock = '';
+            }
+            extractedBlocks.push(extracted);
+          } else if (extracted.includes('<br>') || extracted.trim()) {
+            currentBlock += extracted;
+          }
+        }
       }
+
+      if (currentBlock.trim()) {
+        extractedBlocks.push(currentBlock.trim());
+      }
+
+      // Filter out empty blocks and join
+      contentToInsert = extractedBlocks
+        .filter(block => block.trim())
+        .map(block => {
+          // If block doesn't start with a tag, wrap it in p
+          if (!block.startsWith('<')) {
+            return `<p>${block}</p>`;
+          }
+          return block;
+        })
+        .join('');
     } else {
-      // Plain text: convert double newlines to paragraphs, single to <br>
+      // Handle plain text
       const paragraphs = pastedText
-        .split(/\n\n+/)
+        .split(/\n\s*\n/)
         .map(para => para.trim())
         .filter(para => para);
 
@@ -718,7 +764,6 @@ const BlogPostPage: React.FC = () => {
           .map(para => `<p>${para.replace(/\n/g, '<br>')}</p>`)
           .join('');
       } else {
-        // Single paragraph with line breaks
         contentToInsert = `<p>${pastedText.replace(/\n/g, '<br>')}</p>`;
       }
     }
