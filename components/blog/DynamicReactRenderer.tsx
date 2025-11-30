@@ -61,23 +61,24 @@ const DynamicReactRenderer: React.FC<DynamicReactRendererProps> = ({ code, image
             // Create uploadImage function to provide to component
             const uploadImage = async (key: string, file: File): Promise<string> => {
                 try {
-                    // If we have a token passed from parent, use it directly
-                    if (sanityToken) {
-                        const { uploadImageToSanityWithToken } = await import('../../utils/sanityImageUpload');
-                        const url = await uploadImageToSanityWithToken(file, sanityToken);
-                        if (onImageUpload) {
-                            onImageUpload(key, url);
-                        }
-                        return url;
+                    const { uploadImageToSanityWithToken, uploadImageToSanity } = await import('../../utils/sanityImageUpload');
+
+                    let url: string;
+
+                    // If we have a token passed from parent (even if empty string), use the withToken function
+                    if (sanityToken !== undefined) {
+                        console.log('[DynamicReactRenderer] Using token from parent component');
+                        url = await uploadImageToSanityWithToken(file, sanityToken);
                     } else {
                         // Fallback to original function that checks localStorage
-                        const { uploadImageToSanity } = await import('../../utils/sanityImageUpload');
-                        const url = await uploadImageToSanity(file);
-                        if (onImageUpload) {
-                            onImageUpload(key, url);
-                        }
-                        return url;
+                        console.log('[DynamicReactRenderer] No token from parent, checking localStorage');
+                        url = await uploadImageToSanity(file);
                     }
+
+                    if (onImageUpload) {
+                        onImageUpload(key, url);
+                    }
+                    return url;
                 } catch (error) {
                     console.error('Image upload failed:', error);
                     throw error;

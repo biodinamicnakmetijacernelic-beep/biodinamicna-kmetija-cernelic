@@ -6,16 +6,30 @@ import { getWriteClient } from '../sanityClient';
  * @param token - The Sanity API token
  * @returns Promise<string> - The Sanity image URL
  */
-export async function uploadImageToSanityWithToken(file: File, token: string): Promise<string> {
+export async function uploadImageToSanityWithToken(file: File, token?: string): Promise<string> {
     try {
         console.log('[uploadImageToSanityWithToken] Starting upload for file:', file.name);
 
         const { createClient } = await import('@sanity/client');
         const { sanityConfig } = await import('../sanityConfig');
 
+        // If no token provided, try to get from localStorage
+        let finalToken = token;
+        if (!finalToken) {
+            finalToken = typeof window !== 'undefined' ? localStorage.getItem('sanityToken') || localStorage.getItem('sanity_token') || localStorage.getItem('SANITY_TOKEN') : null;
+        }
+
+        if (!finalToken) {
+            const error = 'No Sanity token found. Please log in to admin panel first.';
+            console.error('[uploadImageToSanityWithToken]', error);
+            console.log('[uploadImageToSanityWithToken] Available localStorage keys:', typeof window !== 'undefined' ? Object.keys(localStorage) : []);
+            alert('Napaka: Niste prijavljeni kot admin. Prosim, najprej se prijavite v admin panel.');
+            throw new Error(error);
+        }
+
         const authClient = createClient({
             ...sanityConfig,
-            token: token,
+            token: finalToken,
             ignoreBrowserTokenWarning: true
         });
 
