@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Save, Search, RefreshCw, MousePointerClick, ShoppingBag, ClipboardList, Bell, Image as ImageIcon, Upload, Trash2, Pencil, ArrowLeft, AlertTriangle, Plus, Lock, Send, Eye, EyeOff, FileText, Type, Video, Check, LogOut, Link as LinkIcon, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette } from 'lucide-react';
 import { GalleryItem, PreOrderItem, NewsItem, VideoGalleryItem, Order } from '../types';
-import { uploadImageToSanity, fetchProducts, updateProductStatus, createProduct, updateProduct, deleteProduct, createNewsPost, fetchAllNews, updateNewsPost, deleteNewsPost, fetchVideoGallery, createVideo, updateVideo, deleteVideo, fetchOrders, updateOrderStatus, deleteOrder, fetchGalleryImages, updateGalleryImage, deleteGalleryImage } from '../sanityClient';
+import { uploadImageToSanity, fetchProducts, updateProductStatus, createProduct, updateProduct, deleteProduct, createNewsPost, fetchAllNews, updateNewsPost, deleteNewsPost, fetchVideoGallery, createVideo, updateVideo, deleteVideo, fetchOrders, updateOrderStatus, deleteOrder, fetchGalleryImages, updateGalleryImage, deleteGalleryImage, verifyTokenPermissions } from '../sanityClient';
 import { createClient } from '@sanity/client';
 import { sendOrderStatusUpdateEmail } from '../utils/emailService';
 import { compressImage } from '../utils/imageOptimizer';
@@ -117,11 +117,35 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
 
   // Sanity token from environment variables or localStorage
   const [sanityToken, setSanityToken] = useState(import.meta.env.VITE_SANITY_TOKEN || localStorage.getItem('sanityToken') || '');
+  const [tokenVerified, setTokenVerified] = useState<boolean | null>(null);
+  const [verifyingToken, setVerifyingToken] = useState(false);
 
   // Update token when it changes in settings
-  const handleTokenChange = (newToken: string) => {
+  const handleTokenChange = async (newToken: string) => {
     setSanityToken(newToken);
     localStorage.setItem('sanityToken', newToken);
+
+    if (newToken) {
+      setVerifyingToken(true);
+      try {
+        const result = await verifyTokenPermissions(newToken);
+        setTokenVerified(result.valid && result.canCreate);
+        if (!result.valid) {
+          setNotification(`⚠️ Neveljaven API ključ: ${result.error}`);
+        } else if (!result.canCreate) {
+          setNotification(`⚠️ API ključ nima pravic za ustvarjanje: ${result.error}`);
+        } else {
+          setNotification('✅ API ključ je veljaven in ima pravice za ustvarjanje');
+        }
+      } catch (error) {
+        setTokenVerified(false);
+        setNotification('⚠️ Napaka pri preverjanju API ključa');
+      } finally {
+        setVerifyingToken(false);
+      }
+    } else {
+      setTokenVerified(null);
+    }
   };
 
   // Inventory State
@@ -2387,7 +2411,35 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                         placeholder="sk-..."
                       />
                       <div className="absolute right-3 top-1/2 -translate-y-1/2 text-olive/40">
-                        {sanityToken ? <Check size={16} className="text-green-500" /> : <AlertTriangle size={16} className="text-yellow-500" />}
+                        {verifyingToken ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-terracotta"></div>
+                        ) : sanityToken && tokenVerified === true ? (
+                          <Check size={16} className="text-green-500" />
+                        ) : sanityToken && tokenVerified === false ? (
+                          <AlertTriangle size={16} className="text-red-500" />
+                        ) : sanityToken ? (
+                          <div className="h-2 w-2 bg-yellow-400 rounded-full"></div>
+                        ) : (
+                          <AlertTriangle size={16} className="text-yellow-500" />
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {tokenVerified === false
+                        ? 'API ključ nima pravic za ustvarjanje. Pojdite v Sanity.io -> API -> Tokens in dodajte "Create" pravice.'
+                        : 'API ključ potrebuje "Create" pravice za slike in dokumente.'
+                      }
+                        {verifyingToken ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-terracotta"></div>
+                        ) : sanityToken && tokenVerified === true ? (
+                          <Check size={16} className="text-green-500" />
+                        ) : sanityToken && tokenVerified === false ? (
+                          <AlertTriangle size={16} className="text-red-500" />
+                        ) : sanityToken ? (
+                          <div className="h-2 w-2 bg-yellow-400 rounded-full"></div>
+                        ) : (
+                          <AlertTriangle size={16} className="text-yellow-500" />
+                        )}
                       </div>
                     </div>
                     <p className="text-xs text-olive/60 mt-2">

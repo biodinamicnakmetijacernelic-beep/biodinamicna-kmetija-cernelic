@@ -34,6 +34,46 @@ export function urlFor(source: any) {
   return builder.image(source);
 }
 
+// Verify token permissions
+export async function verifyTokenPermissions(token: string): Promise<{ valid: boolean; canCreate: boolean; error?: string }> {
+  const authClient = createClient({
+    ...sanityConfig,
+    token: token,
+    ignoreBrowserTokenWarning: true
+  });
+
+  try {
+    // Try to fetch a simple query to check basic read permissions
+    await authClient.fetch('*[_type == "galleryImage"][0...1]');
+
+    // Try to create a test document to check create permissions
+    const testDoc = {
+      _type: 'galleryImage',
+      title: 'Test permission check',
+      category: 'test'
+    };
+
+    const createdDoc = await authClient.create(testDoc);
+
+    // Clean up the test document
+    await authClient.delete(createdDoc._id);
+
+    return { valid: true, canCreate: true };
+  } catch (error: any) {
+    console.error('Token verification failed:', error);
+
+    if (error.statusCode === 401) {
+      return { valid: false, canCreate: false, error: 'Neveljaven API ključ' };
+    }
+
+    if (error.message && error.message.includes('Insufficient permissions')) {
+      return { valid: true, canCreate: false, error: 'API ključ nima dovoljenja za ustvarjanje' };
+    }
+
+    return { valid: false, canCreate: false, error: error.message || 'Neznana napaka' };
+  }
+}
+
 // Fetch Gallery Images
 export async function fetchGalleryImages(): Promise<GalleryItem[]> {
   try {
@@ -286,8 +326,11 @@ export async function uploadImageToSanity(
     const createdDoc = await authClient.create(doc);
     return createdDoc;
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Upload failed:", error);
+    if (error.message && error.message.includes('Insufficient permissions')) {
+      throw new Error('API ključ nima dovoljenja za ustvarjanje slik. Pojdite v Sanity.io -> API -> Tokens in posodobite pravice ključa.');
+    }
     throw error;
   }
 }

@@ -43,6 +43,8 @@ export async function uploadImageToSanity(file: File): Promise<string> {
         // Provide user-friendly error message
         if (error.statusCode === 401) {
             alert('Napaka: Nimate pravic za nalaganje slik. Preverite admin token.');
+        } else if (error.message && error.message.includes('Insufficient permissions')) {
+            alert('Napaka: API ključ nima dovoljenja za ustvarjanje slik. Pojdite v Sanity.io -> API -> Tokens in posodobite pravice ključa.');
         } else {
             alert(`Napaka pri nalaganju slike: ${error.message}`);
         }
