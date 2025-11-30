@@ -126,3 +126,66 @@ export async function uploadImageToSanity(file: File): Promise<string> {
         throw new Error(`Failed to upload image: ${error.message}`);
     }
 }
+
+/**
+ * Upload a PDF file to Sanity with explicit token
+ * @param file - The PDF file to upload
+ * @param token - The Sanity API token
+ * @returns Promise<string> - The Sanity file URL
+ */
+export async function uploadPDFFileToSanityWithToken(file: File, token?: string): Promise<string> {
+    try {
+        console.log('[uploadPDFFileToSanityWithToken] Starting PDF upload for file:', file.name);
+
+        const { createClient } = await import('@sanity/client');
+        const { sanityConfig } = await import('../sanityConfig');
+
+        // If no token provided, try to get from localStorage
+        let finalToken = token;
+        if (!finalToken) {
+            finalToken = typeof window !== 'undefined' ? localStorage.getItem('sanityToken') || localStorage.getItem('sanity_token') || localStorage.getItem('SANITY_TOKEN') : null;
+        }
+
+        if (!finalToken) {
+            const error = 'No Sanity token found. Please log in to admin panel first.';
+            console.error('[uploadPDFFileToSanityWithToken]', error);
+            console.log('[uploadPDFFileToSanityWithToken] Available localStorage keys:', typeof window !== 'undefined' ? Object.keys(localStorage) : []);
+            alert('Napaka: Niste prijavljeni kot admin. Prosim, najprej se prijavite v admin panel.');
+            throw new Error(error);
+        }
+
+        const authClient = createClient({
+            ...sanityConfig,
+            token: finalToken,
+            ignoreBrowserTokenWarning: true
+        });
+
+        console.log('[uploadPDFFileToSanityWithToken] Uploading PDF to Sanity...');
+
+        // Upload the PDF file asset to Sanity
+        const fileAsset = await authClient.assets.upload('file', file, {
+            filename: file.name,
+        });
+
+        console.log('[uploadPDFFileToSanityWithToken] Upload successful! URL:', fileAsset.url);
+
+        // Return the URL of the uploaded PDF
+        return fileAsset.url;
+    } catch (error: any) {
+        console.error('[uploadPDFFileToSanityWithToken] Upload failed:', error);
+        console.error('[uploadPDFFileToSanityWithToken] Error details:', {
+            message: error.message,
+            response: error.response,
+            statusCode: error.statusCode
+        });
+
+        // Provide user-friendly error message
+        if (error.statusCode === 401) {
+            alert('Napaka: API ključ nima pravic za nalaganje datotek. Preverite admin token.');
+        } else {
+            alert(`Napaka pri nalaganju PDF: ${error.message}`);
+        }
+
+        throw new Error(`Failed to upload PDF: ${error.message}`);
+    }
+}

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Image as ImageIcon, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette, Link as LinkIcon, Heading2, Heading3, Video, MousePointerClick } from 'lucide-react';
+import { X, Image as ImageIcon, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette, Link as LinkIcon, Heading2, Heading3, Video, MousePointerClick, FileText } from 'lucide-react';
 import { createNewsPost } from '../sanityClient';
 import { useNavigate } from 'react-router-dom';
 
@@ -401,6 +401,68 @@ const NewPostPopup: React.FC<NewPostPopupProps> = ({ onClose, onSuccess }) => {
         input.click();
     };
 
+    const insertPDF = async () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'application/pdf';
+        input.onchange = async (e) => {
+            const file = (e.target as HTMLInputElement).files?.[0];
+            if (!file) return;
+
+            if (file.type !== 'application/pdf') {
+                alert('Prosimo izberite PDF datoteko');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                alert('PDF je prevelik. Največja dovoljena velikost je 10MB.');
+                return;
+            }
+
+            try {
+                const token = import.meta.env.VITE_SANITY_TOKEN;
+                if (!token) {
+                    alert('Napaka: Manjka Sanity token');
+                    return;
+                }
+
+                // Upload PDF to Sanity
+                const { uploadPDFFileToSanityWithToken } = await import('../../utils/sanityImageUpload');
+                const pdfUrl = await uploadPDFFileToSanityWithToken(file, token);
+
+                const editor = editorRef.current;
+                if (!editor) return;
+
+                const pdfHtml = `<div class="my-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="p-2 bg-red-100 rounded-lg">
+                            <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-900">${file.name}</h4>
+                            <p class="text-sm text-gray-600">${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                        </div>
+                        <a href="${pdfUrl}" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-terracotta text-white rounded-lg hover:bg-terracotta-dark transition-colors text-sm font-medium">
+                            Odpri PDF
+                        </a>
+                    </div>
+                    <div class="mt-3">
+                        <iframe src="${pdfUrl}" class="w-full h-96 border border-gray-300 rounded-lg" title="${file.name}"></iframe>
+                    </div>
+                </div>\n\n`;
+
+                document.execCommand('insertHTML', false, pdfHtml);
+                setContent(editor.innerHTML);
+            } catch (error) {
+                console.error('PDF upload failed:', error);
+                alert(`Napaka pri nalaganju PDF: ${error instanceof Error ? error.message : 'Neznana napaka'}`);
+            }
+        };
+        input.click();
+    };
+
     return (
         <div
             className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200 overflow-y-auto"
@@ -670,6 +732,9 @@ const NewPostPopup: React.FC<NewPostPopupProps> = ({ onClose, onSuccess }) => {
                             <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
                             <button onClick={() => insertImage()} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi sliko">
                                 <ImageIcon size={14} />
+                            </button>
+                            <button onClick={() => insertPDF()} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi PDF">
+                                <FileText size={14} />
                             </button>
                             <button onClick={() => insertYouTube()} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi video (YouTube)">
                                 <Video size={14} />
