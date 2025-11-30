@@ -177,7 +177,9 @@ const BlogPostPage: React.FC = () => {
       case 'iframe':
         // Handle YouTube embeds
         const iframeSrc = element.getAttribute('src') || '';
-        const iframeHtml = `<div class="relative w-full" style="padding-bottom: 56.25%"><iframe src="${iframeSrc}" class="absolute top-0 left-0 w-full h-full rounded-2xl" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+        // We only save the iframe tag itself. The wrapper for aspect ratio is added by newsHelpers.tsx during rendering.
+        // If we save the wrapper here, we get double wrappers (double padding) in the final view.
+        const iframeHtml = `<iframe src="${iframeSrc}" class="absolute top-0 left-0 w-full h-full rounded-2xl" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
         return {
           _type: 'block',
           _key: `block-${Math.random()}`,
