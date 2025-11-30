@@ -532,14 +532,188 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
     setNewsBlocks([...newsBlocks, { id: Date.now().toString(), type: 'button', text: 'Klikni me', url: 'https://' }]);
   };
 
-  const addCustomReactBlock = () => {
-    setNewsBlocks([...newsBlocks, {
-      id: Date.now().toString(),
-      type: 'customReact',
-      code: `export default function MyComponent() {
-  const [imageUrl, setImageUrl] = React.useState(savedImages.myImage || '');
+  const addCustomReactBlock = (template = 'interactive') => {
+    const blockId = Date.now().toString();
+    let code = '';
 
-  const handleUpload = async () => {
+    if (template === 'gallery') {
+      code = `export default function ImageGallery() {
+  const [images, setImages] = React.useState(savedImages || {});
+  const [selectedImage, setSelectedImage] = React.useState(null);
+
+  const uploadGalleryImage = async (key) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.multiple = true;
+    input.onchange = async (e) => {
+      const files = Array.from(e.target.files);
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        try {
+          const imageKey = \`gallery_\${key}_\${Date.now()}_\${i}\`;
+          const url = await uploadImage(imageKey, file);
+          setImages(prev => ({ ...prev, [imageKey]: url }));
+        } catch (error) {
+          alert(\`Napaka pri nalaganju slike \${file.name}: \${error.message}\`);
+        }
+      }
+    };
+    input.click();
+  };
+
+  const removeImage = (key) => {
+    setImages(prev => {
+      const newImages = { ...prev };
+      delete newImages[key];
+      return newImages;
+    });
+  };
+
+  const imageKeys = Object.keys(images);
+
+  return (
+    <div className="p-6 bg-white rounded-xl border border-gray-200 shadow-sm">
+      <div className="flex justify-between items-center mb-6">
+        <h3 className="text-xl font-bold text-gray-800">Galerija slik</h3>
+        <button
+          onClick={() => uploadGalleryImage('batch')}
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
+        >
+          📸 Dodaj slike
+        </button>
+      </div>
+
+      {imageKeys.length === 0 ? (
+        <div className="text-center py-12 text-gray-500">
+          <div className="text-4xl mb-4">🖼️</div>
+          <p>Še ni naloženih slik. Kliknite "Dodaj slike" za začetek.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {imageKeys.map((key) => (
+            <div key={key} className="relative group">
+              <img
+                src={images[key]}
+                alt="Gallery image"
+                className="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => setSelectedImage(images[key])}
+              />
+              <button
+                onClick={() => removeImage(key)}
+                className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {selectedImage && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4" onClick={() => setSelectedImage(null)}>
+          <div className="max-w-4xl max-h-full">
+            <img src={selectedImage} alt="Full size" className="max-w-full max-h-full object-contain" />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}`;
+    } else if (template === 'form') {
+      code = `export default function ContactForm() {
+  const [formData, setFormData] = React.useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+  const [submitted, setSubmitted] = React.useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Tukaj bi dodali logiko za pošiljanje obrazca
+    alert(\`Obrazec prejet!\\nIme: \${formData.name}\\nEmail: \${formData.email}\\nSporočilo: \${formData.message}\`);
+
+    // Ponastavi obrazec
+    setFormData({ name: '', email: '', message: '' });
+    setSubmitted(true);
+
+    // Ponastavi status po 3 sekundah
+    setTimeout(() => setSubmitted(false), 3000);
+  };
+
+  const handleChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  return (
+    <div className="p-6 bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl border border-green-200 shadow-sm">
+      <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">Kontaktirajte nas</h3>
+
+      {submitted ? (
+        <div className="text-center py-8">
+          <div className="text-4xl mb-4">✅</div>
+          <h4 className="text-xl font-bold text-green-800 mb-2">Hvala za sporočilo!</h4>
+          <p className="text-green-700">Odgovorili vam bomo v najkrajšem možnem času.</p>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Ime</label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => handleChange('name', e.target.value)}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              placeholder="Vaše ime"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => handleChange('email', e.target.value)}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              placeholder="vas.email@example.com"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Sporočilo</label>
+            <textarea
+              value={formData.message}
+              onChange={(e) => handleChange('message', e.target.value)}
+              required
+              rows={4}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-vertical"
+              placeholder="Vaše sporočilo..."
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-green-500 text-white py-3 px-6 rounded-lg hover:bg-green-600 transition-colors font-medium shadow-md"
+          >
+            Pošlji sporočilo
+          </button>
+        </form>
+      )}
+    </div>
+  );
+}`;
+    } else {
+      // Default interactive template
+      code = `export default function CustomComponent() {
+  // Dostopne funkcije: uploadImage(key, file), savedImages
+  const [imageUrl, setImageUrl] = React.useState(savedImages.heroImage || '');
+  const [text, setText] = React.useState('Dobrodošli!');
+  const [showImage, setShowImage] = React.useState(true);
+
+  const handleImageUpload = async () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
@@ -547,7 +721,8 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
       const file = e.target.files[0];
       if (file) {
         try {
-          const url = await uploadImage('myImage', file);
+          // Shranimo sliko pod ključem 'heroImage'
+          const url = await uploadImage('heroImage', file);
           setImageUrl(url);
         } catch (error) {
           alert('Napaka pri nalaganju slike: ' + error.message);
@@ -557,23 +732,69 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
     input.click();
   };
 
+  const handleTextChange = (newText) => {
+    setText(newText);
+  };
+
   return (
-    <div className="p-4 bg-gray-50 rounded-lg">
-      <h3 className="text-lg font-bold mb-2">Moja interaktivna komponenta</h3>
-      <button
-        onClick={handleUpload}
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-      >
-        {imageUrl ? 'Spremeni sliko' : 'Naloži sliko'}
-      </button>
-      {imageUrl && (
-        <div className="mt-4">
-          <img src={imageUrl} alt="Uploaded" className="max-w-full h-auto rounded" />
+    <div className="p-6 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl border border-blue-200 shadow-sm">
+      {/* Glavni naslov */}
+      <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
+        {text}
+      </h2>
+
+      {/* Gumbi za urejanje */}
+      <div className="flex flex-wrap gap-3 mb-6 justify-center">
+        <button
+          onClick={handleImageUpload}
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors shadow-md flex items-center gap-2"
+        >
+          📷 {imageUrl ? 'Spremeni sliko' : 'Dodaj sliko'}
+        </button>
+
+        <button
+          onClick={() => setShowImage(!showImage)}
+          className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors shadow-md"
+        >
+          {showImage ? 'Skrij sliko' : 'Pokaži sliko'}
+        </button>
+
+        <button
+          onClick={() => handleTextChange(prompt('Vnesite nov naslov:', text) || text)}
+          className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors shadow-md"
+        >
+          ✏️ Uredi naslov
+        </button>
+      </div>
+
+      {/* Prikaz slike */}
+      {showImage && imageUrl && (
+        <div className="text-center">
+          <img
+            src={imageUrl}
+            alt="Naložena slika"
+            className="max-w-full h-auto rounded-lg shadow-lg mx-auto border-4 border-white"
+            style={{ maxHeight: '400px' }}
+          />
         </div>
       )}
+
+      {/* Opis */}
+      <div className="mt-6 text-center text-gray-600">
+        <p className="text-sm">
+          Ta komponenta omogoča nalaganje slik, urejanje besedila in interaktivne elemente.
+          Slike se samodejno shranijo skupaj z objavo.
+        </p>
+      </div>
     </div>
   );
-}`
+}`;
+    }
+
+    setNewsBlocks([...newsBlocks, {
+      id: blockId,
+      type: 'customReact',
+      code: code
     }]);
   };
 
@@ -1890,8 +2111,9 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                               <div className="flex items-start gap-2">
                                 <Code size={16} className="text-blue-600 mt-0.5 flex-shrink-0" />
                                 <div className="text-sm text-blue-800">
-                                  <strong>Namig:</strong> Uporabite funkcijo <code className="bg-blue-100 px-1 rounded">uploadImage(key, file)</code> za nalaganje slik.
-                                  Slike bodo shranjene skupaj z objavo.
+                                  <strong>Samodejna funkcionalnost:</strong> Ta komponenta že vključuje gumb za nalaganje slik, urejanje besedila in interaktivne elemente.
+                                  Slike se shranijo pod ključem <code className="bg-blue-100 px-1 rounded">heroImage</code>.
+                                  Lahko poljubno spremenite kodo po želji.
                                 </div>
                               </div>
                             </div>
@@ -1936,13 +2158,29 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                         <MousePointerClick size={16} />
                         Gumb
                       </button>
-                      <button
-                        onClick={addCustomReactBlock}
-                        className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-sm hover:bg-blue-100 transition-colors text-blue-700"
-                      >
-                        <Code size={16} />
-                        React Komponenta
-                      </button>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          onClick={addCustomReactBlock}
+                          className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-sm hover:bg-blue-100 transition-colors text-blue-700"
+                        >
+                          <Code size={16} />
+                          Interaktivna komponenta
+                        </button>
+                        <button
+                          onClick={() => addCustomReactBlock('gallery')}
+                          className="flex items-center gap-2 px-3 py-2 bg-purple-50 border border-purple-200 rounded-lg text-sm hover:bg-purple-100 transition-colors text-purple-700"
+                        >
+                          <ImageIcon size={16} />
+                          Galerija slik
+                        </button>
+                        <button
+                          onClick={() => addCustomReactBlock('form')}
+                          className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-lg text-sm hover:bg-green-100 transition-colors text-green-700"
+                        >
+                          <FileText size={16} />
+                          Kontakt obrazec
+                        </button>
+                      </div>
                     </div>
                   </div>
 
