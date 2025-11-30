@@ -60,7 +60,7 @@ const DynamicReactRenderer: React.FC<DynamicReactRendererProps> = ({ code, image
             // Create uploadImage function to provide to component
             const uploadImage = async (key: string, file: File): Promise<string> => {
                 try {
-                    const { uploadImageToSanity } = await import('../utils/sanityImageUpload');
+                    const { uploadImageToSanity } = await import('../../utils/sanityImageUpload');
                     const url = await uploadImageToSanity(file);
                     if (onImageUpload) {
                         onImageUpload(key, url);
