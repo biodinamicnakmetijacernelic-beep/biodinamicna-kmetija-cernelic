@@ -16,6 +16,8 @@ const NewPostPopup: React.FC<NewPostPopupProps> = ({ onClose, onSuccess }) => {
     const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
     const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
+    const [cropMode, setCropMode] = useState(false);
+    const [cropArea, setCropArea] = useState({ x: 0, y: 0, width: 100, height: 100 });
     const [showColorPicker, setShowColorPicker] = useState(false);
     const editorRef = useRef<HTMLDivElement>(null);
     const thumbnailInputRef = useRef<HTMLInputElement>(null);
@@ -456,10 +458,60 @@ const NewPostPopup: React.FC<NewPostPopupProps> = ({ onClose, onSuccess }) => {
                         </label>
                         <div
                             className="relative h-48 bg-gray-100 rounded-xl overflow-hidden border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-50 transition-colors"
-                            onClick={() => thumbnailInputRef.current?.click()}
+                            onClick={() => !cropMode && thumbnailInputRef.current?.click()}
                         >
                             {thumbnailPreview ? (
-                                <img src={thumbnailPreview} alt="Thumbnail preview" className="w-full h-full object-cover" />
+                                <div className="relative w-full h-full">
+                                    <img
+                                        src={thumbnailPreview}
+                                        alt="Thumbnail preview"
+                                        className="w-full h-full object-cover"
+                                        style={cropMode ? {
+                                            transform: `scale(${100 / cropArea.width * 100}%) translate(${-cropArea.x}%, ${-cropArea.y}%)`,
+                                            transformOrigin: 'top left'
+                                        } : {}}
+                                    />
+                                    {cropMode && (
+                                        <div className="absolute inset-0 bg-black/20">
+                                            <div
+                                                className="absolute border-2 border-white border-dashed cursor-move"
+                                                style={{
+                                                    left: `${cropArea.x}%`,
+                                                    top: `${cropArea.y}%`,
+                                                    width: `${cropArea.width}%`,
+                                                    height: `${cropArea.height}%`,
+                                                }}
+                                                onMouseDown={(e) => {
+                                                    e.stopPropagation();
+                                                    const startX = e.clientX;
+                                                    const startY = e.clientY;
+                                                    const startCropX = cropArea.x;
+                                                    const startCropY = cropArea.y;
+
+                                                    const handleMouseMove = (e: MouseEvent) => {
+                                                        const deltaX = e.clientX - startX;
+                                                        const deltaY = e.clientY - startY;
+                                                        const containerWidth = e.currentTarget?.parentElement?.parentElement?.clientWidth || 400;
+                                                        const containerHeight = e.currentTarget?.parentElement?.parentElement?.clientHeight || 192;
+
+                                                        const newX = Math.max(0, Math.min(100 - cropArea.width, startCropX + (deltaX / containerWidth) * 100));
+                                                        const newY = Math.max(0, Math.min(100 - cropArea.height, startCropY + (deltaY / containerHeight) * 100));
+
+                                                        setCropArea(prev => ({ ...prev, x: newX, y: newY }));
+                                                    };
+
+                                                    const handleMouseUp = () => {
+                                                        document.removeEventListener('mousemove', handleMouseMove);
+                                                        document.removeEventListener('mouseup', handleMouseUp);
+                                                    };
+
+                                                    document.addEventListener('mousemove', handleMouseMove);
+                                                    document.addEventListener('mouseup', handleMouseUp);
+                                                }}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
                             ) : (
                                 <div className="flex flex-col items-center justify-center h-full text-olive/40">
                                     <ImageIcon size={32} />
@@ -493,18 +545,48 @@ const NewPostPopup: React.FC<NewPostPopupProps> = ({ onClose, onSuccess }) => {
                             />
                         </div>
                         {thumbnailPreview && (
-                            <button
-                                onClick={() => {
-                                    setThumbnailFile(null);
-                                    setThumbnailPreview(null);
-                                    if (thumbnailInputRef.current) {
-                                        thumbnailInputRef.current.value = '';
-                                    }
-                                }}
-                                className="mt-2 text-sm text-red-600 hover:text-red-700 font-semibold"
-                            >
-                                Odstrani sliko
-                            </button>
+                            <div className="mt-2 flex gap-2">
+                                {!cropMode ? (
+                                    <>
+                                        <button
+                                            onClick={() => setCropMode(true)}
+                                            className="text-sm text-terracotta hover:text-terracotta-dark font-semibold"
+                                        >
+                                            Prilagodi crop
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setThumbnailFile(null);
+                                                setThumbnailPreview(null);
+                                                if (thumbnailInputRef.current) {
+                                                    thumbnailInputRef.current.value = '';
+                                                }
+                                            }}
+                                            className="text-sm text-red-600 hover:text-red-700 font-semibold"
+                                        >
+                                            Odstrani sliko
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <button
+                                            onClick={() => setCropMode(false)}
+                                            className="text-sm text-green-600 hover:text-green-700 font-semibold"
+                                        >
+                                            Potrdi crop
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setCropMode(false);
+                                                setCropArea({ x: 0, y: 0, width: 100, height: 100 });
+                                            }}
+                                            className="text-sm text-gray-600 hover:text-gray-700 font-semibold"
+                                        >
+                                            Prekliči
+                                        </button>
+                                    </>
+                                )}
+                            </div>
                         )}
                     </div>
 
