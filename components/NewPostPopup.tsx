@@ -467,8 +467,7 @@ const NewPostPopup: React.FC<NewPostPopupProps> = ({ onClose, onSuccess }) => {
                                         alt="Thumbnail preview"
                                         className="w-full h-full object-cover"
                                         style={cropMode ? {
-                                            transform: `scale(${100 / cropArea.width * 100}%) translate(${-cropArea.x}%, ${-cropArea.y}%)`,
-                                            transformOrigin: 'top left'
+                                            objectPosition: `${cropArea.x}% ${cropArea.y}%`
                                         } : {}}
                                     />
                                     {cropMode && (
@@ -488,11 +487,14 @@ const NewPostPopup: React.FC<NewPostPopupProps> = ({ onClose, onSuccess }) => {
                                                     const startCropX = cropArea.x;
                                                     const startCropY = cropArea.y;
 
+                                                    // Get container dimensions
+                                                    const container = e.currentTarget.parentElement?.parentElement;
+                                                    const containerWidth = container?.clientWidth || 400;
+                                                    const containerHeight = container?.clientHeight || 192;
+
                                                     const handleMouseMove = (e: MouseEvent) => {
                                                         const deltaX = e.clientX - startX;
                                                         const deltaY = e.clientY - startY;
-                                                        const containerWidth = e.currentTarget?.parentElement?.parentElement?.clientWidth || 400;
-                                                        const containerHeight = e.currentTarget?.parentElement?.parentElement?.clientHeight || 192;
 
                                                         const newX = Math.max(0, Math.min(100 - cropArea.width, startCropX + (deltaX / containerWidth) * 100));
                                                         const newY = Math.max(0, Math.min(100 - cropArea.height, startCropY + (deltaY / containerHeight) * 100));
