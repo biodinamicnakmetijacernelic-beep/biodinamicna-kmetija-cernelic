@@ -376,8 +376,8 @@ const Products: React.FC = () => {
               </div>
             </FadeIn>
 
-            {/* UPDATED GRID: 4 cols on Large, 3 on Medium, 2 on Small */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {/* UPDATED GRID: 3 cols on Mobile, 4 on Desktop */}
+            <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {freshProducts.slice(0, visibleFreshCount).map((p, idx) => (
                 <FadeIn key={p.id} delay={idx * 50} className="h-full">
                   <ProductCard
@@ -421,8 +421,8 @@ const Products: React.FC = () => {
                 </div>
               </div>
             </FadeIn>
-            {/* UPDATED GRID: Matching layout with Fresh Products */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {/* UPDATED GRID: 3 cols on Mobile, 4 on Desktop */}
+            <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {dryProducts.slice(0, visibleDryCount).map((p, idx) => (
                 <FadeIn key={p.id} delay={idx * 50} className="h-full">
                   <ProductCard
@@ -458,7 +458,7 @@ const Products: React.FC = () => {
 
       {/* FLOATING CART BUTTON (DESKTOP & MOBILE) */}
       {isCartEnabled && (
-        <div className={`fixed z-40 transition-all duration-500 transform ${showMobileCartBar ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'} 
+        <div className={`fixed z-40 transition-all duration-500 ${showMobileCartBar ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'} 
           bottom-6 right-6 left-auto md:bottom-auto md:top-1/2 md:-translate-y-1/2`}
         >
           <button
