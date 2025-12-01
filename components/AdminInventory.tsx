@@ -1829,10 +1829,12 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
     }
   };
 
-  const filteredProducts = products.filter(p => {
-    const productName = p.name || '';
-    return (filter === 'all' || p.category === filter) && productName.toLowerCase().includes(searchTerm.toLowerCase());
-  });
+  const filteredProducts = products
+    .filter(p => {
+      const productName = p.name || '';
+      return (filter === 'all' || p.category === filter) && productName.toLowerCase().includes(searchTerm.toLowerCase());
+    })
+    .sort((a, b) => a.name.localeCompare(b.name, 'sl'));
 
   // Login Screen
   if (!isLoggedIn) {
