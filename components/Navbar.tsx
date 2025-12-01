@@ -29,6 +29,40 @@ const Navbar: React.FC = () => {
     setIsAdmin(!!adminSession);
   }, []);
 
+  const [cartData, setCartData] = useState({ itemCount: 0, totalPrice: 0 });
+  const [showCartIcon, setShowCartIcon] = useState(false);
+
+  // Listen for cart updates from Products component
+  useEffect(() => {
+    const handleCartUpdate = (e: CustomEvent) => {
+      setCartData(e.detail);
+    };
+    window.addEventListener('cart-updated', handleCartUpdate as EventListener);
+    return () => window.removeEventListener('cart-updated', handleCartUpdate as EventListener);
+  }, []);
+
+  // Watch for Products section visibility to show/hide cart icon
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // Show cart icon when Products section is intersecting
+        setShowCartIcon(entry.isIntersecting);
+      },
+      { threshold: 0.1 } // Show when at least 10% visible
+    );
+
+    const productsSection = document.getElementById('ponudba');
+    if (productsSection) {
+      observer.observe(productsSection);
+    }
+
+    return () => {
+      if (productsSection) {
+        observer.unobserve(productsSection);
+      }
+    };
+  }, [location.pathname]); // Re-run when location changes (e.g. navigating to home)
+
   // Close dropdown menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -111,6 +145,24 @@ const Navbar: React.FC = () => {
               {link.name}
             </Link>
           ))}
+
+          {/* CART ICON - Visible when scrolled to products */}
+          <div className={`transition-all duration-500 transform ${showCartIcon ? 'translate-y-0 opacity-100 w-auto' : 'translate-y-[-20px] opacity-0 w-0 overflow-hidden'}`}>
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('toggle-cart'))}
+              className="flex items-center gap-2 bg-olive text-white px-3 py-1.5 rounded-full hover:bg-olive-dark transition-colors shadow-md"
+            >
+              <div className="relative">
+                <ShoppingBag size={16} />
+                {cartData.itemCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 bg-terracotta text-white text-[9px] w-3.5 h-3.5 flex items-center justify-center rounded-full font-bold border border-olive">
+                    {cartData.itemCount}
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] font-bold">{cartData.totalPrice.toFixed(2)}€</span>
+            </button>
+          </div>
 
           {/* Admin Menu Button */}
           {isAdmin && (

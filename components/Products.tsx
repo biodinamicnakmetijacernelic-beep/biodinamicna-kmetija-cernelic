@@ -146,6 +146,8 @@ const Products: React.FC = () => {
 
   const sectionRef = useRef<HTMLElement>(null);
 
+
+
   // Check cart setting on mount and listen for changes
   useEffect(() => {
     const checkCartSetting = () => {
@@ -180,6 +182,27 @@ const Products: React.FC = () => {
     note: '',
     pickupLocation: 'home' as 'home' | 'market'
   });
+
+  // Dispatch cart updates to window for Navbar to pick up
+  useEffect(() => {
+    const totalItems = Object.values(quantities).reduce((a, b) => a + b, 0);
+    const totalPrice = Object.entries(quantities).reduce((total: number, [id, qty]) => {
+      const product = displayProducts.find(p => p.id === id);
+      return total + (product ? product.price * qty : 0);
+    }, 0);
+
+    const event = new CustomEvent('cart-updated', {
+      detail: { itemCount: totalItems, totalPrice: totalPrice }
+    });
+    window.dispatchEvent(event);
+  }, [quantities, displayProducts]);
+
+  // Listen for toggle-cart event from Navbar
+  useEffect(() => {
+    const handleToggleCart = () => setIsCartModalOpen(true);
+    window.addEventListener('toggle-cart', handleToggleCart);
+    return () => window.removeEventListener('toggle-cart', handleToggleCart);
+  }, []);
 
   useEffect(() => {
     // 1. Setup Observer
@@ -456,30 +479,43 @@ const Products: React.FC = () => {
         </div>
       </div>
 
-      {/* FLOATING CART BUTTON (DESKTOP & MOBILE) */}
+
+
+      {/* MOBILE FLOATING BAR (Hidden on Desktop) */}
       {isCartEnabled && (
-        <div className={`fixed z-40 transition-all duration-500 transform ${showMobileCartBar ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'} 
-          bottom-6 right-6 left-auto`}
+        <div
+          className={`lg:hidden fixed bottom-6 left-4 right-4 z-40 transition-all duration-500 transform ${showMobileCartBar ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'}`}
         >
           <button
             onClick={() => setIsCartModalOpen(true)}
-            className="group flex items-center gap-3 bg-olive-dark text-cream p-4 rounded-full shadow-2xl border border-white/10 backdrop-blur-md active:scale-95 transition-all hover:bg-olive hover:scale-105"
+            className="w-full bg-olive-dark text-cream p-4 rounded-[2rem] shadow-2xl flex items-center justify-between border border-white/10 backdrop-blur-md active:scale-95 transition-transform"
           >
-            <div className="relative">
-              <ShoppingCart size={24} />
-              {totalItems > 0 && (
-                <span className="absolute -top-2 -right-2 w-5 h-5 bg-terracotta text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-olive-dark">
-                  {totalItems}
-                </span>
-              )}
+            <div className="flex items-center gap-3">
+              <div className="bg-terracotta p-2 rounded-full text-white relative">
+                <ShoppingCart size={18} />
+                {Object.values(quantities).reduce((a, b) => a + b, 0) > 0 && <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border border-olive-dark"></span>}
+              </div>
+              <div className="flex flex-col items-start">
+                <span className="text-[10px] text-white/50 uppercase tracking-widest">Moja Košarica</span>
+                <span className="text-lg font-serif text-white leading-none">{Object.values(quantities).reduce((a, b) => a + b, 0)} artiklov</span>
+              </div>
             </div>
-            <div className="flex flex-col items-start pr-2">
-              <span className="text-[10px] text-white/50 uppercase tracking-widest font-bold">Košarica</span>
-              <span className="text-sm font-serif text-white leading-none">{totalPrice.toFixed(2)} €</span>
+
+            <div className="flex items-center gap-3">
+              <span className="font-bold text-lg">
+                {Object.entries(quantities).reduce((total, [id, qty]) => {
+                  const product = displayProducts.find(p => p.id === id);
+                  return total + (product ? product.price * qty : 0);
+                }, 0).toFixed(2)} €
+              </span>
+              <ChevronUp size={20} className="text-white/50" />
             </div>
           </button>
         </div>
       )}
+
+      {/* Cart Modal & Checkout Modal (Keep existing) */}
+      {/* ... */}
 
       {/* MOBILE CART MODAL (Popup) */}
       {isCartModalOpen && (
