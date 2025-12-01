@@ -306,8 +306,13 @@ const Products: React.FC = () => {
     }
   };
 
-  const freshProducts = displayProducts.filter(p => p.category === 'fresh');
-  const dryProducts = displayProducts.filter(p => p.category === 'dry');
+  const freshProducts = displayProducts
+    .filter(p => p.category === 'fresh')
+    .sort((a, b) => a.name.localeCompare(b.name, 'sl'));
+
+  const dryProducts = displayProducts
+    .filter(p => p.category === 'dry')
+    .sort((a, b) => a.name.localeCompare(b.name, 'sl'));
 
   // Explicit type casting to fix 'unknown' type errors
   const quantityValues = Object.values(quantities) as number[];
