@@ -394,7 +394,7 @@ export const renderPortableText = (body: any[], onImageClick?: (src: string) => 
     }
 
     if (block._type === 'image' && block.asset) {
-      const imageUrl = urlFor(block.asset).width(1200).url();
+      const imageUrl = urlFor(block.asset).width(1200).url() + "&auto=format&q=80";
       return (
         <div key={block._key || index} className="rounded-2xl overflow-hidden">
           {onImageClick ? (

@@ -116,7 +116,7 @@ export async function fetchGalleryImages(): Promise<GalleryItem[]> {
     const query = `*[_type == "galleryImage"] | order(_createdAt desc) {
       _id,
       title,
-      "src": coalesce(image.asset->url, null),
+      "src": coalesce(image.asset->url + "?auto=format&q=80", null),
       category,
       date,
       description,
@@ -158,7 +158,7 @@ export async function fetchAwards(): Promise<AwardItem[]> {
       issuer,
       description,
       highlight,
-      "image": coalesce(image.asset->url, null)
+      "image": coalesce(image.asset->url + "?auto=format&q=80", null)
     }`;
 
     const data = await client.fetch(query);
@@ -193,7 +193,7 @@ export async function fetchProducts(): Promise<PreOrderItem[]> {
       quantity,
       maxQuantity,
       _updatedAt,
-      "image": coalesce(image.asset->url, null)
+      "image": coalesce(image.asset->url + "?auto=format&q=80", null)
     }`;
 
     const data = await client.fetch(query);
@@ -228,7 +228,7 @@ export async function fetchNews(): Promise<NewsItem[]> {
       title,
       "slug": slug.current,
       publishedAt,
-      "image": coalesce(mainImage.asset->url, null),
+      "image": coalesce(mainImage.asset->url + "?auto=format&q=80", null),
       body,
       link
     }`;
@@ -260,7 +260,7 @@ export async function fetchAllNews(): Promise<NewsItem[]> {
       title,
       "slug": slug.current,
       publishedAt,
-      "image": coalesce(mainImage.asset->url, null),
+      "image": coalesce(mainImage.asset->url + "?auto=format&q=80", null),
       body,
       link
     }`;
@@ -291,7 +291,7 @@ export async function fetchNewsBySlug(slug: string): Promise<NewsItem | null> {
       title,
       "slug": slug.current,
       publishedAt,
-      "image": coalesce(mainImage.asset->url, null),
+      "image": coalesce(mainImage.asset->url + "?auto=format&q=80", null),
       body,
       link
     }`;

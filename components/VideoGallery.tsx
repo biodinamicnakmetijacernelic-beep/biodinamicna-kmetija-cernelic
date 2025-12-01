@@ -64,7 +64,7 @@ const VideoGallery: React.FC = () => {
             {/* Video Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
                {displayVideos.map((video, idx) => (
-                  <FadeIn key={idx} delay={idx * 150}>
+                  <FadeIn key={idx} delay={Math.min(idx * 50, 500)}>
                      <div
                         className="group relative aspect-video bg-black rounded-3xl overflow-hidden cursor-pointer shadow-2xl border border-white/5 hover:border-terracotta/50 transition-colors"
                         onClick={() => handleVideoClick(video.videoId)}
@@ -74,6 +74,7 @@ const VideoGallery: React.FC = () => {
                            src={`https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`}
                            alt={video.title}
                            className="w-full h-full object-cover opacity-80 group-hover:opacity-60 group-hover:scale-105 transition-all duration-700"
+                           loading={idx < 6 ? "eager" : "lazy"}
                         />
 
                         {/* Overlay Content */}
