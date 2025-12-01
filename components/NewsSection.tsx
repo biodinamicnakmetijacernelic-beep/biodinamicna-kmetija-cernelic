@@ -35,7 +35,7 @@ const NewsSection: React.FC = () => {
           <div className="text-center mb-12 md:mb-16">
             <span className="text-terracotta font-bold uppercase tracking-widest text-xs mb-3 block">Blog & Aktualno</span>
             <h2 className="font-serif text-3xl md:text-4xl text-olive-dark mb-4">Novice s Kmetije</h2>
-            <p className="text-olive/70 max-w-2xl mx-auto">Sveže zgodbe iz polj, vinogradov in naše skupnosti.</p>
+            <p className="text-olive/70 max-w-2xl mx-auto">Sveže zgodbe iz naravnega ritma kmečkega življenja.</p>
           </div>
         </FadeIn>
 
