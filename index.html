@@ -1,110 +1,124 @@
-
 <!DOCTYPE html>
 <html lang="sl" class="scroll-smooth">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Biodinamična kmetija Černelič</title>
-    
-    <!-- Fonts: Playfair Display (Serif) & Montserrat (Sans) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              olive: {
-                DEFAULT: '#3A4D39',
-                light: '#4F6F4E',
-                dark: '#1A2619', // Darker for high contrast "Apple" dark mode
-              },
-              cream: {
-                DEFAULT: '#F5F5F7', // Apple-ish off-white
-                light: '#FFFFFF',
-                dark: '#E5E5E5',
-              },
-              terracotta: '#Cca43b',
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Biodinamična kmetija Černelič</title>
+
+  <!-- Fonts: Playfair Display (Serif) & Montserrat (Sans) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+    rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            olive: {
+              DEFAULT: '#3A4D39',
+              light: '#4F6F4E',
+              dark: '#1A2619', // Darker for high contrast "Apple" dark mode
             },
-            fontFamily: {
-              sans: ['Montserrat', 'sans-serif'],
-              serif: ['Playfair Display', 'serif'],
+            cream: {
+              DEFAULT: '#F5F5F7', // Apple-ish off-white
+              light: '#FFFFFF',
+              dark: '#E5E5E5',
             },
-            borderRadius: {
-              '3xl': '1.5rem',
-              '4xl': '2rem', // Apple style heavy rounding
-            }
+            terracotta: '#Cca43b',
+          },
+          fontFamily: {
+            sans: ['Montserrat', 'sans-serif'],
+            serif: ['Playfair Display', 'serif'],
+          },
+          borderRadius: {
+            '3xl': '1.5rem',
+            '4xl': '2rem', // Apple style heavy rounding
           }
         }
       }
-    </script>
-    <style>
-      html {
-        scroll-padding-top: 100px; /* Offset for fixed navbar */
-      }
-      /* Mobile stability with careful touch handling */
-      html {
-        overflow-x: hidden;
-        -webkit-overflow-scrolling: touch;
-      }
+    }
+  </script>
+  <style>
+    html {
+      scroll-padding-top: 100px;
+      /* Offset for fixed navbar */
+    }
 
-      body {
-        background-color: #F5F5F7;
-        color: #1A2619;
-        overflow-x: hidden;
-        -webkit-font-smoothing: antialiased;
-        transition: background-color 0.3s ease, color 0.3s ease;
-        /* Mobile optimizations - less aggressive */
-        touch-action: manipulation;
-        overscroll-behavior: none;
-        position: relative;
-        width: 100%;
-        max-width: 100vw;
-        min-height: 100vh;
-      }
+    /* Mobile stability with careful touch handling */
+    html {
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
 
-      /* Selective touch handling - allow interactions */
-      * {
-        -webkit-tap-highlight-color: rgba(204, 164, 59, 0.1);
-        box-sizing: border-box;
-      }
+    body {
+      background-color: #F5F5F7;
+      color: #1A2619;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      /* Mobile optimizations - strict vertical scrolling only */
+      touch-action: pan-y;
+      overscroll-behavior-x: none;
+      position: relative;
+      width: 100%;
+      max-width: 100%;
+      min-height: 100vh;
+    }
 
-      /* Allow buttons and interactive elements to work */
-      button, a, input, select, textarea {
-        touch-action: manipulation;
-        -webkit-tap-highlight-color: rgba(204, 164, 59, 0.2);
-      }
+    /* Selective touch handling - allow interactions */
+    * {
+      -webkit-tap-highlight-color: rgba(204, 164, 59, 0.1);
+      box-sizing: border-box;
+    }
 
-      /* Modal elements can have their own touch behavior */
-      [class*="modal"], [class*="overlay"], [class*="backdrop"] {
-        touch-action: auto;
-        overscroll-behavior: contain;
-      }
+    /* Allow buttons and interactive elements to work */
+    button,
+    a,
+    input,
+    select,
+    textarea {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: rgba(204, 164, 59, 0.2);
+    }
 
-      /* Ensure scroll to top button works */
-      .fixed {
-        position: fixed !important;
-      }
+    /* Modal elements can have their own touch behavior */
+    [class*="modal"],
+    [class*="overlay"],
+    [class*="backdrop"] {
+      touch-action: auto;
+      overscroll-behavior: contain;
+    }
 
-      /* Prevent horizontal overflow but allow vertical */
-      #root {
-        overflow-y: visible;
-      }
-      .glass {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-      }
-      .glass-dark {
-        background: rgba(26, 38, 25, 0.8);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-      }
-    </style>
+    /* Ensure scroll to top button works */
+    .fixed {
+      position: fixed !important;
+    }
+
+    /* Prevent horizontal overflow but allow vertical */
+    #root {
+      overflow-y: visible;
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .glass-dark {
+      background: rgba(26, 38, 25, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+  </style>
   <script type="importmap">
 {
   "imports": {
@@ -117,10 +131,12 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
+  <link rel="stylesheet" href="/index.css">
 </head>
-  <body>
-    <div id="root"></div>
+
+<body>
+  <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>
+
 </html>
