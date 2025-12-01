@@ -1,0 +1,41 @@
+{"_type":"product","name":"Blitva","price":8.00,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Brokoli","price":8.00,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Bučke","price":4.50,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Cvetača","price":7.00,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Čebula","price":5.50,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Česen","price":16.00,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Feferoni","price":10.00,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Fižol","price":10.00,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Jagode","price":7.00,"unit":"500g","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Jajca","price":4.00,"unit":"10 kos","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Jajčevci","price":5.50,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Kolerabica","price":4.50,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Korenje","price":5.50,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Koromač","price":5.50,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Krompir","price":3.70,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Kumare","price":4.50,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Lubenice","price":3.00,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Maline","price":5.50,"unit":"250g","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Melone","price":4.00,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Motovilec","price":20.00,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Paprika","price":5.80,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Paprika Rog","price":6.50,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Paradižnik","price":5.00,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Paradižnik Češnjevec","price":4.00,"unit":"600g","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Pastinjak","price":8.00,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Pesa","price":3.50,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Peteršilj - Korenina","price":10.00,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Por","price":6.50,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Radič","price":7.00,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Robide","price":4.50,"unit":"250g","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Sladki Krompir","price":5.50,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Solata","price":10.00,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Zelje","price":3.50,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Zelena","price":6.00,"unit":"kg","category":"fresh","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Pirin Zdrob","price":3.70,"unit":"kg","category":"dry","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Pirina Moka","price":4.00,"unit":"kg","category":"dry","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Polnozrnata Pira","price":4.00,"unit":"kg","category":"dry","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Polnozrnata Pšenica","price":3.00,"unit":"kg","category":"dry","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Pšenična Moka","price":3.00,"unit":"kg","category":"dry","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Pšenični Zdrob","price":2.70,"unit":"kg","category":"dry","status":"available","quantity":0,"maxQuantity":100}
+{"_type":"product","name":"Sončnično Olje","price":15.00,"unit":"1L","category":"dry","status":"available","quantity":0,"maxQuantity":100}

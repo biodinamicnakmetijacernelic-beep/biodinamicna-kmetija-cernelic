@@ -431,7 +431,7 @@ const NewPostPopup: React.FC<NewPostPopupProps> = ({ onClose, onSuccess }) => {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
-        input.onchange = (e) => {
+        input.onchange = async (e) => {
             const file = (e.target as HTMLInputElement).files?.[0];
             if (!file) return;
 
@@ -445,16 +445,26 @@ const NewPostPopup: React.FC<NewPostPopupProps> = ({ onClose, onSuccess }) => {
                 return;
             }
 
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const imageUrl = e.target?.result as string;
+            try {
+                const token = import.meta.env.VITE_SANITY_TOKEN;
+                if (!token) {
+                    alert('Napaka: Manjka Sanity token');
+                    return;
+                }
+
+                // Upload image to Sanity
+                const { uploadImageToSanityWithToken } = await import('../utils/sanityImageUpload');
+                const imageUrl = await uploadImageToSanityWithToken(file, token);
+
                 const editor = editorRef.current;
                 if (!editor) return;
                 const imageHtml = `<div class="rounded-2xl overflow-hidden"><img src="${imageUrl}" alt="${file.name}" class="w-full h-auto object-cover cursor-pointer hover:scale-[1.02] transition-transform duration-500" loading="lazy" /></div>\n\n`;
                 document.execCommand('insertHTML', false, imageHtml);
                 setContent(editor.innerHTML);
-            };
-            reader.readAsDataURL(file);
+            } catch (error) {
+                console.error('Image upload failed:', error);
+                alert(`Napaka pri nalaganju slike: ${error instanceof Error ? error.message : 'Neznana napaka'}`);
+            }
         };
         input.click();
     };
