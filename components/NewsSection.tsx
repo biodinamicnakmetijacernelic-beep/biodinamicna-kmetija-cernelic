@@ -18,6 +18,14 @@ const NewsSection: React.FC = () => {
     loadNews();
   }, []);
 
+  // Helper to check if post is new (within 7 days)
+  const isNewPost = (publishedAt: string) => {
+    const postDate = new Date(publishedAt);
+    const now = new Date();
+    const daysDiff = (now.getTime() - postDate.getTime()) / (1000 * 60 * 60 * 24);
+    return daysDiff <= 7;
+  };
+
   if (news.length === 0) return null;
 
   return (
@@ -34,17 +42,22 @@ const NewsSection: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {news.map((item, idx) => (
             <FadeIn key={item.id} delay={idx * 150}>
-              <Link 
+              <Link
                 to={`/blog-novice/${item.slug}`}
                 className="group bg-white rounded-3xl overflow-hidden border border-black/5 hover:shadow-xl transition-all duration-300 h-full flex flex-col"
               >
                 <div className="h-40 sm:h-48 overflow-hidden relative">
-                  <img 
-                    src={item.image || 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80&w=800'} 
+                  <img
+                    src={item.image || 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80&w=800'}
                     alt={item.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
+                  {isNewPost(item.publishedAt) && (
+                    <div className="absolute top-4 left-4 bg-terracotta text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg z-10">
+                      Novo
+                    </div>
+                  )}
                 </div>
                 <div className="p-6 flex flex-col flex-grow">
                   <div className="text-xs text-terracotta font-bold uppercase tracking-widest mb-2 flex items-center gap-2">
