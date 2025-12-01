@@ -55,32 +55,30 @@ const ProductCard: React.FC<ProductItemProps> = ({ product, quantity, onQuantity
       </div>
 
       {/* Content */}
-      <div className="p-3 sm:p-4 flex flex-col flex-grow">
-        <div className="flex flex-col gap-2 mb-3">
-          <h4 className="font-serif text-sm sm:text-base text-olive-dark leading-tight line-clamp-2">{product.name}</h4>
+      <div className="p-3 sm:p-5 flex flex-col flex-grow">
+        {/* Product Name */}
+        <h4 className="font-serif text-sm sm:text-lg text-olive-dark leading-tight mb-2">{product.name}</h4>
 
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex flex-col">
-              <span className="font-bold text-terracotta text-sm sm:text-base">{product.price.toFixed(2)}€</span>
-              <span className="text-[8px] sm:text-[9px] text-olive/40 uppercase font-bold">na {product.unit}</span>
-            </div>
-
-            {/* Stock Slider */}
-            {isAvailable && product.quantity !== undefined && product.maxQuantity !== undefined && product.maxQuantity > 0 && (
-              <div className="flex items-center gap-1.5">
-                <span className="text-[8px] sm:text-[9px] text-olive/40 font-bold uppercase tracking-wider">zaloga</span>
-                <div className="w-12 sm:w-16 h-1 bg-black/5 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all duration-500 ${(product.quantity / product.maxQuantity) < 0.2 ? 'bg-red-500' :
-                      (product.quantity / product.maxQuantity) < 0.5 ? 'bg-yellow-500' : 'bg-green-500'
-                      }`}
-                    style={{ width: `${Math.min(100, Math.max(0, (product.quantity / product.maxQuantity) * 100))}%` }}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
+        {/* Price */}
+        <div className="mb-2">
+          <span className="font-bold text-terracotta text-base sm:text-lg">{product.price.toFixed(2)}€</span>
+          <span className="text-[9px] text-olive/40 uppercase font-bold ml-1">/ {product.unit}</span>
         </div>
+
+        {/* Stock Slider */}
+        {isAvailable && product.quantity !== undefined && product.maxQuantity !== undefined && product.maxQuantity > 0 && (
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-[9px] text-olive/40 font-bold uppercase tracking-wider">zaloga</span>
+            <div className="flex-1 h-1 bg-black/5 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${(product.quantity / product.maxQuantity) < 0.2 ? 'bg-red-500' :
+                  (product.quantity / product.maxQuantity) < 0.5 ? 'bg-yellow-500' : 'bg-green-500'
+                  }`}
+                style={{ width: `${Math.min(100, Math.max(0, (product.quantity / product.maxQuantity) * 100))}%` }}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Quantity Control - Pushed to bottom */}
         <div className={`mt-auto flex items-center justify-center ${!isAvailable ? 'pointer-events-none opacity-50' : ''}`}>
@@ -459,7 +457,7 @@ const Products: React.FC = () => {
       {/* FLOATING CART BUTTON (DESKTOP & MOBILE) */}
       {isCartEnabled && (
         <div className={`fixed z-40 transition-all duration-500 ${showMobileCartBar ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'} 
-          right-6 top-1/2 -translate-y-1/2`}
+          bottom-6 right-6 left-auto md:bottom-auto md:top-1/2 md:-translate-y-1/2`}
         >
           <button
             onClick={() => setIsCartModalOpen(true)}
