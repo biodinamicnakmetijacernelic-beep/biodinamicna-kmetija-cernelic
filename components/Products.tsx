@@ -337,219 +337,145 @@ const Products: React.FC = () => {
           </FadeIn>
         </div>
 
-        <div className="flex flex-col xl:flex-row gap-8 lg:gap-12">
+        {/* PRODUCTS GRID CONTAINER - Full Width */}
+        <div className="w-full">
 
-          {/* LEFT COLUMN: PRODUCTS (Expanded width) */}
-          <div className="flex-1 min-w-0">
+          {/* FRESH SECTION */}
+          <div className="mb-20">
+            <FadeIn>
+              <div className="flex items-center gap-4 mb-10 border-b border-olive/5 pb-4">
+                <div className="w-10 h-10 rounded-full bg-olive text-white flex items-center justify-center shadow-lg shadow-olive/20">
+                  <ShoppingBag size={18} />
+                </div>
+                <div>
+                  <h3 className="font-serif text-2xl md:text-3xl text-olive-dark">Vrtnine in Sadje</h3>
+                  <div className="flex flex-col md:flex-row md:items-center gap-2 mt-1">
+                    <p className="text-[10px] text-olive/50 uppercase tracking-widest font-bold">Sveže nabrano • Osebni prevzem</p>
 
-            {/* FRESH SECTION */}
-            <div className="mb-20">
-              <FadeIn>
-                <div className="flex items-center gap-4 mb-10 border-b border-olive/5 pb-4">
-                  <div className="w-10 h-10 rounded-full bg-olive text-white flex items-center justify-center shadow-lg shadow-olive/20">
-                    <ShoppingBag size={18} />
-                  </div>
-                  <div>
-                    <h3 className="font-serif text-2xl md:text-3xl text-olive-dark">Vrtnine in Sadje</h3>
-                    <div className="flex flex-col md:flex-row md:items-center gap-2 mt-1">
-                      <p className="text-[10px] text-olive/50 uppercase tracking-widest font-bold">Sveže nabrano • Osebni prevzem</p>
-
-                      {/* Last Updated Label - Moved Here */}
-                      {displayProducts.length > 0 && (
-                        <div className="hidden md:flex items-center gap-1.5 px-2 py-0.5 bg-olive/5 rounded-full">
-                          <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                          <span className="text-[9px] text-olive/60 font-medium whitespace-nowrap">
-                            Stanje zaloge osveženo: {new Date(Math.max(...displayProducts.map(p => p._updatedAt ? new Date(p._updatedAt).getTime() : 0))).toLocaleDateString('sl-SI', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Mobile Only Last Updated Label */}
+                    {/* Last Updated Label */}
                     {displayProducts.length > 0 && (
-                      <div className="md:hidden flex items-center gap-1.5 mt-2">
+                      <div className="hidden md:flex items-center gap-1.5 px-2 py-0.5 bg-olive/5 rounded-full">
                         <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                        <span className="text-[9px] text-olive/60 font-medium">
-                          Osveženo: {new Date(Math.max(...displayProducts.map(p => p._updatedAt ? new Date(p._updatedAt).getTime() : 0))).toLocaleDateString('sl-SI', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
+                        <span className="text-[9px] text-olive/60 font-medium whitespace-nowrap">
+                          Stanje zaloge osveženo: {new Date(Math.max(...displayProducts.map(p => p._updatedAt ? new Date(p._updatedAt).getTime() : 0))).toLocaleDateString('sl-SI', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
                     )}
                   </div>
-                </div>
-              </FadeIn>
-              {/* UPDATED GRID: 3 cols on Large (Tablet Landscape/Small Laptop), 2 on Medium, 1 on Mobile */}
-              {/* UPDATED GRID: 4 cols on Large, 3 on Medium, 2 on Small */}
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {freshProducts.slice(0, visibleFreshCount).map((p, idx) => (
-                  <FadeIn key={p.id} delay={idx * 50} className="h-full">
-                    <ProductCard
-                      product={p}
-                      quantity={quantities[p.id] || 0}
-                      onQuantityChange={handleQuantityChange}
-                    />
-                  </FadeIn>
-                ))}
-                {freshProducts.length === 0 && (
-                  <div className="col-span-full text-center py-10 text-olive/40 italic">
-                    Trenutno ni svežih pridelkov v ponudbi. Preverite kmalu!
-                  </div>
-                )}
-              </div>
 
-              {/* Load More Button - Fresh */}
-              {visibleFreshCount < freshProducts.length && (
-                <div className="mt-8 flex justify-center">
-                  <button
-                    onClick={() => setVisibleFreshCount(prev => prev + 12)}
-                    className="group inline-flex items-center gap-2 px-6 py-2 rounded-full border border-olive/20 text-olive hover:bg-olive hover:text-white transition-all duration-300"
-                  >
-                    <span className="text-xs font-bold uppercase tracking-widest">Prikaži več</span>
-                    <ChevronDown size={14} className="group-hover:translate-y-1 transition-transform" />
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* DRY SECTION */}
-            <div>
-              <FadeIn>
-                <div className="flex items-center gap-4 mb-10 border-b border-olive/5 pb-4">
-                  <div className="w-10 h-10 rounded-full bg-terracotta text-white flex items-center justify-center shadow-lg shadow-terracotta/20">
-                    <Truck size={18} />
-                  </div>
-                  <div>
-                    <h3 className="font-serif text-2xl md:text-3xl text-olive-dark">Moke, Olja in Žita</h3>
-                    <p className="text-[10px] text-olive/50 uppercase tracking-widest font-bold mt-1">Shramba • Možno pošiljanje</p>
-                  </div>
-                </div>
-              </FadeIn>
-              {/* UPDATED GRID: Matching layout with Fresh Products */}
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {dryProducts.slice(0, visibleDryCount).map((p, idx) => (
-                  <FadeIn key={p.id} delay={idx * 50} className="h-full">
-                    <ProductCard
-                      product={p}
-                      quantity={quantities[p.id] || 0}
-                      onQuantityChange={handleQuantityChange}
-                    />
-                  </FadeIn>
-                ))}
-                {dryProducts.length === 0 && (
-                  <div className="col-span-full text-center py-10 text-olive/40 italic">
-                    Trenutno ni izdelkov v shrambi.
-                  </div>
-                )}
-              </div>
-
-              {/* Load More Button - Dry */}
-              {visibleDryCount < dryProducts.length && (
-                <div className="mt-8 flex justify-center">
-                  <button
-                    onClick={() => setVisibleDryCount(prev => prev + 12)}
-                    className="group inline-flex items-center gap-2 px-6 py-2 rounded-full border border-olive/20 text-olive hover:bg-olive hover:text-white transition-all duration-300"
-                  >
-                    <span className="text-xs font-bold uppercase tracking-widest">Prikaži več</span>
-                    <ChevronDown size={14} className="group-hover:translate-y-1 transition-transform" />
-                  </button>
-                </div>
-              )}
-            </div>
-
-          </div>
-
-          {/* RIGHT COLUMN: STICKY SMART CART (XL Desktop Only) */}
-          {isCartEnabled && (
-            <div className={`hidden xl:block w-80 xl:w-96 shrink-0 transition-opacity duration-500 ${showMobileCartBar ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-              <div className="sticky top-32">
-                <div className="bg-white border border-black/5 rounded-[2rem] p-6 shadow-2xl shadow-olive/5 backdrop-blur-xl">
-                  <div className="flex items-center justify-between mb-6 border-b border-black/5 pb-4">
-                    <h3 className="font-serif text-xl text-olive-dark">Vaša Košarica</h3>
-                    <div className="relative">
-                      <ShoppingCart size={22} className="text-olive" />
-                      {totalItems > 0 && (
-                        <span className="absolute -top-2 -right-2 bg-terracotta text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold animate-bounce">
-                          {totalItems}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {totalItems === 0 ? (
-                    <div className="text-center py-12 text-olive/40">
-                      <ShoppingBag size={48} className="mx-auto mb-4 opacity-20" />
-                      <p>Košarica je prazna.</p>
-                      <p className="text-xs mt-2">Izberite pridelke seznama.</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-6">
-                      <div className="max-h-[50vh] overflow-y-auto pr-2 space-y-4 custom-scrollbar">
-                        {cartItemsList.map(p => (
-                          <div key={p.id} className="flex justify-between items-center text-sm group">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-lg bg-gray-100 overflow-hidden shrink-0"><img src={p.image} className="w-full h-full object-cover" /></div>
-                              <div className="flex flex-col">
-                                <span className="text-olive-dark font-medium leading-tight">{p.name}</span>
-                                <span className="text-olive/50 text-[10px]">x{quantities[p.id]} {p.unit}</span>
-                              </div>
-                            </div>
-                            <div className="flex flex-col items-end">
-                              <span className="font-bold text-olive-dark">{(p.price * (quantities[p.id] || 0)).toFixed(2)}€</span>
-                              <button onClick={() => setQuantities(prev => ({ ...prev, [p.id]: 0 }))} className="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Trash2 size={12} />
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="border-t border-black/5 pt-4">
-                        <div className="flex justify-between items-end mb-2">
-                          <span className="text-olive/60 text-sm uppercase tracking-widest">Skupaj</span>
-                          <span className="text-2xl font-serif text-olive-dark">{totalPrice.toFixed(2)}€</span>
-                        </div>
-                        <p className="text-[10px] text-olive/40 text-right mb-6">* DDV je vključen</p>
-
-                        <button
-                          onClick={() => setIsCheckoutModalOpen(true)}
-                          className="w-full bg-olive text-white py-3 rounded-xl font-bold uppercase tracking-widest hover:bg-olive-dark transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center justify-center gap-2 text-sm"
-                        >
-                          <span>Oddaj Povpraševanje</span>
-                          <Check size={16} />
-                        </button>
-                      </div>
+                  {/* Mobile Only Last Updated Label */}
+                  {displayProducts.length > 0 && (
+                    <div className="md:hidden flex items-center gap-1.5 mt-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                      <span className="text-[9px] text-olive/60 font-medium">
+                        Osveženo: {new Date(Math.max(...displayProducts.map(p => p._updatedAt ? new Date(p._updatedAt).getTime() : 0))).toLocaleDateString('sl-SI', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
+                      </span>
                     </div>
                   )}
                 </div>
               </div>
+            </FadeIn>
+
+            {/* UPDATED GRID: 4 cols on Large, 3 on Medium, 2 on Small */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {freshProducts.slice(0, visibleFreshCount).map((p, idx) => (
+                <FadeIn key={p.id} delay={idx * 50} className="h-full">
+                  <ProductCard
+                    product={p}
+                    quantity={quantities[p.id] || 0}
+                    onQuantityChange={handleQuantityChange}
+                  />
+                </FadeIn>
+              ))}
+              {freshProducts.length === 0 && (
+                <div className="col-span-full text-center py-10 text-olive/40 italic">
+                  Trenutno ni svežih pridelkov v ponudbi. Preverite kmalu!
+                </div>
+              )}
             </div>
-          )}
+
+            {/* Load More Button - Fresh */}
+            {visibleFreshCount < freshProducts.length && (
+              <div className="mt-8 flex justify-center">
+                <button
+                  onClick={() => setVisibleFreshCount(prev => prev + 12)}
+                  className="group inline-flex items-center gap-2 px-6 py-2 rounded-full border border-olive/20 text-olive hover:bg-olive hover:text-white transition-all duration-300"
+                >
+                  <span className="text-xs font-bold uppercase tracking-widest">Prikaži več</span>
+                  <ChevronDown size={14} className="group-hover:translate-y-1 transition-transform" />
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* DRY SECTION */}
+          <div>
+            <FadeIn>
+              <div className="flex items-center gap-4 mb-10 border-b border-olive/5 pb-4">
+                <div className="w-10 h-10 rounded-full bg-terracotta text-white flex items-center justify-center shadow-lg shadow-terracotta/20">
+                  <Truck size={18} />
+                </div>
+                <div>
+                  <h3 className="font-serif text-2xl md:text-3xl text-olive-dark">Moke, Olja in Žita</h3>
+                  <p className="text-[10px] text-olive/50 uppercase tracking-widest font-bold mt-1">Shramba • Možno pošiljanje</p>
+                </div>
+              </div>
+            </FadeIn>
+            {/* UPDATED GRID: Matching layout with Fresh Products */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {dryProducts.slice(0, visibleDryCount).map((p, idx) => (
+                <FadeIn key={p.id} delay={idx * 50} className="h-full">
+                  <ProductCard
+                    product={p}
+                    quantity={quantities[p.id] || 0}
+                    onQuantityChange={handleQuantityChange}
+                  />
+                </FadeIn>
+              ))}
+              {dryProducts.length === 0 && (
+                <div className="col-span-full text-center py-10 text-olive/40 italic">
+                  Trenutno ni izdelkov v shrambi.
+                </div>
+              )}
+            </div>
+
+            {/* Load More Button - Dry */}
+            {visibleDryCount < dryProducts.length && (
+              <div className="mt-8 flex justify-center">
+                <button
+                  onClick={() => setVisibleDryCount(prev => prev + 12)}
+                  className="group inline-flex items-center gap-2 px-6 py-2 rounded-full border border-olive/20 text-olive hover:bg-olive hover:text-white transition-all duration-300"
+                >
+                  <span className="text-xs font-bold uppercase tracking-widest">Prikaži več</span>
+                  <ChevronDown size={14} className="group-hover:translate-y-1 transition-transform" />
+                </button>
+              </div>
+            )}
+          </div>
 
         </div>
       </div>
 
-      {/* MOBILE/TABLET FLOATING BAR (Visible below XL) */}
+      {/* FLOATING CART BUTTON (DESKTOP & MOBILE) */}
       {isCartEnabled && (
-        <div
-          className={`xl:hidden fixed bottom-6 left-4 right-4 z-40 transition-all duration-500 transform ${showMobileCartBar ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'}`}
+        <div className={`fixed z-40 transition-all duration-500 transform ${showMobileCartBar ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'} 
+          bottom-6 right-6 left-auto`}
         >
           <button
             onClick={() => setIsCartModalOpen(true)}
-            className="w-full bg-olive-dark text-cream p-4 rounded-[2rem] shadow-2xl flex items-center justify-between border border-white/10 backdrop-blur-md active:scale-95 transition-transform"
+            className="group flex items-center gap-3 bg-olive-dark text-cream p-4 rounded-full shadow-2xl border border-white/10 backdrop-blur-md active:scale-95 transition-all hover:bg-olive hover:scale-105"
           >
-            <div className="flex items-center gap-3">
-              <div className="bg-terracotta p-2 rounded-full text-white relative">
-                <ShoppingCart size={18} />
-                {totalItems > 0 && <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border border-olive-dark"></span>}
-              </div>
-              <div className="flex flex-col items-start">
-                <span className="text-[10px] text-white/50 uppercase tracking-widest">Moja Košarica</span>
-                <span className="text-lg font-serif text-white leading-none">{totalItems} artiklov</span>
-              </div>
+            <div className="relative">
+              <ShoppingCart size={24} />
+              {totalItems > 0 && (
+                <span className="absolute -top-2 -right-2 w-5 h-5 bg-terracotta text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-olive-dark">
+                  {totalItems}
+                </span>
+              )}
             </div>
-
-            <div className="flex items-center gap-3">
-              <span className="font-bold text-lg">{totalPrice.toFixed(2)} €</span>
-              <ChevronUp size={20} className="text-white/50" />
+            <div className="flex flex-col items-start pr-2">
+              <span className="text-[10px] text-white/50 uppercase tracking-widest font-bold">Košarica</span>
+              <span className="text-sm font-serif text-white leading-none">{totalPrice.toFixed(2)} €</span>
             </div>
           </button>
         </div>
