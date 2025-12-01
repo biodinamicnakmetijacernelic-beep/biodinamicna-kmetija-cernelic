@@ -260,6 +260,8 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
 
   // Inventory State
   const [products, setProducts] = useState<PreOrderItem[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
+  const [selectAllProducts, setSelectAllProducts] = useState(false);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   const [connectionError, setConnectionError] = useState(false);
   const [filter, setFilter] = useState<'all' | 'fresh' | 'dry'>('all');
@@ -1630,6 +1632,58 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
     }
   };
 
+  // Bulk product selection handlers
+  const handleSelectAllProducts = () => {
+    if (selectAllProducts) {
+      setSelectedProducts(new Set());
+      setSelectAllProducts(false);
+    } else {
+      const allIds = new Set(filteredProducts.map(p => p.id));
+      setSelectedProducts(allIds);
+      setSelectAllProducts(true);
+    }
+  };
+
+  const handleSelectProduct = (productId: string) => {
+    const newSelected = new Set(selectedProducts);
+    if (newSelected.has(productId)) {
+      newSelected.delete(productId);
+    } else {
+      newSelected.add(productId);
+    }
+    setSelectedProducts(newSelected);
+    setSelectAllProducts(newSelected.size === filteredProducts.length);
+  };
+
+  const handleBulkStatusChange = async (newStatus: string) => {
+    if (selectedProducts.size === 0) {
+      setNotification("❌ Izberite izdelke za spremembo statusa.");
+      setTimeout(() => setNotification(null), 3000);
+      return;
+    }
+
+    if (!confirm(`Ali ste prepričani, da želite spremeniti status ${selectedProducts.size} izdelkov?`)) return;
+
+    setIsUploading(true);
+    let updatedCount = 0;
+
+    try {
+      for (const productId of selectedProducts) {
+        await updateProductStatus(productId, newStatus, sanityToken);
+        updatedCount++;
+      }
+      setNotification(`✅ Status posodobljen za ${updatedCount} izdelkov.`);
+      setSelectedProducts(new Set());
+      setSelectAllProducts(false);
+      loadInventory();
+    } catch (error) {
+      setNotification("❌ Napaka pri posodabljanju statusa.");
+    } finally {
+      setIsUploading(false);
+      setTimeout(() => setNotification(null), 3000);
+    }
+  };
+
   const startAddProduct = () => {
     setEditingId(null);
     setEditForm({ name: '', price: '', unit: 'kg', category: 'fresh', status: 'available', quantity: '', maxQuantity: '' });
@@ -1960,9 +2014,47 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
               <>
                 <div className="flex flex-col gap-4 mb-4">
                   <div className="flex justify-between items-center px-1">
-                    <h3 className="font-serif text-lg text-olive-dark">Seznam Izdelkov</h3>
+                    <div className="flex items-center gap-3">
+                      <h3 className="font-serif text-lg text-olive-dark">Seznam Izdelkov</h3>
+                      {filteredProducts.length > 0 && (
+                        <label className="flex items-center gap-2 text-sm text-olive/70">
+                          <input
+                            type="checkbox"
+                            checked={selectAllProducts}
+                            onChange={handleSelectAllProducts}
+                            className="rounded border-olive/30 text-olive focus:ring-olive"
+                          />
+                          <span>Označi vse</span>
+                        </label>
+                      )}
+                    </div>
                     <button onClick={startAddProduct} className="bg-olive text-white px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wide flex items-center gap-2 shadow-md"><Plus size={16} /> Nov</button>
                   </div>
+
+                  {/* Bulk Actions */}
+                  {selectedProducts.size > 0 && (
+                    <div className="flex gap-2 px-1">
+                      <span className="text-sm text-olive/70 self-center">Izbrano: {selectedProducts.size}</span>
+                      <button
+                        onClick={() => handleBulkStatusChange('available')}
+                        className="px-3 py-1.5 bg-green-500 text-white rounded-lg text-xs font-bold uppercase hover:bg-green-600 transition-colors"
+                      >
+                        Na voljo
+                      </button>
+                      <button
+                        onClick={() => handleBulkStatusChange('sold-out')}
+                        className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-bold uppercase hover:bg-red-600 transition-colors"
+                      >
+                        Razprodano
+                      </button>
+                      <button
+                        onClick={() => handleBulkStatusChange('coming-soon')}
+                        className="px-3 py-1.5 bg-yellow-500 text-white rounded-lg text-xs font-bold uppercase hover:bg-yellow-600 transition-colors"
+                      >
+                        Kmalu
+                      </button>
+                    </div>
+                  )}
 
                   {/* Product Category Tabs */}
                   <div className="flex p-1 bg-gray-100 rounded-xl self-start">
@@ -1990,6 +2082,12 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                   <div key={product.id} className="bg-white p-4 rounded-2xl border border-black/5 flex flex-col gap-3 shadow-sm">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedProducts.has(product.id)}
+                          onChange={() => handleSelectProduct(product.id)}
+                          className="rounded border-olive/30 text-olive focus:ring-olive"
+                        />
                         <img src={product.image} className="w-12 h-12 rounded-lg object-cover bg-gray-50" />
                         <div>
                           <h4 className="font-serif text-lg text-olive-dark leading-none mb-1">{product.name}</h4>
