@@ -2126,6 +2126,19 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                     </select>
                   </div>
 
+                  {/* Category Selector */}
+                  <div>
+                    <label className="text-[10px] font-bold uppercase text-olive/50 mb-1 block">Kategorija</label>
+                    <select
+                      value={editForm.category}
+                      onChange={e => setEditForm({ ...editForm, category: e.target.value as 'fresh' | 'dry' })}
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-700"
+                    >
+                      <option value="fresh">Sveže (Vrtnine in Sadje)</option>
+                      <option value="dry">Shramba (Moke, Olja, Žita)</option>
+                    </select>
+                  </div>
+
                   <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-100">
                     <div>
                       <label className="text-[10px] font-bold uppercase text-olive/50 mb-1 block">Trenutna Zaloga</label>
