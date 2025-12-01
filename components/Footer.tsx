@@ -27,7 +27,7 @@ const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
             </div>
             <p className="text-olive/70 text-sm md:text-base leading-relaxed max-w-md font-light">
               V sožitju z naravo pridelujemo hrano, ki hrani telo in duha.
-              Pionirji biodinamike v Posavju, zavezani najvišjim standardom kakovosti.
+              Pionirji biodinamike v Sloveniji, zavezani najvišjim Demeter standardom kakovosti.
             </p>
 
             {/* Control Numbers Block */}
