@@ -106,20 +106,32 @@ const VideoGallery: React.FC = () => {
                ))}
             </div >
 
-            {/* Load More Button */}
-            {visibleCount < displayVideos.length && (
-               <div className="mt-12 flex justify-center">
+            {/* Load More & YouTube Buttons */}
+            <div className="mt-12 flex flex-col sm:flex-row justify-center items-center gap-4">
+               {visibleCount < displayVideos.length && (
                   <FadeIn>
                      <button
                         onClick={() => setVisibleCount(prev => prev + 6)}
                         className="group inline-flex items-center gap-2 px-8 py-3 rounded-full border border-white/10 bg-white/5 text-cream hover:bg-terracotta hover:border-terracotta hover:text-white transition-all duration-300"
                      >
-                        <span className="text-xs font-bold uppercase tracking-widest">Prikaži več videov</span>
+                        <span className="text-xs font-bold uppercase tracking-widest">Prikaži več videjev</span>
                         <ChevronDown size={16} className="group-hover:translate-y-1 transition-transform" />
                      </button>
                   </FadeIn>
-               </div>
-            )}
+               )}
+
+               <FadeIn delay={100}>
+                  <a
+                     href={YOUTUBE_CHANNEL_URL}
+                     target="_blank"
+                     rel="noopener noreferrer"
+                     className="group inline-flex items-center gap-2 px-8 py-3 rounded-full border border-white/10 bg-red-600/10 text-cream hover:bg-red-600 hover:border-red-600 hover:text-white transition-all duration-300"
+                  >
+                     <span className="text-xs font-bold uppercase tracking-widest">Obišči YouTube Kanal</span>
+                     <Youtube size={16} className="group-hover:scale-110 transition-transform" />
+                  </a>
+               </FadeIn>
+            </div>
 
          </div >
 
