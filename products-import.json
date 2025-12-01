@@ -1,0 +1,371 @@
+[
+    {
+        "name": "Blitva",
+        "price": 8.00,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Brokoli",
+        "price": 8.00,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Bučke",
+        "price": 4.50,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Cvetača",
+        "price": 7.00,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Čebula",
+        "price": 5.50,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Česen",
+        "price": 16.00,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Feferoni",
+        "price": 10.00,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Fižol",
+        "price": 10.00,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Jagode",
+        "price": 7.00,
+        "unit": "500g",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Jajca",
+        "price": 4.00,
+        "unit": "10 kos",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Jajčevci",
+        "price": 5.50,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Kolerabica",
+        "price": 4.50,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Korenje",
+        "price": 5.50,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Koromač",
+        "price": 5.50,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Krompir",
+        "price": 3.70,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Kumare",
+        "price": 4.50,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Lubenice",
+        "price": 3.00,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Maline",
+        "price": 5.50,
+        "unit": "250g",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Melone",
+        "price": 4.00,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Motovilec",
+        "price": 20.00,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Paprika",
+        "price": 5.80,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Paprika Rog",
+        "price": 6.50,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Paradižnik",
+        "price": 5.00,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Paradižnik Češnjevec",
+        "price": 4.00,
+        "unit": "600g",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Pastinjak",
+        "price": 8.00,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Pesa",
+        "price": 3.50,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Peteršilj - Korenina",
+        "price": 10.00,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Por",
+        "price": 6.50,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Radič",
+        "price": 7.00,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Robide",
+        "price": 4.50,
+        "unit": "250g",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Sladki Krompir",
+        "price": 5.50,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Solata",
+        "price": 10.00,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Zelje",
+        "price": 3.50,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Zelena",
+        "price": 6.00,
+        "unit": "kg",
+        "category": "fresh",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Pirin Zdrob",
+        "price": 3.70,
+        "unit": "kg",
+        "category": "dry",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Pirina Moka",
+        "price": 4.00,
+        "unit": "kg",
+        "category": "dry",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Polnozrnata Pira",
+        "price": 4.00,
+        "unit": "kg",
+        "category": "dry",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Polnozrnata Pšenica",
+        "price": 3.00,
+        "unit": "kg",
+        "category": "dry",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Pšenična Moka",
+        "price": 3.00,
+        "unit": "kg",
+        "category": "dry",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Pšenični Zdrob",
+        "price": 2.70,
+        "unit": "kg",
+        "category": "dry",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    },
+    {
+        "name": "Sončnično Olje",
+        "price": 15.00,
+        "unit": "1L",
+        "category": "dry",
+        "status": "available",
+        "quantity": 0,
+        "maxQuantity": 100
+    }
+]
