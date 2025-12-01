@@ -55,16 +55,21 @@ const ProductCard: React.FC<ProductItemProps> = ({ product, quantity, onQuantity
       </div>
 
       {/* Content */}
-      <div className="p-5 flex flex-col flex-grow">
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex-1 pr-2">
-            <h4 className="font-serif text-lg text-olive-dark leading-tight">{product.name}</h4>
+      <div className="p-3 sm:p-4 flex flex-col flex-grow">
+        <div className="flex flex-col gap-2 mb-3">
+          <h4 className="font-serif text-sm sm:text-base text-olive-dark leading-tight line-clamp-2">{product.name}</h4>
 
-            {/* Stock Slider - Moved Here */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex flex-col">
+              <span className="font-bold text-terracotta text-sm sm:text-base">{product.price.toFixed(2)}€</span>
+              <span className="text-[8px] sm:text-[9px] text-olive/40 uppercase font-bold">na {product.unit}</span>
+            </div>
+
+            {/* Stock Slider */}
             {isAvailable && product.quantity !== undefined && product.maxQuantity !== undefined && product.maxQuantity > 0 && (
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-[9px] text-olive/40 font-bold uppercase tracking-wider">zaloga</span>
-                <div className="w-16 h-1 bg-black/5 rounded-full overflow-hidden">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[8px] sm:text-[9px] text-olive/40 font-bold uppercase tracking-wider">zaloga</span>
+                <div className="w-12 sm:w-16 h-1 bg-black/5 rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${(product.quantity / product.maxQuantity) < 0.2 ? 'bg-red-500' :
                       (product.quantity / product.maxQuantity) < 0.5 ? 'bg-yellow-500' : 'bg-green-500'
@@ -74,11 +79,6 @@ const ProductCard: React.FC<ProductItemProps> = ({ product, quantity, onQuantity
                 </div>
               </div>
             )}
-          </div>
-
-          <div className="text-right shrink-0">
-            <span className="block font-bold text-terracotta text-base">{product.price.toFixed(2)}€</span>
-            <span className="text-[9px] text-olive/40 uppercase font-bold">na {product.unit}</span>
           </div>
         </div>
 
@@ -459,7 +459,7 @@ const Products: React.FC = () => {
       {/* FLOATING CART BUTTON (DESKTOP & MOBILE) */}
       {isCartEnabled && (
         <div className={`fixed z-40 transition-all duration-500 ${showMobileCartBar ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'} 
-          bottom-6 right-6 left-auto md:bottom-auto md:top-1/2 md:-translate-y-1/2`}
+          right-6 top-1/2 -translate-y-1/2`}
         >
           <button
             onClick={() => setIsCartModalOpen(true)}
