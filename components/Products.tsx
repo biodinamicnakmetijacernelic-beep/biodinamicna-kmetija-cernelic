@@ -423,12 +423,11 @@ const Products: React.FC = () => {
                   </div>
                 </div>
               </FadeIn>
-              {/* UPDATED GRID: Matching layout */}
-              {/* UPDATED GRID: Matching layout */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* UPDATED GRID: Matching layout with Fresh Products */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {dryProducts.slice(0, visibleDryCount).map((p, idx) => (
                   <FadeIn key={p.id} delay={idx * 50} className="h-full">
-                    <DryProductItem
+                    <ProductCard
                       product={p}
                       quantity={quantities[p.id] || 0}
                       onQuantityChange={handleQuantityChange}
@@ -460,7 +459,7 @@ const Products: React.FC = () => {
 
           {/* RIGHT COLUMN: STICKY SMART CART (XL Desktop Only) */}
           {isCartEnabled && (
-            <div className={`hidden xl:block w-80 xl:w-96 relative shrink-0 transition-opacity duration-500 ${showMobileCartBar ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+            <div className={`hidden xl:block w-80 xl:w-96 shrink-0 transition-opacity duration-500 ${showMobileCartBar ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
               <div className="sticky top-32">
                 <div className="bg-white border border-black/5 rounded-[2rem] p-6 shadow-2xl shadow-olive/5 backdrop-blur-xl">
                   <div className="flex items-center justify-between mb-6 border-b border-black/5 pb-4">

@@ -184,12 +184,14 @@ interface PendingUpload {
 
 interface NewsBlock {
   id: string;
-  type: 'text' | 'image' | 'button';
+  type: 'text' | 'image' | 'button' | 'customReact';
   content?: string;
   file?: File;
   preview?: string;
   url?: string; // For button
   text?: string; // For button
+  code?: string; // For customReact
+  images?: Record<string, string>; // For customReact images
 }
 
 const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory', currentImages = [], onAddImage, onDeleteImage }) => {
@@ -1954,9 +1956,33 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
             {/* ... Inventory UI (Same as before, simplified for brevity) ... */}
             {!isEditing ? (
               <>
-                <div className="flex justify-between items-center mb-2 px-1">
-                  <h3 className="font-serif text-lg text-olive-dark">Seznam Izdelkov</h3>
-                  <button onClick={startAddProduct} className="bg-olive text-white px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wide flex items-center gap-2 shadow-md"><Plus size={16} /> Nov</button>
+                <div className="flex flex-col gap-4 mb-4">
+                  <div className="flex justify-between items-center px-1">
+                    <h3 className="font-serif text-lg text-olive-dark">Seznam Izdelkov</h3>
+                    <button onClick={startAddProduct} className="bg-olive text-white px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wide flex items-center gap-2 shadow-md"><Plus size={16} /> Nov</button>
+                  </div>
+
+                  {/* Product Category Tabs */}
+                  <div className="flex p-1 bg-gray-100 rounded-xl self-start">
+                    <button
+                      onClick={() => setFilter('all')}
+                      className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition-all ${filter === 'all' ? 'bg-white text-olive shadow-sm' : 'text-olive/50 hover:text-olive/70'}`}
+                    >
+                      Vsi
+                    </button>
+                    <button
+                      onClick={() => setFilter('fresh')}
+                      className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition-all ${filter === 'fresh' ? 'bg-white text-olive shadow-sm' : 'text-olive/50 hover:text-olive/70'}`}
+                    >
+                      Sveže (Vrtnine/Sadje)
+                    </button>
+                    <button
+                      onClick={() => setFilter('dry')}
+                      className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition-all ${filter === 'dry' ? 'bg-white text-olive shadow-sm' : 'text-olive/50 hover:text-olive/70'}`}
+                    >
+                      Shramba (Moke/Olja)
+                    </button>
+                  </div>
                 </div>
                 {filteredProducts.map((product) => (
                   <div key={product.id} className="bg-white p-4 rounded-2xl border border-black/5 flex flex-col gap-3 shadow-sm">
