@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Facebook, Instagram, Mail, Phone, Youtube, Settings } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { LOGO_PATHS, FARM_LOGO } from '../constants';
 
 interface FooterProps {
@@ -88,9 +89,9 @@ const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
         <div className="flex flex-col md:flex-row justify-between items-center text-xs md:text-sm text-olive/40 pt-8 border-t border-olive/10">
           <p className="mb-4 md:mb-0">&copy; {new Date().getFullYear()} Biodinamična kmetija Černelič. Vse pravice pridržane.</p>
           <div className="flex items-center gap-6">
-            <a href="#" className="hover:text-olive-dark transition-colors">Zasebnost</a>
-            <a href="#" className="hover:text-olive-dark transition-colors">Pogoji uporabe</a>
-            <a href="#" className="hover:text-olive-dark transition-colors">Piškotki</a>
+            <Link to="/pravno#zasebnost" className="hover:text-olive-dark transition-colors">Zasebnost</Link>
+            <Link to="/pravno#pogoji" className="hover:text-olive-dark transition-colors">Pogoji uporabe</Link>
+            <Link to="/pravno#piskotki" className="hover:text-olive-dark transition-colors">Piškotki</Link>
             {onAdminClick && (
               <button
                 onClick={onAdminClick}

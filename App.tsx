@@ -15,6 +15,7 @@ import HomePage from './pages/HomePage';
 import BlogListPage from './pages/BlogListPage';
 import BlogPostPage from './pages/BlogPostPage';
 import GalleryPage from './pages/GalleryPage';
+import LegalPage from './pages/LegalPage';
 
 // Scroll to Top Component
 const ScrollToTop: React.FC = () => {
@@ -130,6 +131,7 @@ const App: React.FC = () => {
           <Route path="/galerija" element={<GalleryPage />} />
           <Route path="/blog-novice" element={<BlogListPage />} />
           <Route path="/blog-novice/:slug" element={<BlogPostPage />} />
+          <Route path="/pravno" element={<LegalPage />} />
         </Routes>
       </main>
       <Footer onAdminClick={() => setShowAdmin(true)} />
