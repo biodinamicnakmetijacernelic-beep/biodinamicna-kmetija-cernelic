@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { PREORDER_PRODUCTS } from '../constants';
 import { PreOrderItem } from '../types';
 import FadeIn from './FadeIn';
-import { ShoppingBag, Truck, Plus, Minus, Check, ShoppingCart, Trash2, X, ChevronUp, ArrowRight } from 'lucide-react';
+import { ShoppingBag, Truck, Plus, Minus, Check, ShoppingCart, Trash2, X, ChevronUp, ChevronDown, ArrowRight } from 'lucide-react';
 import { fetchProducts, submitOrder } from '../sanityClient';
 
 // --- Type Definitions & Helpers ---
@@ -43,8 +43,6 @@ const ProductCard: React.FC<ProductItemProps> = ({ product, quantity, onQuantity
       <div className={`absolute top-4 left-4 z-10 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${getStatusStyles(product.status)}`}>
         {getStatusLabel(product.status)}
       </div>
-
-
 
       {/* Image */}
       <div className="h-40 sm:h-48 overflow-hidden bg-gray-50 relative shrink-0">
@@ -136,13 +134,16 @@ const DryProductItem: React.FC<ProductItemProps> = ({ product, quantity, onQuant
   );
 };
 
-// --- Main Component ---
-
 const Products: React.FC = () => {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [isCartModalOpen, setIsCartModalOpen] = useState(false);
   const [showMobileCartBar, setShowMobileCartBar] = useState(false);
   const [isCartEnabled, setIsCartEnabled] = useState(true);
+
+  // Pagination State
+  const [visibleFreshCount, setVisibleFreshCount] = useState(12);
+  const [visibleDryCount, setVisibleDryCount] = useState(12);
+
   const sectionRef = useRef<HTMLElement>(null);
 
   // Check cart setting on mount and listen for changes
@@ -377,8 +378,9 @@ const Products: React.FC = () => {
                 </div>
               </FadeIn>
               {/* UPDATED GRID: 3 cols on Large (Tablet Landscape/Small Laptop), 2 on Medium, 1 on Mobile */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {freshProducts.map((p, idx) => (
+              {/* UPDATED GRID: 4 cols on Large, 3 on Medium, 2 on Small */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {freshProducts.slice(0, visibleFreshCount).map((p, idx) => (
                   <FadeIn key={p.id} delay={idx * 50} className="h-full">
                     <ProductCard
                       product={p}
@@ -393,6 +395,19 @@ const Products: React.FC = () => {
                   </div>
                 )}
               </div>
+
+              {/* Load More Button - Fresh */}
+              {visibleFreshCount < freshProducts.length && (
+                <div className="mt-8 flex justify-center">
+                  <button
+                    onClick={() => setVisibleFreshCount(prev => prev + 12)}
+                    className="group inline-flex items-center gap-2 px-6 py-2 rounded-full border border-olive/20 text-olive hover:bg-olive hover:text-white transition-all duration-300"
+                  >
+                    <span className="text-xs font-bold uppercase tracking-widest">Prikaži več</span>
+                    <ChevronDown size={14} className="group-hover:translate-y-1 transition-transform" />
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* DRY SECTION */}
@@ -409,8 +424,9 @@ const Products: React.FC = () => {
                 </div>
               </FadeIn>
               {/* UPDATED GRID: Matching layout */}
+              {/* UPDATED GRID: Matching layout */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {dryProducts.map((p, idx) => (
+                {dryProducts.slice(0, visibleDryCount).map((p, idx) => (
                   <FadeIn key={p.id} delay={idx * 50} className="h-full">
                     <DryProductItem
                       product={p}
@@ -425,6 +441,19 @@ const Products: React.FC = () => {
                   </div>
                 )}
               </div>
+
+              {/* Load More Button - Dry */}
+              {visibleDryCount < dryProducts.length && (
+                <div className="mt-8 flex justify-center">
+                  <button
+                    onClick={() => setVisibleDryCount(prev => prev + 12)}
+                    className="group inline-flex items-center gap-2 px-6 py-2 rounded-full border border-olive/20 text-olive hover:bg-olive hover:text-white transition-all duration-300"
+                  >
+                    <span className="text-xs font-bold uppercase tracking-widest">Prikaži več</span>
+                    <ChevronDown size={14} className="group-hover:translate-y-1 transition-transform" />
+                  </button>
+                </div>
+              )}
             </div>
 
           </div>

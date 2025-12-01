@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Play, Youtube } from 'lucide-react';
+import { Play, Youtube, ChevronDown } from 'lucide-react';
 import { VIDEO_GALLERY, YOUTUBE_CHANNEL_URL } from '../constants';
 import { fetchVideoGallery } from '../sanityClient';
 import VideoModal from './VideoModal';
@@ -9,6 +9,7 @@ import FadeIn from './FadeIn';
 const VideoGallery: React.FC = () => {
    const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
    const [displayVideos, setDisplayVideos] = useState(VIDEO_GALLERY);
+   const [visibleCount, setVisibleCount] = useState(6);
 
    useEffect(() => {
       const loadVideos = async () => {
@@ -63,7 +64,7 @@ const VideoGallery: React.FC = () => {
 
             {/* Video Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
-               {displayVideos.map((video, idx) => (
+               {displayVideos.slice(0, visibleCount).map((video, idx) => (
                   <FadeIn key={idx} delay={Math.min(idx * 50, 500)}>
                      <div
                         className="group relative aspect-video bg-black rounded-3xl overflow-hidden cursor-pointer shadow-2xl border border-white/5 hover:border-terracotta/50 transition-colors"
@@ -104,6 +105,21 @@ const VideoGallery: React.FC = () => {
                   </FadeIn >
                ))}
             </div >
+
+            {/* Load More Button */}
+            {visibleCount < displayVideos.length && (
+               <div className="mt-12 flex justify-center">
+                  <FadeIn>
+                     <button
+                        onClick={() => setVisibleCount(prev => prev + 6)}
+                        className="group inline-flex items-center gap-2 px-8 py-3 rounded-full border border-white/10 bg-white/5 text-cream hover:bg-terracotta hover:border-terracotta hover:text-white transition-all duration-300"
+                     >
+                        <span className="text-xs font-bold uppercase tracking-widest">Prikaži več videov</span>
+                        <ChevronDown size={16} className="group-hover:translate-y-1 transition-transform" />
+                     </button>
+                  </FadeIn>
+               </div>
+            )}
 
          </div >
 
