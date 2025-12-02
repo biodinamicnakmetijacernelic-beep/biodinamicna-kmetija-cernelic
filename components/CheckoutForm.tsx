@@ -94,7 +94,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ quantities, onBack, onOrder
           customer: orderData.customer,
           items: orderData.items,
           total: orderData.total,
-          status: result.status,
+          status: result.status as 'pending' | 'in-preparation' | 'ready-for-pickup' | 'completed' | 'rejected',
           createdAt: result.createdAt,
           note: orderData.note
         };
@@ -108,7 +108,10 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ quantities, onBack, onOrder
 
         // Send notification to admin
         try {
-          const adminEmailSent = await sendOrderNotificationToAdmin(emailOrderData);
+          const adminEmailSent = await sendOrderNotificationToAdmin({
+            ...emailOrderData,
+            status: result.status as 'pending' | 'in-preparation' | 'ready-for-pickup' | 'completed' | 'rejected'
+          });
           if (adminEmailSent) {
             console.log("✅ Admin notification email sent successfully");
           } else {

@@ -1,5 +1,6 @@
 
 import { FeatureItem, GalleryItem, OpeningHours, AwardItem, PreOrderItem } from './types';
+export type { PreOrderItem };
 
 export const HERO_TEXT = {
   title: "Kjer narava in tradicija rodita kakovost.",
@@ -8,7 +9,7 @@ export const HERO_TEXT = {
 };
 
 // Updated Main Video from the provided playlist
-export const YOUTUBE_VIDEO_ID = "vfPZG4Szmic"; 
+export const YOUTUBE_VIDEO_ID = "vfPZG4Szmic";
 export const YOUTUBE_CHANNEL_URL = "https://www.youtube.com/c/BiodinamičnaKmetijaČernelič";
 
 export const VIDEO_GALLERY = [
@@ -125,11 +126,11 @@ export const PRODUCT_CATEGORIES = [
     title: 'Sveže z biodinamične njive',
     iconType: 'carrot',
     items: [
-      'Blitva', 'Brokoli', 'Buča', 'Bučke', 'Česen', 'Cvetača', 'Fižol', 
-      'Jajčevci', 'Kolerabica', 'Korenje', 'Koruza', 'Krompir', 'Kumare', 
-      'Motovilec', 'Ohrovt', 'Paprika', 'Paradižnik', 'Peteršilj', 'Por', 
-      'Radič', 'Rdeča pesa', 'Repa', 'Rukola', 'Sladki krompir', 'Solata', 
-      'Zelena', 'Zelje', 'Češnja', 'Jabolko', 'Jagode', 'Lubenica', 'Maline', 
+      'Blitva', 'Brokoli', 'Buča', 'Bučke', 'Česen', 'Cvetača', 'Fižol',
+      'Jajčevci', 'Kolerabica', 'Korenje', 'Koruza', 'Krompir', 'Kumare',
+      'Motovilec', 'Ohrovt', 'Paprika', 'Paradižnik', 'Peteršilj', 'Por',
+      'Radič', 'Rdeča pesa', 'Repa', 'Rukola', 'Sladki krompir', 'Solata',
+      'Zelena', 'Zelje', 'Češnja', 'Jabolko', 'Jagode', 'Lubenica', 'Maline',
       'Melona', 'Oreh'
     ]
   },
@@ -164,7 +165,7 @@ export const PREORDER_PRODUCTS: PreOrderItem[] = [
   { id: 'strawberries', name: 'Jagode', category: 'fresh', price: 6.00, unit: 'kg', image: 'https://images.unsplash.com/photo-1589820296156-2454bb8a4d50?auto=format&fit=crop&q=80&w=400', status: 'coming-soon' },
   { id: 'tomato', name: 'Paradižnik', category: 'fresh', price: 3.00, unit: 'kg', image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&q=80&w=400', status: 'sold-out' },
   { id: 'eggplant', name: 'Jajčevci', category: 'fresh', price: 2.80, unit: 'kg', image: 'https://images.unsplash.com/photo-1615485925763-867862f80a3a?auto=format&fit=crop&q=80&w=400', status: 'coming-soon' },
-  
+
   // DRY (Block 2)
   { id: 'flour-buckwheat', name: 'Ajdova Moka', category: 'dry', price: 5.20, unit: 'kg', image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&q=80&w=400', status: 'available' },
   { id: 'flour-spelt', name: 'Pirina Moka', category: 'dry', price: 4.50, unit: 'kg', image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80&w=400', status: 'available' },
@@ -230,7 +231,7 @@ export const GALLERY_IMAGES: GalleryItem[] = [
 export const LOGO_PATHS = {
   // A clean leaf shape
   leaf: "M17.4,6.7C16.6,6.2,15.6,6,14.7,6c-1.7,0-3.2,0.6-4.4,1.7c-0.2,0.2-0.5,0.2-0.7,0C9.1,7.2,8.6,6.7,8,6.3 c-1.6-1-3.5-1.3-5.3-0.9C2.3,5.5,2,5.9,2.1,6.3c0.1,0.5,0.4,0.9,0.7,1.3c2,2.3,2.5,5.6,1.4,8.4c-0.5,1.2-1.3,2.3-2.2,3.2 c-0.3,0.3-0.2,0.8,0.2,1c0.4,0.2,0.9,0.1,1.2-0.2c1.1-1,2.1-2.2,2.8-3.6c0.5-1,0.8-2.1,1-3.2c0.1-0.4,0.6-0.5,0.9-0.2 c1.6,1.9,3.8,3,6.3,3c1.7,0,3.3-0.5,4.7-1.4C20.4,13.7,21.3,11.5,21.3,9S19.6,7.2,17.4,6.7z M15.3,13.8c-1,0.6-2.2,1-3.4,1 c-1,0-1.9-0.2-2.8-0.7c-0.4-0.2-0.5-0.3-1.1c0.2-0.4,0.7-0.5,1.1-0.3c0.6,0.3,1.3,0.5,2,0.5c0.9,0,1.8-0.3,2.5-0.7 c0.4-0.3,0.9-0.1,1.1,0.3C15.8,13.2,15.7,13.6,15.3,13.8z",
-  
+
   // A stylized abstract plant/flower for Demeter (inspired by organic growth)
   demeter: "M12,2c-0.6,0-1,0.4-1,1v5.2c-2.1-1.3-4.4-1.9-6.5-1.5C3.6,6.9,3,7.7,3.2,8.5c0.6,2.3,2.4,4.2,4.6,5l-1.9,4.4 c-0.2,0.5,0,1.1,0.5,1.4C6.6,19.3,6.8,19.4,7,19.4c0.3,0,0.7-0.2,0.9-0.5l2.4-5.6c0.6,0.2,1.2,0.3,1.8,0.3c0.6,0,1.2-0.1,1.8-0.3 l2.4,5.6c0.2,0.5,0.7,0.7,1.2,0.5c0.5-0.2,0.7-0.8,0.5-1.4l-1.9-4.4c2.2-0.8,4-2.7,4.6-5c0.2-0.9-0.4-1.7-1.3-1.8 c-2.1-0.4-4.4,0.2-6.5,1.5V3C13,2.4,12.6,2,12,2z M8.1,8.7c1.3-0.3,2.7,0.1,3.9,1V9.6C12,9.6,11.9,9.6,11.9,9.6 C10.1,9.4,8.7,8.8,8.1,8.7z M15.9,8.7c-0.6,0.1-2,0.7-3.8,0.9c0,0-0.1,0-0.1,0v0.1c1.2-0.9,2.6-1.3,3.9-1V8.7z"
 };
