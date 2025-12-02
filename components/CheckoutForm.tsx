@@ -133,8 +133,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ quantities, onBack, onOrder
   };
 
   return (
-    <section className="py-24 bg-cream border-t border-olive/5">
-      <div className="container mx-auto px-6 max-w-4xl">
+    <section className="py-12 md:py-16 bg-cream border-t border-olive/5">
+      <div className="container mx-auto px-4 md:px-6 max-w-3xl">
 
         {/* Header */}
         <FadeIn>
@@ -152,11 +152,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ quantities, onBack, onOrder
           </div>
         </FadeIn>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
 
           {/* Order Summary */}
           <FadeIn>
-            <div className="bg-white border border-gray-100 rounded-3xl p-8">
+            <div className="bg-white border border-gray-100 rounded-3xl p-5 md:p-6">
               <h3 className="font-serif text-2xl text-olive-dark mb-6 flex items-center gap-2">
                 <ShoppingCart size={20} />
                 Povzetek naročila
@@ -189,7 +189,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ quantities, onBack, onOrder
 
           {/* Customer Form */}
           <FadeIn delay={100}>
-            <div className="bg-white border border-gray-100 rounded-3xl p-8">
+            <div className="bg-white border border-gray-100 rounded-3xl p-5 md:p-6">
               <h3 className="font-serif text-2xl text-olive-dark mb-6 flex items-center gap-2">
                 <User size={20} />
                 Vaši podatki
@@ -207,9 +207,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ quantities, onBack, onOrder
                       type="text"
                       value={formData.firstName}
                       onChange={(e) => handleInputChange('firstName', e.target.value)}
-                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-olive/20 focus:border-olive transition-colors ${
-                        errors.firstName ? 'border-red-300' : 'border-gray-200'
-                      }`}
+                      className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-olive/20 focus:border-olive transition-colors ${errors.firstName ? 'border-red-300' : 'border-gray-200'
+                        }`}
                       placeholder="Vaše ime"
                     />
                     {errors.firstName && (
@@ -225,9 +224,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ quantities, onBack, onOrder
                       type="text"
                       value={formData.lastName}
                       onChange={(e) => handleInputChange('lastName', e.target.value)}
-                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-olive/20 focus:border-olive transition-colors ${
-                        errors.lastName ? 'border-red-300' : 'border-gray-200'
-                      }`}
+                      className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-olive/20 focus:border-olive transition-colors ${errors.lastName ? 'border-red-300' : 'border-gray-200'
+                        }`}
                       placeholder="Vaš priimek"
                     />
                     {errors.lastName && (
@@ -246,9 +244,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ quantities, onBack, onOrder
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-olive/20 focus:border-olive transition-colors ${
-                      errors.phone ? 'border-red-300' : 'border-gray-200'
-                    }`}
+                    className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-olive/20 focus:border-olive transition-colors ${errors.phone ? 'border-red-300' : 'border-gray-200'
+                      }`}
                     placeholder="+386 51 123 456"
                   />
                   {errors.phone && (
@@ -266,9 +263,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ quantities, onBack, onOrder
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
-                    className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-olive/20 focus:border-olive transition-colors ${
-                      errors.email ? 'border-red-300' : 'border-gray-200'
-                    }`}
+                    className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-olive/20 focus:border-olive transition-colors ${errors.email ? 'border-red-300' : 'border-gray-200'
+                      }`}
                     placeholder="vas@email.com"
                   />
                   {errors.email && (
@@ -285,7 +281,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ quantities, onBack, onOrder
                   <textarea
                     value={formData.notes}
                     onChange={(e) => handleInputChange('notes', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-olive/20 focus:border-olive transition-colors resize-none"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-olive/20 focus:border-olive transition-colors resize-none"
                     rows={3}
                     placeholder="Posebne zahteve, čas prevzema, itd. (neobvezno)"
                   />
