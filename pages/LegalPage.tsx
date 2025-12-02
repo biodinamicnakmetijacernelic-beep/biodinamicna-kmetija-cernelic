@@ -77,8 +77,8 @@ const LegalPage: React.FC = () => {
 
                             <h3 className="font-bold text-olive mt-6">Prevzem in dostava</h3>
                             <ul className="list-disc pl-5 space-y-2">
-                                <li><strong>Osebni prevzem:</strong> Na naslovu kmetije (Dečno selo [ŠT], Artiče) po predhodnem dogovoru.</li>
-                                <li><strong>Tržnica:</strong> Prevzem možen na tržnici (Brežice/Krško) v času uradnih ur.</li>
+                                <li><strong>Osebni prevzem:</strong> Na naslovu kmetije (Dečno selo 48, 8253 Artiče) po predhodnem dogovoru.</li>
+                                <li><strong>Tržnica:</strong> Prevzem možen na tržnici Ljubljana (Pogačarjev trg) v času uradnih ur.</li>
                                 <li><strong>Dostava:</strong> Po dogovoru je možna dostava na dom za večja naročila v okolici.</li>
                             </ul>
 
