@@ -22,7 +22,7 @@ const CookieConsent: React.FC = () => {
     if (!isVisible) return null;
 
     return (
-        <div className="fixed bottom-4 left-4 right-4 md:left-6 md:right-auto md:bottom-6 md:w-[340px] z-50 animate-in slide-in-from-bottom-4 duration-500">
+        <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:bottom-6 md:w-[360px] z-50 animate-in slide-in-from-bottom-4 duration-500">
             <div className="bg-white/90 backdrop-blur-md border border-white/20 shadow-[0_4px_20px_rgba(0,0,0,0.08)] p-3 md:p-4 rounded-2xl">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-olive/10 rounded-xl text-olive shrink-0">
@@ -30,7 +30,7 @@ const CookieConsent: React.FC = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                         <p className="text-[11px] md:text-xs text-olive/80 leading-tight mb-2">
-                            Uporabljamo piškotke. <Link to="/pravno#piskotki" className="text-terracotta hover:underline font-bold">Več info</Link>
+                            Uporabljamo nujne piškotke za delovanje strani in video vsebine. Z uporabo se strinjate z našo <Link to="/pravno#piskotki" className="text-terracotta hover:underline font-bold">politiko piškotkov</Link>.
                         </p>
                         <button
                             onClick={handleAccept}
