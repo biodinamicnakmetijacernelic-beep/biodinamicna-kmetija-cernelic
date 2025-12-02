@@ -587,36 +587,36 @@ const Products: React.FC = () => {
 
       {/* CHECKOUT MODAL */}
       {isCheckoutModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={() => setIsCheckoutModalOpen(false)}></div>
 
-          <div className="bg-white w-full max-w-lg rounded-[2.5rem] p-8 relative z-10 shadow-2xl animate-in zoom-in-95 duration-300">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="font-serif text-2xl text-olive-dark">Zaključek Povpraševanja</h3>
+          <div className="bg-white w-full max-w-md rounded-[2rem] p-5 sm:p-8 relative z-10 shadow-2xl animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div className="flex justify-between items-center mb-4 sm:mb-6">
+              <h3 className="font-serif text-xl sm:text-2xl text-olive-dark">Zaključek Povpraševanja</h3>
               <button onClick={() => setIsCheckoutModalOpen(false)} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
                 <X size={20} className="text-olive-dark" />
               </button>
             </div>
 
             {orderSuccess ? (
-              <div className="text-center py-12">
-                <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Check size={40} />
+              <div className="text-center py-8 sm:py-12">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                  <Check size={32} className="sm:w-10 sm:h-10" />
                 </div>
-                <h4 className="font-serif text-2xl text-olive-dark mb-2">Hvala za vaše povpraševanje!</h4>
-                <p className="text-olive/60">Na vaš e-mail naslov boste prejeli potrdilo. Kmalu vas bomo kontaktirali.</p>
+                <h4 className="font-serif text-xl sm:text-2xl text-olive-dark mb-2">Hvala za vaše povpraševanje!</h4>
+                <p className="text-sm sm:text-base text-olive/60">Na vaš e-mail naslov boste prejeli potrdilo. Kmalu vas bomo kontaktirali.</p>
               </div>
             ) : (
               <form onSubmit={(e) => {
                 console.log('🎯 Form submit triggered!');
                 handleCheckout(e);
-              }} className="space-y-4">
+              }} className="space-y-3 sm:space-y-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-widest text-olive/50 mb-1 ml-1">Ime in Priimek</label>
+                  <label className="block text-[10px] sm:text-xs font-bold uppercase tracking-widest text-olive/50 mb-1 ml-1">Ime in Priimek</label>
                   <input
                     required
                     type="text"
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-terracotta transition-colors"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 sm:py-3 focus:outline-none focus:border-terracotta transition-colors text-sm"
                     placeholder="Janez Novak"
                     value={customerForm.name}
                     onChange={e => setCustomerForm({ ...customerForm, name: e.target.value })}
@@ -624,11 +624,11 @@ const Products: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-widest text-olive/50 mb-1 ml-1">E-mail Naslov <span className="text-red-500">*</span></label>
+                  <label className="block text-[10px] sm:text-xs font-bold uppercase tracking-widest text-olive/50 mb-1 ml-1">E-mail Naslov <span className="text-red-500">*</span></label>
                   <input
                     required
                     type="email"
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-terracotta transition-colors"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 sm:py-3 focus:outline-none focus:border-terracotta transition-colors text-sm"
                     placeholder="janez@primer.si"
                     value={customerForm.email}
                     onChange={e => setCustomerForm({ ...customerForm, email: e.target.value })}
@@ -636,11 +636,11 @@ const Products: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-widest text-olive/50 mb-1 ml-1">Telefonska Številka</label>
+                  <label className="block text-[10px] sm:text-xs font-bold uppercase tracking-widest text-olive/50 mb-1 ml-1">Telefonska Številka</label>
                   <input
                     required
                     type="tel"
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-terracotta transition-colors"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 sm:py-3 focus:outline-none focus:border-terracotta transition-colors text-sm"
                     placeholder="041 123 456"
                     value={customerForm.phone}
                     onChange={e => setCustomerForm({ ...customerForm, phone: e.target.value })}
@@ -648,17 +648,17 @@ const Products: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-widest text-olive/50 mb-1 ml-1">Opombe (Opcijsko)</label>
+                  <label className="block text-[10px] sm:text-xs font-bold uppercase tracking-widest text-olive/50 mb-1 ml-1">Opombe (Opcijsko)</label>
                   <textarea
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-terracotta transition-colors h-24 resize-none"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 sm:py-3 focus:outline-none focus:border-terracotta transition-colors h-20 sm:h-24 resize-none text-sm"
                     placeholder="Posebne želje, čas prevzema..."
                     value={customerForm.note}
                     onChange={e => setCustomerForm({ ...customerForm, note: e.target.value })}
                   ></textarea>
                 </div>
 
-                <div className="pt-2">
-                  <label className="block text-xs font-bold uppercase tracking-widest text-olive/50 mb-2 ml-1">Prevzem pridelkov <span className="text-red-500">*</span></label>
+                <div className="pt-1 sm:pt-2">
+                  <label className="block text-[10px] sm:text-xs font-bold uppercase tracking-widest text-olive/50 mb-2 ml-1">Prevzem pridelkov <span className="text-red-500">*</span></label>
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
                       <input
@@ -671,7 +671,7 @@ const Products: React.FC = () => {
                         onChange={e => setCustomerForm({ ...customerForm, pickupLocation: e.target.value as 'home' | 'market' })}
                         className="h-4 w-4 text-olive focus:ring-olive border-gray-300"
                       />
-                      <label htmlFor="pickup-home" className="text-sm text-olive/70">
+                      <label htmlFor="pickup-home" className="text-xs sm:text-sm text-olive/70">
                         Prevzem na kmetiji (Dečno selo 48, 8253 Artiče)
                       </label>
                     </div>
@@ -686,14 +686,14 @@ const Products: React.FC = () => {
                         onChange={e => setCustomerForm({ ...customerForm, pickupLocation: e.target.value as 'home' | 'market' })}
                         className="h-4 w-4 text-olive focus:ring-olive border-gray-300"
                       />
-                      <label htmlFor="pickup-market" className="text-sm text-olive/70">
+                      <label htmlFor="pickup-market" className="text-xs sm:text-sm text-olive/70">
                         Prevzem na tržnici Ljubljana (Pogačarjev trg)
                       </label>
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-4 pb-2">
+                <div className="pt-3 sm:pt-4 pb-1 sm:pb-2">
                   <div className="flex items-start gap-3">
                     <input
                       required
@@ -701,7 +701,7 @@ const Products: React.FC = () => {
                       id="terms"
                       className="mt-1 h-4 w-4 text-olive focus:ring-olive border-gray-300 rounded"
                     />
-                    <label htmlFor="terms" className="text-xs text-olive/70 leading-relaxed">
+                    <label htmlFor="terms" className="text-[10px] sm:text-xs text-olive/70 leading-relaxed">
                       Strinjam se s <Link to="/pravno#pogoji" target="_blank" className="text-terracotta hover:underline font-bold">Splošnimi pogoji poslovanja</Link> in <Link to="/pravno#zasebnost" target="_blank" className="text-terracotta hover:underline font-bold">Politiko zasebnosti</Link>. Potrjujem, da sem seznanjen, da za sveže pridelke ni možnosti odstopa od pogodbe.
                     </label>
                   </div>
@@ -712,11 +712,11 @@ const Products: React.FC = () => {
                     type="submit"
                     disabled={isSubmittingOrder || totalItems === 0}
                     onClick={() => console.log('🔘 Submit button clicked!', { isSubmitting: isSubmittingOrder, totalItems })}
-                    className="w-full bg-olive text-white py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-olive-dark transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-olive text-white py-3 sm:py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-olive-dark transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                   >
                     {isSubmittingOrder ? (
                       <>
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                        <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white"></div>
                         <span>Pošiljanje...</span>
                       </>
                     ) : (
