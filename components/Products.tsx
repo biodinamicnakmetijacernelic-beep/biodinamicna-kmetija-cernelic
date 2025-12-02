@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { PREORDER_PRODUCTS } from '../constants';
 import { PreOrderItem } from '../types';
 import FadeIn from './FadeIn';
-import { ShoppingCart, X, Plus, Minus, Check, ArrowRight, Info } from 'lucide-react';
+import { ShoppingCart, X, Plus, Minus, Check, ArrowRight, Info, ShoppingBag, Truck, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { submitOrder } from '../sanityClient';
+import { submitOrder, fetchProducts } from '../sanityClient';
 
 // --- Type Definitions & Helpers ---
 
