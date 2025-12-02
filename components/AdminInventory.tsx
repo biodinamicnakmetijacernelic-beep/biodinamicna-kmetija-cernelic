@@ -2120,8 +2120,8 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                                   onClick={async () => {
                                     try {
                                       await updateProduct(
-                                        product.id, 
-                                        { 
+                                        product.id,
+                                        {
                                           name: product.name,
                                           price: product.price,
                                           unit: product.unit,
@@ -2139,7 +2139,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                                     } catch (error) {
                                       setNotification('❌ Napaka pri posodobitvi zaloge');
                                     }
-                                  }}}
+                                  }}
                                   className="px-2 py-1 bg-olive text-white text-xs font-bold rounded-lg hover:bg-olive-dark transition-colors"
                                 >
                                   Shrani
@@ -2154,361 +2154,361 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                                   Prekliči
                                 </button>
                               </div>
-                          ) : (
-                          <button
-                            onClick={() => {
-                              setEditingStockId(product.id);
-                              setQuickStockValue(product.quantity?.toString() || '0');
-                            }}
-                            className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-terracotta bg-terracotta/10 border border-terracotta/20 rounded-lg hover:bg-terracotta/20 transition-colors"
-                          >
-                            <Package size={12} /> {product.quantity || 0} {product.unit}
-                          </button>
+                            ) : (
+                              <button
+                                onClick={() => {
+                                  setEditingStockId(product.id);
+                                  setQuickStockValue(product.quantity?.toString() || '0');
+                                }}
+                                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-terracotta bg-terracotta/10 border border-terracotta/20 rounded-lg hover:bg-terracotta/20 transition-colors"
+                              >
+                                <Package size={12} /> {product.quantity || 0} {product.unit}
+                              </button>
                             )}
+                          </div>
                         </div>
                       </div>
+                      <button onClick={(e) => handleStatusToggle(e, product.id, product.status)} className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-full">
+                        <span className={`text-[10px] uppercase font-bold ${getProductStatusProps(product.status).text}`}>{getProductStatusProps(product.status).label}</span>
+                        <div className={`w-3 h-3 rounded-full ${getProductStatusProps(product.status).color}`} />
+                      </button>
                     </div>
-                    <button onClick={(e) => handleStatusToggle(e, product.id, product.status)} className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-full">
-                      <span className={`text-[10px] uppercase font-bold ${getProductStatusProps(product.status).text}`}>{getProductStatusProps(product.status).label}</span>
-                      <div className={`w-3 h-3 rounded-full ${getProductStatusProps(product.status).color}`} />
-                    </button>
-                  </div>
                   </div>
                 ))}
-          </>
-        ) : (
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-black/5">
-          <div className="flex items-center gap-2 mb-6 text-olive/50 cursor-pointer" onClick={() => setIsEditing(false)}><ArrowLeft size={16} /><span className="text-xs font-bold uppercase">Nazaj</span></div>
-          <div className="space-y-4">
-            {/* Simplified Image Input */}
-            <input type="file" onChange={handleImageSelect} className="mb-4" />
-            <input type="text" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3" value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })} placeholder="Ime Izdelka" />
-            <div className="flex gap-2">
-              <input type="number" step="0.01" className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3" value={editForm.price} onChange={e => setEditForm({ ...editForm, price: e.target.value })} placeholder="Cena" />
-              <select value={editForm.unit} onChange={e => setEditForm({ ...editForm, unit: e.target.value })} className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-700">
-                <option value="kg">kg</option>
-                <option value="g">g</option>
-                <option value="kos">kos</option>
-                <option value="l">l</option>
-                <option value="pack">paket</option>
-              </select>
-            </div>
+              </>
+            ) : (
+              <div className="bg-white rounded-3xl p-6 shadow-sm border border-black/5">
+                <div className="flex items-center gap-2 mb-6 text-olive/50 cursor-pointer" onClick={() => setIsEditing(false)}><ArrowLeft size={16} /><span className="text-xs font-bold uppercase">Nazaj</span></div>
+                <div className="space-y-4">
+                  {/* Simplified Image Input */}
+                  <input type="file" onChange={handleImageSelect} className="mb-4" />
+                  <input type="text" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3" value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })} placeholder="Ime Izdelka" />
+                  <div className="flex gap-2">
+                    <input type="number" step="0.01" className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3" value={editForm.price} onChange={e => setEditForm({ ...editForm, price: e.target.value })} placeholder="Cena" />
+                    <select value={editForm.unit} onChange={e => setEditForm({ ...editForm, unit: e.target.value })} className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-700">
+                      <option value="kg">kg</option>
+                      <option value="g">g</option>
+                      <option value="kos">kos</option>
+                      <option value="l">l</option>
+                      <option value="pack">paket</option>
+                    </select>
+                  </div>
 
-            {/* Category Selector */}
-            <div>
-              <label className="text-[10px] font-bold uppercase text-olive/50 mb-1 block">Kategorija</label>
-              <select
-                value={editForm.category}
-                onChange={e => setEditForm({ ...editForm, category: e.target.value as 'fresh' | 'dry' })}
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-700"
-              >
-                <option value="fresh">Sveže (Vrtnine in Sadje)</option>
-                <option value="dry">Shramba (Moke, Olja, Žita)</option>
-              </select>
-            </div>
+                  {/* Category Selector */}
+                  <div>
+                    <label className="text-[10px] font-bold uppercase text-olive/50 mb-1 block">Kategorija</label>
+                    <select
+                      value={editForm.category}
+                      onChange={e => setEditForm({ ...editForm, category: e.target.value as 'fresh' | 'dry' })}
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-700"
+                    >
+                      <option value="fresh">Sveže (Vrtnine in Sadje)</option>
+                      <option value="dry">Shramba (Moke, Olja, Žita)</option>
+                    </select>
+                  </div>
 
-            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-100">
-              <div>
-                <label className="text-[10px] font-bold uppercase text-olive/50 mb-1 block">Trenutna Zaloga</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3"
-                  value={editForm.quantity}
-                  onChange={e => setEditForm({ ...editForm, quantity: e.target.value })}
-                  placeholder="npr. 50"
-                />
+                  <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-100">
+                    <div>
+                      <label className="text-[10px] font-bold uppercase text-olive/50 mb-1 block">Trenutna Zaloga</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3"
+                        value={editForm.quantity}
+                        onChange={e => setEditForm({ ...editForm, quantity: e.target.value })}
+                        placeholder="npr. 50"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold uppercase text-olive/50 mb-1 block">Max / Začetna Zaloga</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3"
+                        value={editForm.maxQuantity}
+                        onChange={e => setEditForm({ ...editForm, maxQuantity: e.target.value })}
+                        placeholder="npr. 100"
+                      />
+                      <p className="text-[9px] text-olive/40 mt-1">Za prikaz drsnika na strani</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    {editingId && <button onClick={handleDeleteProduct} className="p-4 bg-red-50 text-red-500 rounded-xl"><Trash2 size={20} /></button>}
+                    <button onClick={handleSaveProduct} className="px-8 py-4 bg-olive text-white rounded-xl font-bold uppercase" style={{ minWidth: '120px' }} disabled={isUploading}>Shrani</button>
+                  </div>
+                </div>
               </div>
-              <div>
-                <label className="text-[10px] font-bold uppercase text-olive/50 mb-1 block">Max / Začetna Zaloga</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3"
-                  value={editForm.maxQuantity}
-                  onChange={e => setEditForm({ ...editForm, maxQuantity: e.target.value })}
-                  placeholder="npr. 100"
-                />
-                <p className="text-[9px] text-olive/40 mt-1">Za prikaz drsnika na strani</p>
-              </div>
-            </div>
-
-            <div className="flex gap-2">
-              {editingId && <button onClick={handleDeleteProduct} className="p-4 bg-red-50 text-red-500 rounded-xl"><Trash2 size={20} /></button>}
-              <button onClick={handleSaveProduct} className="px-8 py-4 bg-olive text-white rounded-xl font-bold uppercase" style={{ minWidth: '120px' }} disabled={isUploading}>Shrani</button>
-            </div>
-          </div>
-        </div>
             )}
-      </div>
+          </div>
         )}
 
-      {/* --- NEWS TAB (RICH EDITOR) --- */}
-      {activeTab === 'news' && (
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-gray-50 pb-24">
+        {/* --- NEWS TAB (RICH EDITOR) --- */}
+        {activeTab === 'news' && (
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-gray-50 pb-24">
 
-          {!isEditingNews ? (
-            <>
-              {/* News List */}
-              <div className="flex justify-between items-center mb-2 px-1">
-                <div className="flex items-center gap-3">
-                  <h3 className="font-serif text-lg text-olive-dark">Objavljene Novice ({posts.length})</h3>
-                  {posts.length > 0 && (
-                    <label className="flex items-center gap-2 text-sm text-olive/70">
-                      <input
-                        type="checkbox"
-                        checked={selectAll}
-                        onChange={handleSelectAll}
-                        className="rounded border-olive/30 text-olive focus:ring-olive"
-                      />
-                      <span>Označi vse</span>
-                    </label>
-                  )}
-                  <button onClick={loadPosts} className="p-2 bg-white rounded-full shadow-sm hover:shadow-md text-olive transition-all">
-                    <RefreshCw size={16} className={isLoadingPosts ? "animate-spin" : ""} />
-                  </button>
-                </div>
-                <div className="flex gap-2">
-                  {selectedPosts.size > 0 && (
-                    <button
-                      onClick={handleBulkDelete}
-                      className="bg-red-500 text-white px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wide flex items-center gap-2 shadow-md hover:bg-red-600 transition-colors"
-                      disabled={isUploading}
-                    >
-                      <Trash2 size={16} /> Izbriši ({selectedPosts.size})
+            {!isEditingNews ? (
+              <>
+                {/* News List */}
+                <div className="flex justify-between items-center mb-2 px-1">
+                  <div className="flex items-center gap-3">
+                    <h3 className="font-serif text-lg text-olive-dark">Objavljene Novice ({posts.length})</h3>
+                    {posts.length > 0 && (
+                      <label className="flex items-center gap-2 text-sm text-olive/70">
+                        <input
+                          type="checkbox"
+                          checked={selectAll}
+                          onChange={handleSelectAll}
+                          className="rounded border-olive/30 text-olive focus:ring-olive"
+                        />
+                        <span>Označi vse</span>
+                      </label>
+                    )}
+                    <button onClick={loadPosts} className="p-2 bg-white rounded-full shadow-sm hover:shadow-md text-olive transition-all">
+                      <RefreshCw size={16} className={isLoadingPosts ? "animate-spin" : ""} />
                     </button>
-                  )}
-                  <button onClick={() => { setIsEditingNews(true); loadPosts(); }} className="bg-olive text-white px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wide flex items-center gap-2 shadow-md"><Plus size={16} /> Nova</button>
+                  </div>
+                  <div className="flex gap-2">
+                    {selectedPosts.size > 0 && (
+                      <button
+                        onClick={handleBulkDelete}
+                        className="bg-red-500 text-white px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wide flex items-center gap-2 shadow-md hover:bg-red-600 transition-colors"
+                        disabled={isUploading}
+                      >
+                        <Trash2 size={16} /> Izbriši ({selectedPosts.size})
+                      </button>
+                    )}
+                    <button onClick={() => { setIsEditingNews(true); loadPosts(); }} className="bg-olive text-white px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wide flex items-center gap-2 shadow-md"><Plus size={16} /> Nova</button>
+                  </div>
                 </div>
-              </div>
 
-              {isLoadingPosts ? (
-                <div className="text-center py-8 text-olive/50"><RefreshCw className="animate-spin mx-auto mb-2" size={24} /><p className="text-sm">Nalaganje...</p></div>
-              ) : posts.length === 0 ? (
-                <div className="bg-white rounded-3xl p-8 text-center text-olive/50"><FileText size={32} className="mx-auto mb-2" /><p className="text-sm">Še ni objavljenih novic</p></div>
-              ) : (
-                [...posts]
-                  .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
-                  .map((post) => (
-                    <div key={post.id} className="bg-white p-4 rounded-2xl border border-black/5 flex flex-col gap-2 shadow-sm">
-                      <div className="flex items-start gap-4">
-                        <div className="flex items-center mr-3 mt-1">
-                          <input
-                            type="checkbox"
-                            checked={selectedPosts.has(post.id)}
-                            onChange={() => handleSelectPost(post.id)}
-                            className="rounded border-olive/30 text-olive focus:ring-olive"
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-serif text-lg text-olive-dark leading-tight mb-1">{post.title}</h4>
-                          <p className="text-xs text-olive/50 font-medium mb-2">{new Date(post.publishedAt).toLocaleDateString('sl-SI')}</p>
-                          <div className="flex gap-2">
-                            <button onClick={() => startEditNews(post)} className="inline-flex items-center gap-2 px-3 py-1 text-xs font-semibold text-olive/90 bg-olive/10 border border-olive/10 rounded-xl shadow-sm hover:bg-olive/20 transition-colors">
-                              <Pencil size={14} /> Uredi
-                            </button>
-                            <button onClick={() => handleDeleteNews(post.id)} className="inline-flex items-center gap-2 px-3 py-1 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 rounded-xl shadow-sm hover:bg-red-100 transition-colors">
-                              <Trash2 size={14} /> Izbriši
-                            </button>
+                {isLoadingPosts ? (
+                  <div className="text-center py-8 text-olive/50"><RefreshCw className="animate-spin mx-auto mb-2" size={24} /><p className="text-sm">Nalaganje...</p></div>
+                ) : posts.length === 0 ? (
+                  <div className="bg-white rounded-3xl p-8 text-center text-olive/50"><FileText size={32} className="mx-auto mb-2" /><p className="text-sm">Še ni objavljenih novic</p></div>
+                ) : (
+                  [...posts]
+                    .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+                    .map((post) => (
+                      <div key={post.id} className="bg-white p-4 rounded-2xl border border-black/5 flex flex-col gap-2 shadow-sm">
+                        <div className="flex items-start gap-4">
+                          <div className="flex items-center mr-3 mt-1">
+                            <input
+                              type="checkbox"
+                              checked={selectedPosts.has(post.id)}
+                              onChange={() => handleSelectPost(post.id)}
+                              className="rounded border-olive/30 text-olive focus:ring-olive"
+                            />
                           </div>
+                          <div className="flex-1">
+                            <h4 className="font-serif text-lg text-olive-dark leading-tight mb-1">{post.title}</h4>
+                            <p className="text-xs text-olive/50 font-medium mb-2">{new Date(post.publishedAt).toLocaleDateString('sl-SI')}</p>
+                            <div className="flex gap-2">
+                              <button onClick={() => startEditNews(post)} className="inline-flex items-center gap-2 px-3 py-1 text-xs font-semibold text-olive/90 bg-olive/10 border border-olive/10 rounded-xl shadow-sm hover:bg-olive/20 transition-colors">
+                                <Pencil size={14} /> Uredi
+                              </button>
+                              <button onClick={() => handleDeleteNews(post.id)} className="inline-flex items-center gap-2 px-3 py-1 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 rounded-xl shadow-sm hover:bg-red-100 transition-colors">
+                                <Trash2 size={14} /> Izbriši
+                              </button>
+                            </div>
+                          </div>
+                          {post.image && <img src={post.image} className="w-16 h-16 rounded-lg object-cover bg-gray-50" />}
                         </div>
-                        {post.image && <img src={post.image} className="w-16 h-16 rounded-lg object-cover bg-gray-50" />}
                       </div>
-                    </div>
-                  ))
-              )}
-            </>
-          ) : (
-            <div className={`bg-white rounded-3xl p-6 shadow-sm border border-black/5 ${!sanityToken ? 'opacity-50 pointer-events-none' : ''}`}>
-              <div className="flex items-center gap-2 mb-6 text-olive/50 cursor-pointer" onClick={() => { setIsEditingNews(false); setEditingNewsId(null); setNewsForm({ title: '', date: new Date().toISOString().split('T')[0], link: '' }); setNewsImageFile(null); setNewsImagePreview(null); setNewsBlocks([{ id: Date.now().toString(), type: 'text', content: '' }]); setNewsImages({}); }}><ArrowLeft size={16} /><span className="text-xs font-bold uppercase">Nazaj</span></div>
+                    ))
+                )}
+              </>
+            ) : (
+              <div className={`bg-white rounded-3xl p-6 shadow-sm border border-black/5 ${!sanityToken ? 'opacity-50 pointer-events-none' : ''}`}>
+                <div className="flex items-center gap-2 mb-6 text-olive/50 cursor-pointer" onClick={() => { setIsEditingNews(false); setEditingNewsId(null); setNewsForm({ title: '', date: new Date().toISOString().split('T')[0], link: '' }); setNewsImageFile(null); setNewsImagePreview(null); setNewsBlocks([{ id: Date.now().toString(), type: 'text', content: '' }]); setNewsImages({}); }}><ArrowLeft size={16} /><span className="text-xs font-bold uppercase">Nazaj</span></div>
 
-              <h3 className="font-serif text-xl text-olive-dark mb-4">{editingNewsId ? 'Uredi Objavo' : 'Nova Objava'}</h3>
+                <h3 className="font-serif text-xl text-olive-dark mb-4">{editingNewsId ? 'Uredi Objavo' : 'Nova Objava'}</h3>
 
-              <div className="space-y-4">
-                {/* Main Header Image */}
-                <div className="relative h-40 bg-gray-100 rounded-2xl overflow-hidden border-2 border-dashed border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => newsImageRef.current?.click()}>
-                  {newsImagePreview ? (
-                    <img src={newsImagePreview} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="flex flex-col items-center justify-center h-full text-olive/40">
-                      <ImageIcon size={32} />
-                      <span className="text-xs font-bold uppercase mt-2">Naslovna Slika</span>
-                    </div>
-                  )}
-                  <input type="file" ref={newsImageRef} className="hidden" accept="image/*" onChange={handleNewsImageSelect} />
-                </div>
+                <div className="space-y-4">
+                  {/* Main Header Image */}
+                  <div className="relative h-40 bg-gray-100 rounded-2xl overflow-hidden border-2 border-dashed border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => newsImageRef.current?.click()}>
+                    {newsImagePreview ? (
+                      <img src={newsImagePreview} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center h-full text-olive/40">
+                        <ImageIcon size={32} />
+                        <span className="text-xs font-bold uppercase mt-2">Naslovna Slika</span>
+                      </div>
+                    )}
+                    <input type="file" ref={newsImageRef} className="hidden" accept="image/*" onChange={handleNewsImageSelect} />
+                  </div>
 
-                <input
-                  type="text"
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta font-serif text-lg"
-                  value={newsForm.title}
-                  onChange={e => setNewsForm({ ...newsForm, title: e.target.value })}
-                  placeholder="Naslov Novice"
-                />
-
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-bold uppercase text-olive/50 ml-1">Datum objave (DD.MM.YYYY)</label>
                   <input
                     type="text"
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta font-sans"
-                    value={newsForm.date}
-                    onChange={e => setNewsForm({ ...newsForm, date: e.target.value })}
-                    placeholder="npr. 29.11.2025"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta font-serif text-lg"
+                    value={newsForm.title}
+                    onChange={e => setNewsForm({ ...newsForm, title: e.target.value })}
+                    placeholder="Naslov Novice"
                   />
-                </div>
 
-                {/* Block Editor Area */}
-                <div className="space-y-3">
-                  <label className="text-xs font-bold uppercase text-olive/50 block">Vsebina</label>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-bold uppercase text-olive/50 ml-1">Datum objave (DD.MM.YYYY)</label>
+                    <input
+                      type="text"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta font-sans"
+                      value={newsForm.date}
+                      onChange={e => setNewsForm({ ...newsForm, date: e.target.value })}
+                      placeholder="npr. 29.11.2025"
+                    />
+                  </div>
 
-                  {newsBlocks.map((block, index) => (
-                    <div key={block.id} className="relative group">
-                      {block.type === 'text' && (
-                        <div className="relative">
-                          {/* Formatting Toolbar */}
-                          <div className="flex flex-wrap gap-1 mb-2 p-2 bg-gray-100 rounded-lg border border-gray-200">
-                            <button onClick={() => formatText(block.id, 'bold')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Krepko">
-                              <Bold size={14} />
-                            </button>
-                            <button onClick={() => formatText(block.id, 'italic')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Ležeče">
-                              <Italic size={14} />
-                            </button>
-                            <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
-                            <button onClick={() => formatText(block.id, 'left')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Poravnava levo">
-                              <AlignLeft size={14} />
-                            </button>
-                            <button onClick={() => formatText(block.id, 'center')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Sredinsko">
-                              <AlignCenter size={14} />
-                            </button>
-                            <button onClick={() => formatText(block.id, 'right')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Poravnava desno">
-                              <AlignRight size={14} />
-                            </button>
-                            <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
-                            <button onClick={() => insertColor(block.id)} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Barva besedila">
-                              <Palette size={14} />
-                            </button>
-                            <button onClick={() => insertLink(block.id)} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi povezavo">
-                              <LinkIcon size={14} />
-                            </button>
-                            <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
-                            <select
-                              onChange={(e) => {
-                                if (e.target.value) {
-                                  changeFontSize(block.id, e.target.value);
-                                  e.target.value = "";
-                                }
-                              }}
-                              className="text-xs bg-transparent border-none focus:ring-0 text-olive/70 font-medium cursor-pointer"
-                            >
-                              <option value="">Velikost</option>
-                              <option value="2">Majhna</option>
-                              <option value="3">Normalna</option>
-                              <option value="4">Velika</option>
-                              <option value="5">Zelo velika</option>
-                              <option value="6">Ogromna</option>
-                            </select>
-                            <select
-                              onChange={(e) => {
-                                if (e.target.value) {
-                                  changeFontFamily(block.id, e.target.value);
-                                  e.target.value = "";
-                                }
-                              }}
-                              className="text-xs bg-transparent border-none focus:ring-0 text-olive/70 font-medium cursor-pointer"
-                            >
-                              <option value="">Pisava</option>
-                              <option value="font-sans">Sans-Serif</option>
-                              <option value="font-serif">Serif</option>
-                              <option value="font-mono">Mono</option>
-                            </select>
-                            <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
-                            <button onClick={() => insertImageAtCursor(block.id)} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi sliko">
-                              <ImageIcon size={14} />
-                            </button>
-                            <button onClick={() => insertVideoAtCursor(block.id)} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi video (YouTube)">
-                              <Video size={14} />
-                            </button>
-                            <button onClick={() => insertButtonAtCursor(block.id)} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi gumb">
-                              <MousePointerClick size={14} />
-                            </button>
-                          </div>
+                  {/* Block Editor Area */}
+                  <div className="space-y-3">
+                    <label className="text-xs font-bold uppercase text-olive/50 block">Vsebina</label>
 
-                          <div
-                            ref={(el) => {
-                              editorRefs.current[block.id] = el;
-                              if (el && el.innerHTML === '' && block.content) {
-                                el.innerHTML = block.content;
-                              }
-                            }}
-                            contentEditable
-                            suppressContentEditableWarning
-                            className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta font-serif min-h-[300px] overflow-auto"
-                            onPaste={(e) => {
-                              e.preventDefault();
-                              const text = e.clipboardData.getData('text/plain');
-                              document.execCommand('insertText', false, text);
-                            }}
-                            style={{
-                              whiteSpace: 'pre-wrap',
-                              wordBreak: 'break-word'
-                            }}
-                          />
-                        </div>
-                      )}
-                      {block.type !== 'text' && (
-                        <div className="relative bg-gray-100 rounded-xl p-4 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center">
-                          {block.preview ? (
-                            <img src={block.preview} className="max-h-40 rounded-lg object-contain" />
-                          ) : (
-                            <div className="text-center py-4">
-                              <ImageIcon className="mx-auto text-olive/30 mb-2" />
-                              <input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && handleBlockImageSelect(block.id, e.target.files[0])} className="text-xs text-olive/60" />
+                    {newsBlocks.map((block, index) => (
+                      <div key={block.id} className="relative group">
+                        {block.type === 'text' && (
+                          <div className="relative">
+                            {/* Formatting Toolbar */}
+                            <div className="flex flex-wrap gap-1 mb-2 p-2 bg-gray-100 rounded-lg border border-gray-200">
+                              <button onClick={() => formatText(block.id, 'bold')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Krepko">
+                                <Bold size={14} />
+                              </button>
+                              <button onClick={() => formatText(block.id, 'italic')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Ležeče">
+                                <Italic size={14} />
+                              </button>
+                              <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
+                              <button onClick={() => formatText(block.id, 'left')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Poravnava levo">
+                                <AlignLeft size={14} />
+                              </button>
+                              <button onClick={() => formatText(block.id, 'center')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Sredinsko">
+                                <AlignCenter size={14} />
+                              </button>
+                              <button onClick={() => formatText(block.id, 'right')} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Poravnava desno">
+                                <AlignRight size={14} />
+                              </button>
+                              <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
+                              <button onClick={() => insertColor(block.id)} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Barva besedila">
+                                <Palette size={14} />
+                              </button>
+                              <button onClick={() => insertLink(block.id)} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi povezavo">
+                                <LinkIcon size={14} />
+                              </button>
+                              <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
+                              <select
+                                onChange={(e) => {
+                                  if (e.target.value) {
+                                    changeFontSize(block.id, e.target.value);
+                                    e.target.value = "";
+                                  }
+                                }}
+                                className="text-xs bg-transparent border-none focus:ring-0 text-olive/70 font-medium cursor-pointer"
+                              >
+                                <option value="">Velikost</option>
+                                <option value="2">Majhna</option>
+                                <option value="3">Normalna</option>
+                                <option value="4">Velika</option>
+                                <option value="5">Zelo velika</option>
+                                <option value="6">Ogromna</option>
+                              </select>
+                              <select
+                                onChange={(e) => {
+                                  if (e.target.value) {
+                                    changeFontFamily(block.id, e.target.value);
+                                    e.target.value = "";
+                                  }
+                                }}
+                                className="text-xs bg-transparent border-none focus:ring-0 text-olive/70 font-medium cursor-pointer"
+                              >
+                                <option value="">Pisava</option>
+                                <option value="font-sans">Sans-Serif</option>
+                                <option value="font-serif">Serif</option>
+                                <option value="font-mono">Mono</option>
+                              </select>
+                              <div className="w-px h-4 bg-gray-300 mx-1 self-center"></div>
+                              <button onClick={() => insertImageAtCursor(block.id)} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi sliko">
+                                <ImageIcon size={14} />
+                              </button>
+                              <button onClick={() => insertVideoAtCursor(block.id)} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi video (YouTube)">
+                                <Video size={14} />
+                              </button>
+                              <button onClick={() => insertButtonAtCursor(block.id)} className="p-1.5 hover:bg-white rounded text-olive/70 hover:text-olive transition-colors" title="Vstavi gumb">
+                                <MousePointerClick size={14} />
+                              </button>
                             </div>
-                          )}
-                        </div>
-                      )}
 
-                      {/* Remove Block Button */}
-                      {newsBlocks.length > 1 && (
-                        <button onClick={() => removeBlock(block.id)} className="absolute -right-2 -top-2 bg-red-100 text-red-500 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-200">
-                          <X size={14} />
-                        </button>
-                      )}
-
-                      {block.type === 'button' && (
-                        <div className="flex gap-4">
-                          <div className="flex-1">
-                            <label className="text-xs font-bold uppercase text-olive/50 mb-1 block">Besedilo gumba</label>
-                            <input
-                              type="text"
-                              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-terracotta"
-                              value={block.text}
-                              onChange={(e) => updateButtonBlock(block.id, 'text', e.target.value)}
-                              placeholder="npr. Preberi več"
+                            <div
+                              ref={(el) => {
+                                editorRefs.current[block.id] = el;
+                                if (el && el.innerHTML === '' && block.content) {
+                                  el.innerHTML = block.content;
+                                }
+                              }}
+                              contentEditable
+                              suppressContentEditableWarning
+                              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta font-serif min-h-[300px] overflow-auto"
+                              onPaste={(e) => {
+                                e.preventDefault();
+                                const text = e.clipboardData.getData('text/plain');
+                                document.execCommand('insertText', false, text);
+                              }}
+                              style={{
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word'
+                              }}
                             />
                           </div>
-                          <div className="flex-1">
-                            <label className="text-xs font-bold uppercase text-olive/50 mb-1 block">Povezava (URL)</label>
-                            <input
-                              type="text"
-                              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-terracotta"
-                              value={block.url}
-                              onChange={(e) => updateButtonBlock(block.id, 'url', e.target.value)}
-                              placeholder="https://..."
-                            />
+                        )}
+                        {block.type !== 'text' && (
+                          <div className="relative bg-gray-100 rounded-xl p-4 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center">
+                            {block.preview ? (
+                              <img src={block.preview} className="max-h-40 rounded-lg object-contain" />
+                            ) : (
+                              <div className="text-center py-4">
+                                <ImageIcon className="mx-auto text-olive/30 mb-2" />
+                                <input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && handleBlockImageSelect(block.id, e.target.files[0])} className="text-xs text-olive/60" />
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      )}
+                        )}
 
-                      {block.type === 'customReact' && (
-                        <div className="space-y-4">
-                          <div>
-                            <label className="text-xs font-bold uppercase text-olive/50 mb-1 block">React koda (JavaScript)</label>
-                            <textarea
-                              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta font-mono min-h-[200px]"
-                              value={block.code || ''}
-                              onChange={(e) => updateBlockField(block.id, 'code', e.target.value)}
-                              placeholder={`import React from 'react';
+                        {/* Remove Block Button */}
+                        {newsBlocks.length > 1 && (
+                          <button onClick={() => removeBlock(block.id)} className="absolute -right-2 -top-2 bg-red-100 text-red-500 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-200">
+                            <X size={14} />
+                          </button>
+                        )}
+
+                        {block.type === 'button' && (
+                          <div className="flex gap-4">
+                            <div className="flex-1">
+                              <label className="text-xs font-bold uppercase text-olive/50 mb-1 block">Besedilo gumba</label>
+                              <input
+                                type="text"
+                                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-terracotta"
+                                value={block.text}
+                                onChange={(e) => updateButtonBlock(block.id, 'text', e.target.value)}
+                                placeholder="npr. Preberi več"
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <label className="text-xs font-bold uppercase text-olive/50 mb-1 block">Povezava (URL)</label>
+                              <input
+                                type="text"
+                                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-terracotta"
+                                value={block.url}
+                                onChange={(e) => updateButtonBlock(block.id, 'url', e.target.value)}
+                                placeholder="https://..."
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {block.type === 'customReact' && (
+                          <div className="space-y-4">
+                            <div>
+                              <label className="text-xs font-bold uppercase text-olive/50 mb-1 block">React koda (JavaScript)</label>
+                              <textarea
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta font-mono min-h-[200px]"
+                                value={block.code || ''}
+                                onChange={(e) => updateBlockField(block.id, 'code', e.target.value)}
+                                placeholder={`import React from 'react';
 import RegenerativePost from '../components/blog/RegenerativePost';
 
 export default function MyBlogComponent() {
@@ -2516,803 +2516,803 @@ export default function MyBlogComponent() {
     <RegenerativePost />
   );
 }`}
-                            />
+                              />
 
-                            {/* Code Validation Results */}
-                            {codeValidation && codeValidation.blockId === block.id && (
-                              <div className={`mt-3 rounded-xl p-4 border ${codeValidation.isValid ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
-                                <div className="flex items-start gap-2">
-                                  {codeValidation.isValid ? (
-                                    <Check size={16} className="text-green-600 mt-0.5 flex-shrink-0" />
-                                  ) : (
-                                    <AlertTriangle size={16} className="text-red-600 mt-0.5 flex-shrink-0" />
-                                  )}
-                                  <div className="flex-1 text-sm">
-                                    {codeValidation.errors.length > 0 && (
-                                      <div className="mb-2">
-                                        <strong className="text-red-800">Napake:</strong>
-                                        <ul className="mt-1 space-y-1">
-                                          {codeValidation.errors.map((error, idx) => (
-                                            <li key={idx} className="text-red-700 text-xs">• {error}</li>
-                                          ))}
-                                        </ul>
-                                      </div>
+                              {/* Code Validation Results */}
+                              {codeValidation && codeValidation.blockId === block.id && (
+                                <div className={`mt-3 rounded-xl p-4 border ${codeValidation.isValid ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                                  <div className="flex items-start gap-2">
+                                    {codeValidation.isValid ? (
+                                      <Check size={16} className="text-green-600 mt-0.5 flex-shrink-0" />
+                                    ) : (
+                                      <AlertTriangle size={16} className="text-red-600 mt-0.5 flex-shrink-0" />
                                     )}
-                                    {codeValidation.suggestions.length > 0 && (
-                                      <div>
-                                        <strong className={codeValidation.errors.length > 0 ? 'text-blue-800' : 'text-green-800'}>
-                                          {codeValidation.errors.length > 0 ? 'Predlogi:' : 'Izboljšave:'}
-                                        </strong>
-                                        <ul className="mt-1 space-y-1">
-                                          {codeValidation.suggestions.map((suggestion, idx) => (
-                                            <li key={idx} className={`text-xs ${codeValidation.errors.length > 0 ? 'text-blue-700' : 'text-green-700'}`}>
-                                              • {suggestion}
-                                            </li>
-                                          ))}
-                                        </ul>
-                                      </div>
+                                    <div className="flex-1 text-sm">
+                                      {codeValidation.errors.length > 0 && (
+                                        <div className="mb-2">
+                                          <strong className="text-red-800">Napake:</strong>
+                                          <ul className="mt-1 space-y-1">
+                                            {codeValidation.errors.map((error, idx) => (
+                                              <li key={idx} className="text-red-700 text-xs">• {error}</li>
+                                            ))}
+                                          </ul>
+                                        </div>
+                                      )}
+                                      {codeValidation.suggestions.length > 0 && (
+                                        <div>
+                                          <strong className={codeValidation.errors.length > 0 ? 'text-blue-800' : 'text-green-800'}>
+                                            {codeValidation.errors.length > 0 ? 'Predlogi:' : 'Izboljšave:'}
+                                          </strong>
+                                          <ul className="mt-1 space-y-1">
+                                            {codeValidation.suggestions.map((suggestion, idx) => (
+                                              <li key={idx} className={`text-xs ${codeValidation.errors.length > 0 ? 'text-blue-700' : 'text-green-700'}`}>
+                                                • {suggestion}
+                                              </li>
+                                            ))}
+                                          </ul>
+                                        </div>
+                                      )}
+                                    </div>
+                                    {!codeValidation.isValid && codeValidation.errors.length > 0 && (
+                                      <button
+                                        onClick={() => applyAutoFix(block.id)}
+                                        className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors flex-shrink-0"
+                                        title="Poskusi samodejno popraviti pogoste napake"
+                                      >
+                                        🔧 Popravi
+                                      </button>
                                     )}
                                   </div>
-                                  {!codeValidation.isValid && codeValidation.errors.length > 0 && (
-                                    <button
-                                      onClick={() => applyAutoFix(block.id)}
-                                      className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors flex-shrink-0"
-                                      title="Poskusi samodejno popraviti pogoste napake"
-                                    >
-                                      🔧 Popravi
-                                    </button>
-                                  )}
                                 </div>
-                              </div>
-                            )}
-                          </div>
-                          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                            <div className="flex items-start gap-2">
-                              <Code size={16} className="text-blue-600 mt-0.5 flex-shrink-0" />
-                              <div className="text-sm text-blue-800">
-                                <strong>Živi urejevalnik:</strong> Komponenta se izvaja v živo - lahko takoj dodajate slike in vidite spremembe.
-                                Za RegenerativePost uporabite: <code className="bg-blue-100 px-1 rounded">import RegenerativePost from '../components/blog/RegenerativePost'; export default function MyComponent() {'{'} return &lt;RegenerativePost /&gt;; {'}'}</code>
-                                Sistem samodejno preveri sintakso in da predloge za izboljšave.
-                                Slike se samodejno shranijo skupaj z objavo.
-                              </div>
-                            </div>
-                          </div>
-                          <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
-                            <div className="flex justify-between items-center mb-2">
-                              <label className="text-xs font-bold uppercase text-olive/50">Živi urejevalnik komponente</label>
-                              {Object.keys(newsImages).length > 0 && (
-                                <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-                                  📸 {Object.keys(newsImages).length} slik naloženih
-                                </span>
                               )}
                             </div>
-                            {block.code ? (
-                              <div className="bg-white rounded-lg border border-gray-100 p-4">
-                                <DynamicReactRenderer
-                                  code={block.code}
-                                  imageData={newsImages}
-                                  onImageUpload={handleNewsImageUpload}
-                                  sanityToken={sanityToken}
-                                />
+                            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                              <div className="flex items-start gap-2">
+                                <Code size={16} className="text-blue-600 mt-0.5 flex-shrink-0" />
+                                <div className="text-sm text-blue-800">
+                                  <strong>Živi urejevalnik:</strong> Komponenta se izvaja v živo - lahko takoj dodajate slike in vidite spremembe.
+                                  Za RegenerativePost uporabite: <code className="bg-blue-100 px-1 rounded">import RegenerativePost from '../components/blog/RegenerativePost'; export default function MyComponent() {'{'} return &lt;RegenerativePost /&gt;; {'}'}</code>
+                                  Sistem samodejno preveri sintakso in da predloge za izboljšave.
+                                  Slike se samodejno shranijo skupaj z objavo.
+                                </div>
                               </div>
-                            ) : (
-                              <div className="text-center py-8 text-gray-500">
-                                <Code size={32} className="mx-auto mb-2 opacity-50" />
-                                <p>Vnesite React kodo zgoraj, da vidite komponento v živo</p>
+                            </div>
+                            <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
+                              <div className="flex justify-between items-center mb-2">
+                                <label className="text-xs font-bold uppercase text-olive/50">Živi urejevalnik komponente</label>
+                                {Object.keys(newsImages).length > 0 && (
+                                  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                                    📸 {Object.keys(newsImages).length} slik naloženih
+                                  </span>
+                                )}
                               </div>
-                            )}
-                            {Object.keys(newsImages).length > 0 && (
-                              <div className="mt-3 text-xs text-gray-600 bg-yellow-50 border border-yellow-200 rounded p-2">
-                                💡 <strong>Nasvet:</strong> Slike so shranjene v komponenti. Kliknite "Shrani" na dnu strani, da shranite objavo s slikami.
-                              </div>
-                            )}
+                              {block.code ? (
+                                <div className="bg-white rounded-lg border border-gray-100 p-4">
+                                  <DynamicReactRenderer
+                                    code={block.code}
+                                    imageData={newsImages}
+                                    onImageUpload={handleNewsImageUpload}
+                                    sanityToken={sanityToken}
+                                  />
+                                </div>
+                              ) : (
+                                <div className="text-center py-8 text-gray-500">
+                                  <Code size={32} className="mx-auto mb-2 opacity-50" />
+                                  <p>Vnesite React kodo zgoraj, da vidite komponento v živo</p>
+                                </div>
+                              )}
+                              {Object.keys(newsImages).length > 0 && (
+                                <div className="mt-3 text-xs text-gray-600 bg-yellow-50 border border-yellow-200 rounded p-2">
+                                  💡 <strong>Nasvet:</strong> Slike so shranjene v komponenti. Kliknite "Shrani" na dnu strani, da shranite objavo s slikami.
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
 
-                {/* Block Type Selector */}
-                <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                  <label className="text-xs font-bold uppercase text-olive/50 mb-3 block">Dodaj nov blok</label>
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      onClick={addTextBlock}
-                      className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm hover:bg-gray-100 transition-colors"
-                    >
-                      <Type size={16} />
-                      Besedilo
-                    </button>
-                    <button
-                      onClick={addImageBlock}
-                      className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm hover:bg-gray-100 transition-colors"
-                    >
-                      <ImageIcon size={16} />
-                      Slika
-                    </button>
-                    <button
-                      onClick={addButtonBlock}
-                      className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm hover:bg-gray-100 transition-colors"
-                    >
-                      <MousePointerClick size={16} />
-                      Gumb
-                    </button>
+                  {/* Block Type Selector */}
+                  <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                    <label className="text-xs font-bold uppercase text-olive/50 mb-3 block">Dodaj nov blok</label>
                     <div className="flex flex-wrap gap-2">
                       <button
-                        onClick={addCustomReactBlock}
-                        className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-sm hover:bg-blue-100 transition-colors text-blue-700"
+                        onClick={addTextBlock}
+                        className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm hover:bg-gray-100 transition-colors"
                       >
-                        <Code size={16} />
-                        Interaktivna komponenta
+                        <Type size={16} />
+                        Besedilo
                       </button>
                       <button
-                        onClick={() => addCustomReactBlock('gallery')}
-                        className="flex items-center gap-2 px-3 py-2 bg-purple-50 border border-purple-200 rounded-lg text-sm hover:bg-purple-100 transition-colors text-purple-700"
+                        onClick={addImageBlock}
+                        className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm hover:bg-gray-100 transition-colors"
                       >
                         <ImageIcon size={16} />
-                        Galerija slik
+                        Slika
                       </button>
                       <button
-                        onClick={() => addCustomReactBlock('form')}
-                        className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-lg text-sm hover:bg-green-100 transition-colors text-green-700"
+                        onClick={addButtonBlock}
+                        className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm hover:bg-gray-100 transition-colors"
                       >
-                        <FileText size={16} />
-                        Kontakt obrazec
+                        <MousePointerClick size={16} />
+                        Gumb
                       </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-2 mt-6">
-                  {editingNewsId && <button onClick={handleDeleteNews} className="p-4 bg-red-50 text-red-500 rounded-xl"><Trash2 size={20} /></button>}
-                  <button
-                    onClick={handleSaveNews}
-                    disabled={isUploading}
-                    className="flex-1 bg-olive text-white py-4 rounded-2xl font-bold uppercase tracking-widest shadow-lg hover:bg-olive-dark transition-all flex items-center justify-center gap-2 relative"
-                  >
-                    {isUploading ? <RefreshCw className="animate-spin" /> : <Send size={16} />}
-                    {editingNewsId ? 'Posodobi' : 'Objavi'}
-                    {Object.keys(newsImages).length > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                        {Object.keys(newsImages).length}
-                      </span>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ORDERS TAB */}
-      {activeTab === 'orders' && (
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-gray-50 pb-24">
-          <div className="flex justify-between items-center mb-4">
-            <div>
-              <h2 className="font-serif text-2xl text-olive-dark mb-1 flex items-center gap-2">
-                Upravljanje Naročil
-                {orders.filter(o => o.status === 'pending').length > 0 && (
-                  <span className="px-3 py-1 bg-yellow-500 text-white rounded-full text-sm font-bold">
-                    {orders.filter(o => o.status === 'pending').length} novih
-                  </span>
-                )}
-              </h2>
-              <p className="text-olive/60 text-sm">Pregled in urejanje prejetih povpraševanj.</p>
-            </div>
-            <button
-              onClick={loadOrders}
-              className="p-3 bg-white rounded-full shadow-md hover:shadow-lg text-olive transition-all"
-              title="Osveži"
-            >
-              <RefreshCw size={20} className={isLoadingOrders ? "animate-spin" : ""} />
-            </button>
-          </div>
-
-          {/* Search Bar */}
-          <div className="mb-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-olive/40" size={18} />
-              <input
-                type="text"
-                placeholder="Išči po imenu ali emailu..."
-                value={orderSearchTerm}
-                onChange={(e) => setOrderSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-olive transition-colors"
-              />
-            </div>
-          </div>
-
-          {/* Status Filter */}
-          <div className="flex gap-2 mb-4 flex-wrap">
-            <button
-              onClick={() => setOrderStatusFilter('pending')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-colors ${orderStatusFilter === 'pending' ? 'bg-yellow-500 text-white' : 'bg-white text-olive/60 hover:bg-yellow-50'}`}
-            >
-              V čakanju ({orders.filter(o => o.status === 'pending').length})
-            </button>
-            <button
-              onClick={() => setOrderStatusFilter('in-preparation')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-colors ${orderStatusFilter === 'in-preparation' ? 'bg-green-500 text-white' : 'bg-white text-olive/60 hover:bg-green-50'}`}
-            >
-              V pripravi ({orders.filter(o => o.status === 'in-preparation').length})
-            </button>
-            <button
-              onClick={() => setOrderStatusFilter('ready-for-pickup')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-colors ${orderStatusFilter === 'ready-for-pickup' ? 'bg-cyan-500 text-white' : 'bg-white text-olive/60 hover:bg-cyan-50'}`}
-            >
-              Pripravljeno ({orders.filter(o => o.status === 'ready-for-pickup').length})
-            </button>
-            <button
-              onClick={() => setOrderStatusFilter('completed')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-colors ${orderStatusFilter === 'completed' ? 'bg-emerald-500 text-white' : 'bg-white text-olive/60 hover:bg-emerald-50'}`}
-            >
-              Zaključeno ({orders.filter(o => o.status === 'completed').length})
-            </button>
-            <button
-              onClick={() => setOrderStatusFilter('rejected')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-colors ${orderStatusFilter === 'rejected' ? 'bg-red-500 text-white' : 'bg-white text-olive/60 hover:bg-red-50'}`}
-            >
-              Zavrnjeno ({orders.filter(o => o.status === 'rejected').length})
-            </button>
-          </div>
-
-          {/* Pickup Location Filter */}
-          <div className="flex gap-2 mb-4 flex-wrap">
-            <button
-              onClick={() => setPickupLocationFilter('home')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-colors ${pickupLocationFilter === 'home' ? 'bg-blue-500 text-white' : 'bg-white text-olive/60 hover:bg-blue-50'}`}
-            >
-              Prevzem doma ({orders.filter(o => o.pickupLocation === 'home').length})
-            </button>
-            <button
-              onClick={() => setPickupLocationFilter('market')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-colors ${pickupLocationFilter === 'market' ? 'bg-purple-500 text-white' : 'bg-white text-olive/60 hover:bg-purple-50'}`}
-            >
-              Prevzem tržnica ({orders.filter(o => o.pickupLocation === 'market').length})
-            </button>
-          </div>
-
-          {isLoadingOrders ? (
-            <div className="text-center py-20">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-olive"></div>
-              <p className="mt-4 text-olive/60">Nalaganje naročil...</p>
-            </div>
-          ) : orders.length === 0 ? (
-            <div className="bg-white rounded-[2rem] p-12 text-center border border-black/5 shadow-sm">
-              <ClipboardList size={48} className="mx-auto text-olive/20 mb-4" />
-              <h3 className="text-xl text-olive-dark font-serif mb-2">Ni novih naročil</h3>
-              <p className="text-olive/60">Trenutno ni nobenih oddanih povpraševanj.</p>
-            </div>
-          ) : (
-            <div className="grid gap-6">
-              {(orders || [])
-                .filter(order => {
-                  // If searching, search across all statuses and locations
-                  if (orderSearchTerm) {
-                    const searchLower = orderSearchTerm.toLowerCase();
-                    const matchesSearch = (
-                      order.customer.name.toLowerCase().includes(searchLower) ||
-                      order.customer.email.toLowerCase().includes(searchLower)
-                    );
-                    const matchesLocation = pickupLocationFilter === 'all' || order.pickupLocation === pickupLocationFilter;
-                    return matchesSearch && matchesLocation;
-                  }
-                  // If not searching, filter by selected status and location
-                  const matchesStatus = order.status === orderStatusFilter;
-                  const matchesLocation = pickupLocationFilter === 'all' || order.pickupLocation === pickupLocationFilter;
-                  return matchesStatus && matchesLocation;
-                })
-                .map((order) => {
-                  // Calculate stock status for this order
-                  const { allAvailable, itemsWithStock } = checkOrderStock(order.items);
-
-                  return (
-                    <div key={order.id} className="bg-white rounded-[2rem] p-6 border border-black/5 shadow-sm hover:shadow-md transition-all">
-                      <div className="flex flex-col md:flex-row justify-between gap-6">
-                        {/* Order Header & Customer Info */}
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-4">
-                            <span className="font-mono text-xs font-bold bg-gray-100 px-2 py-1 rounded text-gray-500">{order.orderNumber}</span>
-                            <span className="text-xs text-olive/40 uppercase tracking-widest font-bold">
-                              {new Date(order.createdAt).toLocaleString('sl-SI')}
-                            </span>
-                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${order.status === 'pending' ? 'bg-yellow-50 text-yellow-600 border-yellow-200' :
-                              order.status === 'in-preparation' ? 'bg-green-50 text-green-600 border-green-200' :
-                                order.status === 'rejected' ? 'bg-red-50 text-red-600 border-red-200' :
-                                  order.status === 'ready-for-pickup' ? 'bg-cyan-50 text-cyan-600 border-cyan-200' :
-                                    'bg-emerald-50 text-emerald-600 border-emerald-200'
-                              }`}>
-                              {order.status === 'pending' ? 'V čakanju' :
-                                order.status === 'in-preparation' ? 'V pripravi' :
-                                  order.status === 'rejected' ? 'Zavrnjeno' :
-                                    order.status === 'ready-for-pickup' ? 'Pripravljeno' : 'Zaključeno'}
-                            </span>
-
-                            {/* Stock Availability Badge (Only for Pending orders) */}
-                            {order.status === 'pending' && (
-                              <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold uppercase border ${allAvailable ? 'bg-green-50 text-green-600 border-green-200' : 'bg-red-50 text-red-600 border-red-200'}`}>
-                                {allAvailable ? <Check size={12} /> : <AlertTriangle size={12} />}
-                                {allAvailable ? 'Zaloga OK' : 'Ni zaloge'}
-                              </span>
-                            )}
-                          </div>
-
-                          <h3 className="font-serif text-xl text-olive-dark mb-1">{order.customer.name}</h3>
-                          <div className="text-sm text-olive/60 space-y-1 mb-4">
-                            <p className="flex items-center gap-2"><span className="w-4"><Send size={12} /></span> {order.customer.email}</p>
-                            <p className="flex items-center gap-2"><span className="w-4"><Bell size={12} /></span> {order.customer.phone}</p>
-                            <p className="flex items-center gap-2"><span className="w-4">📍</span>
-                              {order.pickupLocation === 'home' ? 'Prevzem na kmetiji' :
-                                order.pickupLocation === 'market' ? 'Prevzem na tržnici Ljubljana' :
-                                  'Prevzem ni določen'}
-                            </p>
-                          </div>
-
-                          {order.note && (
-                            <div className="bg-cream/50 p-3 rounded-xl text-sm text-olive/80 italic border border-olive/5">
-                              "{order.note}"
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Order Items */}
-                        <div className="flex-1 border-t md:border-t-0 md:border-l border-gray-100 pt-4 md:pt-0 md:pl-6">
-                          <h4 className="text-xs font-bold uppercase tracking-widest text-olive/40 mb-3">Naročeno</h4>
-                          <div className="space-y-2 mb-4">
-                            {itemsWithStock.map((item, idx) => (
-                              <div key={idx} className="flex justify-between text-sm">
-                                <span className="text-olive-dark flex items-center gap-2">
-                                  <span className="font-bold text-terracotta">{item.quantity}x</span>
-                                  <span>{item.name}</span>
-                                  {/* Stock Info */}
-                                  {order.status === 'pending' && (
-                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${item.isEnough ? 'bg-gray-100 text-gray-500' : 'bg-red-100 text-red-600'}`}>
-                                      (Zaloga: {item.currentStock} {item.unit})
-                                    </span>
-                                  )}
-                                </span>
-                                <span className="text-olive/60">{(item.price * item.quantity).toFixed(2)}€</span>
-                              </div>
-                            ))}
-                          </div>
-                          <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-                            <span className="font-bold text-olive-dark">Skupaj</span>
-                            <span className="font-serif text-xl text-olive-dark">{order.total.toFixed(2)}€</span>
-                          </div>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex flex-row md:flex-col justify-end gap-2 border-t md:border-t-0 md:border-l border-gray-100 pt-4 md:pt-0 md:pl-6 min-w-[180px]">
-                          {/* Pending: Can approve or reject */}
-                          {order.status === 'pending' && (
-                            <>
-                              <button
-                                onClick={() => handleOrderStatus(order.id, 'in-preparation')}
-                                className="flex-1 bg-green-50 text-green-700 hover:bg-green-100 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
-                              >
-                                <Check size={14} /> Potrdi
-                              </button>
-                              <button
-                                onClick={() => handleOrderStatus(order.id, 'rejected')}
-                                className="flex-1 bg-red-50 text-red-700 hover:bg-red-100 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
-                              >
-                                <X size={14} /> Zavrni
-                              </button>
-                            </>
-                          )}
-
-                          {/* In Preparation: Can mark ready or reject */}
-                          {order.status === 'in-preparation' && (
-                            <>
-                              <button
-                                onClick={() => handleOrderStatus(order.id, 'ready-for-pickup')}
-                                className="w-full bg-cyan-50 text-cyan-700 hover:bg-cyan-100 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
-                              >
-                                📦 Pripravljeno
-                              </button>
-                              <button
-                                onClick={() => handleOrderStatus(order.id, 'rejected')}
-                                className="w-full bg-red-50 text-red-700 hover:bg-red-100 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
-                              >
-                                <X size={14} /> Zavrni
-                              </button>
-                            </>
-                          )}
-
-                          {/* Ready for Pickup: Can complete or go back to preparation */}
-                          {order.status === 'ready-for-pickup' && (
-                            <>
-                              <button
-                                onClick={() => handleOrderStatus(order.id, 'completed')}
-                                className="w-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
-                              >
-                                ✅ Zaključi
-                              </button>
-                              <button
-                                onClick={() => handleOrderStatus(order.id, 'in-preparation')}
-                                className="w-full bg-gray-50 text-gray-700 hover:bg-gray-100 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
-                              >
-                                ← V pripravo
-                              </button>
-                            </>
-                          )}
-
-                          {/* Final statuses: No actions */}
-                          {(order.status === 'rejected' || order.status === 'completed') && (
-                            <div className="text-center text-xs text-olive/40 italic py-2">
-                              {order.status === 'rejected' ? 'Zavrnjeno' : 'Zaključeno'}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* --- VIDEO GALLERY TAB --- */}
-      {activeTab === 'videos' && (
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-gray-50 pb-24">
-
-          {!isEditingVideo ? (
-            <>
-              {/* Video List */}
-              <div className="flex justify-between items-center mb-2 px-1">
-                <h3 className="font-serif text-lg text-olive-dark">Video Galerija</h3>
-                <button onClick={() => { setIsEditingVideo(true); setEditingVideoId(null); setVideoForm({ title: '', videoId: '', category: '' }); }} className="bg-olive text-white px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wide flex items-center gap-2 shadow-md"><Plus size={16} /> Dodaj Video</button>
-              </div>
-
-              {isLoadingVideos ? (
-                <div className="text-center py-8 text-olive/50"><RefreshCw className="animate-spin mx-auto mb-2" size={24} /><p className="text-sm">Nalaganje...</p></div>
-              ) : videos.length === 0 ? (
-                <div className="bg-white rounded-3xl p-8 text-center text-olive/50"><Video size={32} className="mx-auto mb-2" /><p className="text-sm">Še ni dodanih videov</p></div>
-              ) : (
-                videos.map((video) => (
-                  <div key={video.id} className="bg-white p-4 rounded-2xl border border-black/5 flex flex-col gap-2 shadow-sm">
-                    <div className="flex items-start gap-4">
-                      <img src={`https://img.youtube.com/vi/${video.videoId}/mqdefault.jpg`} className="w-24 h-16 rounded-lg object-cover bg-gray-50" alt={video.title} />
-                      <div className="flex-1">
-                        <h4 className="font-serif text-lg text-olive-dark leading-tight mb-1">{video.title}</h4>
-                        {video.category && <p className="text-xs text-olive/50 font-medium mb-1">{video.category}</p>}
-                        <a href={`https://www.youtube.com/watch?v=${video.videoId}`} target="_blank" rel="noopener noreferrer" className="text-xs text-terracotta hover:underline">Poglej na YouTube</a>
-                        <button onClick={() => startEditVideo(video)} className="inline-flex items-center gap-2 mt-2 px-3 py-1 text-xs font-semibold text-olive/90 bg-olive/10 border border-olive/10 rounded-xl shadow-sm hover:bg-olive/20 transition-colors">
-                          <Pencil size={14} /> Uredi
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          onClick={addCustomReactBlock}
+                          className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-sm hover:bg-blue-100 transition-colors text-blue-700"
+                        >
+                          <Code size={16} />
+                          Interaktivna komponenta
+                        </button>
+                        <button
+                          onClick={() => addCustomReactBlock('gallery')}
+                          className="flex items-center gap-2 px-3 py-2 bg-purple-50 border border-purple-200 rounded-lg text-sm hover:bg-purple-100 transition-colors text-purple-700"
+                        >
+                          <ImageIcon size={16} />
+                          Galerija slik
+                        </button>
+                        <button
+                          onClick={() => addCustomReactBlock('form')}
+                          className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-lg text-sm hover:bg-green-100 transition-colors text-green-700"
+                        >
+                          <FileText size={16} />
+                          Kontakt obrazec
                         </button>
                       </div>
                     </div>
                   </div>
-                ))
-              )}
-            </>
-          ) : (
-            <div className={`bg-white rounded-3xl p-6 shadow-sm border border-black/5 ${!sanityToken ? 'opacity-50 pointer-events-none' : ''}`}>
-              <div className="flex items-center gap-2 mb-6 text-olive/50 cursor-pointer" onClick={() => { setIsEditingVideo(false); setEditingVideoId(null); setVideoForm({ title: '', videoId: '', category: '' }); }}><ArrowLeft size={16} /><span className="text-xs font-bold uppercase">Nazaj</span></div>
 
-              <h3 className="font-serif text-xl text-olive-dark mb-4">{editingVideoId ? 'Uredi Video' : 'Dodaj Video'}</h3>
-
-              <div className="space-y-4">
-                <input
-                  type="text"
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta"
-                  value={videoForm.title}
-                  onChange={e => setVideoForm({ ...videoForm, title: e.target.value })}
-                  placeholder="Naslov videa"
-                />
-
-                <div>
-                  <input
-                    type="text"
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta"
-                    value={videoForm.videoId}
-                    onChange={e => setVideoForm({ ...videoForm, videoId: e.target.value })}
-                    placeholder="YouTube URL ali Video ID (npr. dQw4w9WgXcQ)"
-                  />
-                  <p className="text-xs text-olive/50 mt-1 px-2">Vnesite celoten YouTube URL ali samo 11-mestni video ID</p>
-                </div>
-
-                <input
-                  type="text"
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta"
-                  value={videoForm.category}
-                  onChange={e => setVideoForm({ ...videoForm, category: e.target.value })}
-                  placeholder="Kategorija (neobvezno)"
-                />
-
-                <div className="flex gap-2 mt-6">
-                  {editingVideoId && <button onClick={handleDeleteVideo} className="p-4 bg-red-50 text-red-500 rounded-xl"><Trash2 size={20} /></button>}
-                  <button
-                    onClick={handleSaveVideo}
-                    disabled={isUploading}
-                    className="flex-1 bg-olive text-white py-4 rounded-2xl font-bold uppercase tracking-widest shadow-lg hover:bg-olive-dark transition-all flex items-center justify-center gap-2"
-                  >
-                    {isUploading ? <RefreshCw className="animate-spin" /> : <Save size={16} />}
-                    {editingVideoId ? 'Posodobi' : 'Dodaj'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-
-      {/* --- GALLERY TAB --- */}
-      {activeTab === 'gallery' && (
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-gray-50 pb-24">
-
-          {!isEditingGallery ? (
-            <>
-              {/* Upload Section */}
-              <div className="bg-white rounded-3xl p-6 shadow-sm border border-black/5 mb-6">
-                <h3 className="font-serif text-xl text-olive-dark mb-4 flex items-center gap-2"><Upload size={20} /> Naloži nove fotografije</h3>
-                <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" accept="image/*" multiple />
-                <button onClick={() => fileInputRef.current?.click()} className="w-full border-2 border-dashed border-olive/20 rounded-2xl p-8 flex flex-col items-center justify-center text-olive/60 hover:border-olive transition-all">
-                  <ImageIcon size={32} />
-                  <span className="mt-2 text-xs font-bold uppercase">Izberi slike</span>
-                </button>
-
-                {/* Pending uploads with title input */}
-                {pendingUploads.length > 0 && (
-                  <div className="mt-4 space-y-3">
-                    <h4 className="text-sm font-bold text-olive-dark">Pripravljene slike ({pendingUploads.length})</h4>
-                    {pendingUploads.map((upload, idx) => (
-                      <div key={idx} className="flex flex-col gap-2 bg-gray-50 p-3 rounded-xl">
-                        <div className="flex items-center gap-3">
-                          <img src={upload.src} className="w-16 h-16 object-cover rounded-lg" alt="Preview" />
-                          <input
-                            type="text"
-                            placeholder="Naslov slike..."
-                            value={upload.description}
-                            onChange={(e) => {
-                              const updated = [...pendingUploads];
-                              updated[idx].description = e.target.value;
-                              setPendingUploads(updated);
-                            }}
-                            className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm"
-                          />
-                          <button
-                            onClick={() => setPendingUploads(prev => prev.filter((_, i) => i !== idx))}
-                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
-                          >
-                            <X size={16} />
-                          </button>
-                        </div>
-                        <input
-                          type="date"
-                          value={upload.date}
-                          onChange={(e) => {
-                            const updated = [...pendingUploads];
-                            updated[idx].date = e.target.value;
-                            setPendingUploads(updated);
-                          }}
-                          className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm"
-                        />
-                      </div>
-                    ))}
+                  <div className="flex gap-2 mt-6">
+                    {editingNewsId && <button onClick={handleDeleteNews} className="p-4 bg-red-50 text-red-500 rounded-xl"><Trash2 size={20} /></button>}
                     <button
-                      onClick={handleUploadConfirm}
-                      className="w-full bg-olive text-white py-4 rounded-2xl font-bold uppercase shadow-lg hover:bg-olive-dark"
+                      onClick={handleSaveNews}
                       disabled={isUploading}
+                      className="flex-1 bg-olive text-white py-4 rounded-2xl font-bold uppercase tracking-widest shadow-lg hover:bg-olive-dark transition-all flex items-center justify-center gap-2 relative"
                     >
-                      {isUploading ? 'Nalaganje...' : 'Objavi vse'}
+                      {isUploading ? <RefreshCw className="animate-spin" /> : <Send size={16} />}
+                      {editingNewsId ? 'Posodobi' : 'Objavi'}
+                      {Object.keys(newsImages).length > 0 && (
+                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                          {Object.keys(newsImages).length}
+                        </span>
+                      )}
                     </button>
                   </div>
-                )}
-              </div>
-
-              {/* Gallery List */}
-              <div className="flex justify-between items-center mb-2 px-1">
-                <h3 className="font-serif text-lg text-olive-dark">Vse slike ({galleryImages.length})</h3>
-                <button onClick={loadGallery} className="p-2 bg-white rounded-full shadow-sm hover:shadow-md text-olive transition-all">
-                  <RefreshCw size={16} className={isLoadingGallery ? "animate-spin" : ""} />
-                </button>
-              </div>
-
-              {isLoadingGallery ? (
-                <div className="text-center py-8 text-olive/50">
-                  <RefreshCw className="animate-spin mx-auto mb-2" size={24} />
-                  <p className="text-sm">Nalaganje...</p>
                 </div>
-              ) : galleryImages.length === 0 ? (
-                <div className="bg-white rounded-3xl p-8 text-center text-olive/50">
-                  <ImageIcon size={32} className="mx-auto mb-2" />
-                  <p className="text-sm">Še ni naloženih slik</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ORDERS TAB */}
+        {activeTab === 'orders' && (
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-gray-50 pb-24">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h2 className="font-serif text-2xl text-olive-dark mb-1 flex items-center gap-2">
+                  Upravljanje Naročil
+                  {orders.filter(o => o.status === 'pending').length > 0 && (
+                    <span className="px-3 py-1 bg-yellow-500 text-white rounded-full text-sm font-bold">
+                      {orders.filter(o => o.status === 'pending').length} novih
+                    </span>
+                  )}
+                </h2>
+                <p className="text-olive/60 text-sm">Pregled in urejanje prejetih povpraševanj.</p>
+              </div>
+              <button
+                onClick={loadOrders}
+                className="p-3 bg-white rounded-full shadow-md hover:shadow-lg text-olive transition-all"
+                title="Osveži"
+              >
+                <RefreshCw size={20} className={isLoadingOrders ? "animate-spin" : ""} />
+              </button>
+            </div>
+
+            {/* Search Bar */}
+            <div className="mb-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-olive/40" size={18} />
+                <input
+                  type="text"
+                  placeholder="Išči po imenu ali emailu..."
+                  value={orderSearchTerm}
+                  onChange={(e) => setOrderSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-olive transition-colors"
+                />
+              </div>
+            </div>
+
+            {/* Status Filter */}
+            <div className="flex gap-2 mb-4 flex-wrap">
+              <button
+                onClick={() => setOrderStatusFilter('pending')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-colors ${orderStatusFilter === 'pending' ? 'bg-yellow-500 text-white' : 'bg-white text-olive/60 hover:bg-yellow-50'}`}
+              >
+                V čakanju ({orders.filter(o => o.status === 'pending').length})
+              </button>
+              <button
+                onClick={() => setOrderStatusFilter('in-preparation')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-colors ${orderStatusFilter === 'in-preparation' ? 'bg-green-500 text-white' : 'bg-white text-olive/60 hover:bg-green-50'}`}
+              >
+                V pripravi ({orders.filter(o => o.status === 'in-preparation').length})
+              </button>
+              <button
+                onClick={() => setOrderStatusFilter('ready-for-pickup')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-colors ${orderStatusFilter === 'ready-for-pickup' ? 'bg-cyan-500 text-white' : 'bg-white text-olive/60 hover:bg-cyan-50'}`}
+              >
+                Pripravljeno ({orders.filter(o => o.status === 'ready-for-pickup').length})
+              </button>
+              <button
+                onClick={() => setOrderStatusFilter('completed')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-colors ${orderStatusFilter === 'completed' ? 'bg-emerald-500 text-white' : 'bg-white text-olive/60 hover:bg-emerald-50'}`}
+              >
+                Zaključeno ({orders.filter(o => o.status === 'completed').length})
+              </button>
+              <button
+                onClick={() => setOrderStatusFilter('rejected')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-colors ${orderStatusFilter === 'rejected' ? 'bg-red-500 text-white' : 'bg-white text-olive/60 hover:bg-red-50'}`}
+              >
+                Zavrnjeno ({orders.filter(o => o.status === 'rejected').length})
+              </button>
+            </div>
+
+            {/* Pickup Location Filter */}
+            <div className="flex gap-2 mb-4 flex-wrap">
+              <button
+                onClick={() => setPickupLocationFilter('home')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-colors ${pickupLocationFilter === 'home' ? 'bg-blue-500 text-white' : 'bg-white text-olive/60 hover:bg-blue-50'}`}
+              >
+                Prevzem doma ({orders.filter(o => o.pickupLocation === 'home').length})
+              </button>
+              <button
+                onClick={() => setPickupLocationFilter('market')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-colors ${pickupLocationFilter === 'market' ? 'bg-purple-500 text-white' : 'bg-white text-olive/60 hover:bg-purple-50'}`}
+              >
+                Prevzem tržnica ({orders.filter(o => o.pickupLocation === 'market').length})
+              </button>
+            </div>
+
+            {isLoadingOrders ? (
+              <div className="text-center py-20">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-olive"></div>
+                <p className="mt-4 text-olive/60">Nalaganje naročil...</p>
+              </div>
+            ) : orders.length === 0 ? (
+              <div className="bg-white rounded-[2rem] p-12 text-center border border-black/5 shadow-sm">
+                <ClipboardList size={48} className="mx-auto text-olive/20 mb-4" />
+                <h3 className="text-xl text-olive-dark font-serif mb-2">Ni novih naročil</h3>
+                <p className="text-olive/60">Trenutno ni nobenih oddanih povpraševanj.</p>
+              </div>
+            ) : (
+              <div className="grid gap-6">
+                {(orders || [])
+                  .filter(order => {
+                    // If searching, search across all statuses and locations
+                    if (orderSearchTerm) {
+                      const searchLower = orderSearchTerm.toLowerCase();
+                      const matchesSearch = (
+                        order.customer.name.toLowerCase().includes(searchLower) ||
+                        order.customer.email.toLowerCase().includes(searchLower)
+                      );
+                      const matchesLocation = pickupLocationFilter === 'all' || order.pickupLocation === pickupLocationFilter;
+                      return matchesSearch && matchesLocation;
+                    }
+                    // If not searching, filter by selected status and location
+                    const matchesStatus = order.status === orderStatusFilter;
+                    const matchesLocation = pickupLocationFilter === 'all' || order.pickupLocation === pickupLocationFilter;
+                    return matchesStatus && matchesLocation;
+                  })
+                  .map((order) => {
+                    // Calculate stock status for this order
+                    const { allAvailable, itemsWithStock } = checkOrderStock(order.items);
+
+                    return (
+                      <div key={order.id} className="bg-white rounded-[2rem] p-6 border border-black/5 shadow-sm hover:shadow-md transition-all">
+                        <div className="flex flex-col md:flex-row justify-between gap-6">
+                          {/* Order Header & Customer Info */}
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-4">
+                              <span className="font-mono text-xs font-bold bg-gray-100 px-2 py-1 rounded text-gray-500">{order.orderNumber}</span>
+                              <span className="text-xs text-olive/40 uppercase tracking-widest font-bold">
+                                {new Date(order.createdAt).toLocaleString('sl-SI')}
+                              </span>
+                              <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${order.status === 'pending' ? 'bg-yellow-50 text-yellow-600 border-yellow-200' :
+                                order.status === 'in-preparation' ? 'bg-green-50 text-green-600 border-green-200' :
+                                  order.status === 'rejected' ? 'bg-red-50 text-red-600 border-red-200' :
+                                    order.status === 'ready-for-pickup' ? 'bg-cyan-50 text-cyan-600 border-cyan-200' :
+                                      'bg-emerald-50 text-emerald-600 border-emerald-200'
+                                }`}>
+                                {order.status === 'pending' ? 'V čakanju' :
+                                  order.status === 'in-preparation' ? 'V pripravi' :
+                                    order.status === 'rejected' ? 'Zavrnjeno' :
+                                      order.status === 'ready-for-pickup' ? 'Pripravljeno' : 'Zaključeno'}
+                              </span>
+
+                              {/* Stock Availability Badge (Only for Pending orders) */}
+                              {order.status === 'pending' && (
+                                <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold uppercase border ${allAvailable ? 'bg-green-50 text-green-600 border-green-200' : 'bg-red-50 text-red-600 border-red-200'}`}>
+                                  {allAvailable ? <Check size={12} /> : <AlertTriangle size={12} />}
+                                  {allAvailable ? 'Zaloga OK' : 'Ni zaloge'}
+                                </span>
+                              )}
+                            </div>
+
+                            <h3 className="font-serif text-xl text-olive-dark mb-1">{order.customer.name}</h3>
+                            <div className="text-sm text-olive/60 space-y-1 mb-4">
+                              <p className="flex items-center gap-2"><span className="w-4"><Send size={12} /></span> {order.customer.email}</p>
+                              <p className="flex items-center gap-2"><span className="w-4"><Bell size={12} /></span> {order.customer.phone}</p>
+                              <p className="flex items-center gap-2"><span className="w-4">📍</span>
+                                {order.pickupLocation === 'home' ? 'Prevzem na kmetiji' :
+                                  order.pickupLocation === 'market' ? 'Prevzem na tržnici Ljubljana' :
+                                    'Prevzem ni določen'}
+                              </p>
+                            </div>
+
+                            {order.note && (
+                              <div className="bg-cream/50 p-3 rounded-xl text-sm text-olive/80 italic border border-olive/5">
+                                "{order.note}"
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Order Items */}
+                          <div className="flex-1 border-t md:border-t-0 md:border-l border-gray-100 pt-4 md:pt-0 md:pl-6">
+                            <h4 className="text-xs font-bold uppercase tracking-widest text-olive/40 mb-3">Naročeno</h4>
+                            <div className="space-y-2 mb-4">
+                              {itemsWithStock.map((item, idx) => (
+                                <div key={idx} className="flex justify-between text-sm">
+                                  <span className="text-olive-dark flex items-center gap-2">
+                                    <span className="font-bold text-terracotta">{item.quantity}x</span>
+                                    <span>{item.name}</span>
+                                    {/* Stock Info */}
+                                    {order.status === 'pending' && (
+                                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${item.isEnough ? 'bg-gray-100 text-gray-500' : 'bg-red-100 text-red-600'}`}>
+                                        (Zaloga: {item.currentStock} {item.unit})
+                                      </span>
+                                    )}
+                                  </span>
+                                  <span className="text-olive/60">{(item.price * item.quantity).toFixed(2)}€</span>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="flex justify-between items-center pt-3 border-t border-gray-100">
+                              <span className="font-bold text-olive-dark">Skupaj</span>
+                              <span className="font-serif text-xl text-olive-dark">{order.total.toFixed(2)}€</span>
+                            </div>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex flex-row md:flex-col justify-end gap-2 border-t md:border-t-0 md:border-l border-gray-100 pt-4 md:pt-0 md:pl-6 min-w-[180px]">
+                            {/* Pending: Can approve or reject */}
+                            {order.status === 'pending' && (
+                              <>
+                                <button
+                                  onClick={() => handleOrderStatus(order.id, 'in-preparation')}
+                                  className="flex-1 bg-green-50 text-green-700 hover:bg-green-100 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
+                                >
+                                  <Check size={14} /> Potrdi
+                                </button>
+                                <button
+                                  onClick={() => handleOrderStatus(order.id, 'rejected')}
+                                  className="flex-1 bg-red-50 text-red-700 hover:bg-red-100 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
+                                >
+                                  <X size={14} /> Zavrni
+                                </button>
+                              </>
+                            )}
+
+                            {/* In Preparation: Can mark ready or reject */}
+                            {order.status === 'in-preparation' && (
+                              <>
+                                <button
+                                  onClick={() => handleOrderStatus(order.id, 'ready-for-pickup')}
+                                  className="w-full bg-cyan-50 text-cyan-700 hover:bg-cyan-100 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
+                                >
+                                  📦 Pripravljeno
+                                </button>
+                                <button
+                                  onClick={() => handleOrderStatus(order.id, 'rejected')}
+                                  className="w-full bg-red-50 text-red-700 hover:bg-red-100 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
+                                >
+                                  <X size={14} /> Zavrni
+                                </button>
+                              </>
+                            )}
+
+                            {/* Ready for Pickup: Can complete or go back to preparation */}
+                            {order.status === 'ready-for-pickup' && (
+                              <>
+                                <button
+                                  onClick={() => handleOrderStatus(order.id, 'completed')}
+                                  className="w-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
+                                >
+                                  ✅ Zaključi
+                                </button>
+                                <button
+                                  onClick={() => handleOrderStatus(order.id, 'in-preparation')}
+                                  className="w-full bg-gray-50 text-gray-700 hover:bg-gray-100 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
+                                >
+                                  ← V pripravo
+                                </button>
+                              </>
+                            )}
+
+                            {/* Final statuses: No actions */}
+                            {(order.status === 'rejected' || order.status === 'completed') && (
+                              <div className="text-center text-xs text-olive/40 italic py-2">
+                                {order.status === 'rejected' ? 'Zavrnjeno' : 'Zaključeno'}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* --- VIDEO GALLERY TAB --- */}
+        {activeTab === 'videos' && (
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-gray-50 pb-24">
+
+            {!isEditingVideo ? (
+              <>
+                {/* Video List */}
+                <div className="flex justify-between items-center mb-2 px-1">
+                  <h3 className="font-serif text-lg text-olive-dark">Video Galerija</h3>
+                  <button onClick={() => { setIsEditingVideo(true); setEditingVideoId(null); setVideoForm({ title: '', videoId: '', category: '' }); }} className="bg-olive text-white px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wide flex items-center gap-2 shadow-md"><Plus size={16} /> Dodaj Video</button>
                 </div>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {galleryImages.map((image) => (
-                    <div key={image.id} className="bg-white rounded-2xl border border-black/5 overflow-hidden shadow-sm hover:shadow-md transition-all group">
-                      <div className="relative aspect-square">
-                        <img src={image.src} alt={image.alt} className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                          <button
-                            onClick={() => startEditGalleryImage(image)}
-                            className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
-                          >
-                            <Pencil size={16} className="text-olive" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteGalleryImage(image.id)}
-                            className="p-2 bg-white rounded-full hover:bg-red-50 transition-colors"
-                          >
-                            <Trash2 size={16} className="text-red-500" />
+
+                {isLoadingVideos ? (
+                  <div className="text-center py-8 text-olive/50"><RefreshCw className="animate-spin mx-auto mb-2" size={24} /><p className="text-sm">Nalaganje...</p></div>
+                ) : videos.length === 0 ? (
+                  <div className="bg-white rounded-3xl p-8 text-center text-olive/50"><Video size={32} className="mx-auto mb-2" /><p className="text-sm">Še ni dodanih videov</p></div>
+                ) : (
+                  videos.map((video) => (
+                    <div key={video.id} className="bg-white p-4 rounded-2xl border border-black/5 flex flex-col gap-2 shadow-sm">
+                      <div className="flex items-start gap-4">
+                        <img src={`https://img.youtube.com/vi/${video.videoId}/mqdefault.jpg`} className="w-24 h-16 rounded-lg object-cover bg-gray-50" alt={video.title} />
+                        <div className="flex-1">
+                          <h4 className="font-serif text-lg text-olive-dark leading-tight mb-1">{video.title}</h4>
+                          {video.category && <p className="text-xs text-olive/50 font-medium mb-1">{video.category}</p>}
+                          <a href={`https://www.youtube.com/watch?v=${video.videoId}`} target="_blank" rel="noopener noreferrer" className="text-xs text-terracotta hover:underline">Poglej na YouTube</a>
+                          <button onClick={() => startEditVideo(video)} className="inline-flex items-center gap-2 mt-2 px-3 py-1 text-xs font-semibold text-olive/90 bg-olive/10 border border-olive/10 rounded-xl shadow-sm hover:bg-olive/20 transition-colors">
+                            <Pencil size={14} /> Uredi
                           </button>
                         </div>
                       </div>
-                      <div className="p-3">
-                        <p className="text-sm font-medium text-olive-dark truncate">{image.alt}</p>
-                        {image.description && <p className="text-xs text-olive/60 truncate">{image.description}</p>}
-                        {image.date && <p className="text-xs text-olive/40 mt-1">{parseEuropeanDate(image.date)?.toLocaleDateString('sl-SI')}</p>}
-                      </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </>
-          ) : (
-            <div className={`bg-white rounded-3xl p-6 shadow-sm border border-black/5 ${!sanityToken ? 'opacity-50 pointer-events-none' : ''}`}>
-              <div className="flex items-center gap-2 mb-6 text-olive/50 cursor-pointer" onClick={() => { setIsEditingGallery(false); setEditingGalleryId(null); setGalleryEditForm({ title: '', description: '', date: '' }); }}>
-                <ArrowLeft size={16} />
-                <span className="text-xs font-bold uppercase">Nazaj</span>
-              </div>
+                  ))
+                )}
+              </>
+            ) : (
+              <div className={`bg-white rounded-3xl p-6 shadow-sm border border-black/5 ${!sanityToken ? 'opacity-50 pointer-events-none' : ''}`}>
+                <div className="flex items-center gap-2 mb-6 text-olive/50 cursor-pointer" onClick={() => { setIsEditingVideo(false); setEditingVideoId(null); setVideoForm({ title: '', videoId: '', category: '' }); }}><ArrowLeft size={16} /><span className="text-xs font-bold uppercase">Nazaj</span></div>
 
-              <h3 className="font-serif text-xl text-olive-dark mb-4">Uredi sliko</h3>
+                <h3 className="font-serif text-xl text-olive-dark mb-4">{editingVideoId ? 'Uredi Video' : 'Dodaj Video'}</h3>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="text-xs font-bold uppercase text-olive/50 block mb-2">Naslov</label>
+                <div className="space-y-4">
                   <input
                     type="text"
                     className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta"
-                    value={galleryEditForm.title}
-                    onChange={e => setGalleryEditForm({ ...galleryEditForm, title: e.target.value })}
-                    placeholder="Naslov slike"
+                    value={videoForm.title}
+                    onChange={e => setVideoForm({ ...videoForm, title: e.target.value })}
+                    placeholder="Naslov videa"
                   />
-                </div>
 
-                <div>
-                  <label className="text-xs font-bold uppercase text-olive/50 block mb-2">Opis (neobvezno)</label>
-                  <textarea
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta min-h-[100px] resize-y"
-                    value={galleryEditForm.description}
-                    onChange={e => setGalleryEditForm({ ...galleryEditForm, description: e.target.value })}
-                    placeholder="Opis slike..."
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold uppercase text-olive/50 block mb-2">Datum</label>
-                  <input
-                    type="date"
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta"
-                    value={galleryEditForm.date}
-                    onChange={e => setGalleryEditForm({ ...galleryEditForm, date: e.target.value })}
-                  />
-                </div>
-
-                <button
-                  onClick={handleSaveGalleryImage}
-                  disabled={isUploading}
-                  className="w-full bg-olive text-white py-4 rounded-2xl font-bold uppercase tracking-widest shadow-lg hover:bg-olive-dark transition-all flex items-center justify-center gap-2"
-                >
-                  {isUploading ? <RefreshCw className="animate-spin" /> : <Save size={16} />}
-                  Shrani
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-
-
-
-
-      {/* --- SETTINGS TAB --- */}
-      {activeTab === 'settings' && (
-        <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-24">
-          <div className="max-w-2xl mx-auto">
-            <h2 className="font-serif text-2xl text-olive-dark mb-6 flex items-center gap-3">
-              <Pencil size={24} />
-              Nastavitve Spletne Strani
-            </h2>
-
-            <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm">
-              <h3 className="font-serif text-lg text-olive-dark mb-4 flex items-center gap-2">
-                <ShoppingBag size={20} />
-                Košarica in Naročila
-              </h3>
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-cream/50 rounded-2xl">
                   <div>
-                    <label className="font-medium text-olive-dark text-sm">
-                      Omogoči košarico na spletni strani
-                    </label>
-                    <p className="text-xs text-olive/60 mt-1">
-                      Če je izklopljeno, se sekcija naročil ne bo prikazovala
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => saveCartSetting(!cartEnabled)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${cartEnabled ? 'bg-olive' : 'bg-gray-200'
-                      }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${cartEnabled ? 'translate-x-6' : 'translate-x-1'
-                        }`}
+                    <input
+                      type="text"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta"
+                      value={videoForm.videoId}
+                      onChange={e => setVideoForm({ ...videoForm, videoId: e.target.value })}
+                      placeholder="YouTube URL ali Video ID (npr. dQw4w9WgXcQ)"
                     />
+                    <p className="text-xs text-olive/50 mt-1 px-2">Vnesite celoten YouTube URL ali samo 11-mestni video ID</p>
+                  </div>
+
+                  <input
+                    type="text"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta"
+                    value={videoForm.category}
+                    onChange={e => setVideoForm({ ...videoForm, category: e.target.value })}
+                    placeholder="Kategorija (neobvezno)"
+                  />
+
+                  <div className="flex gap-2 mt-6">
+                    {editingVideoId && <button onClick={handleDeleteVideo} className="p-4 bg-red-50 text-red-500 rounded-xl"><Trash2 size={20} /></button>}
+                    <button
+                      onClick={handleSaveVideo}
+                      disabled={isUploading}
+                      className="flex-1 bg-olive text-white py-4 rounded-2xl font-bold uppercase tracking-widest shadow-lg hover:bg-olive-dark transition-all flex items-center justify-center gap-2"
+                    >
+                      {isUploading ? <RefreshCw className="animate-spin" /> : <Save size={16} />}
+                      {editingVideoId ? 'Posodobi' : 'Dodaj'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+
+        {/* --- GALLERY TAB --- */}
+        {activeTab === 'gallery' && (
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-gray-50 pb-24">
+
+            {!isEditingGallery ? (
+              <>
+                {/* Upload Section */}
+                <div className="bg-white rounded-3xl p-6 shadow-sm border border-black/5 mb-6">
+                  <h3 className="font-serif text-xl text-olive-dark mb-4 flex items-center gap-2"><Upload size={20} /> Naloži nove fotografije</h3>
+                  <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" accept="image/*" multiple />
+                  <button onClick={() => fileInputRef.current?.click()} className="w-full border-2 border-dashed border-olive/20 rounded-2xl p-8 flex flex-col items-center justify-center text-olive/60 hover:border-olive transition-all">
+                    <ImageIcon size={32} />
+                    <span className="mt-2 text-xs font-bold uppercase">Izberi slike</span>
+                  </button>
+
+                  {/* Pending uploads with title input */}
+                  {pendingUploads.length > 0 && (
+                    <div className="mt-4 space-y-3">
+                      <h4 className="text-sm font-bold text-olive-dark">Pripravljene slike ({pendingUploads.length})</h4>
+                      {pendingUploads.map((upload, idx) => (
+                        <div key={idx} className="flex flex-col gap-2 bg-gray-50 p-3 rounded-xl">
+                          <div className="flex items-center gap-3">
+                            <img src={upload.src} className="w-16 h-16 object-cover rounded-lg" alt="Preview" />
+                            <input
+                              type="text"
+                              placeholder="Naslov slike..."
+                              value={upload.description}
+                              onChange={(e) => {
+                                const updated = [...pendingUploads];
+                                updated[idx].description = e.target.value;
+                                setPendingUploads(updated);
+                              }}
+                              className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm"
+                            />
+                            <button
+                              onClick={() => setPendingUploads(prev => prev.filter((_, i) => i !== idx))}
+                              className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                            >
+                              <X size={16} />
+                            </button>
+                          </div>
+                          <input
+                            type="date"
+                            value={upload.date}
+                            onChange={(e) => {
+                              const updated = [...pendingUploads];
+                              updated[idx].date = e.target.value;
+                              setPendingUploads(updated);
+                            }}
+                            className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm"
+                          />
+                        </div>
+                      ))}
+                      <button
+                        onClick={handleUploadConfirm}
+                        className="w-full bg-olive text-white py-4 rounded-2xl font-bold uppercase shadow-lg hover:bg-olive-dark"
+                        disabled={isUploading}
+                      >
+                        {isUploading ? 'Nalaganje...' : 'Objavi vse'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Gallery List */}
+                <div className="flex justify-between items-center mb-2 px-1">
+                  <h3 className="font-serif text-lg text-olive-dark">Vse slike ({galleryImages.length})</h3>
+                  <button onClick={loadGallery} className="p-2 bg-white rounded-full shadow-sm hover:shadow-md text-olive transition-all">
+                    <RefreshCw size={16} className={isLoadingGallery ? "animate-spin" : ""} />
                   </button>
                 </div>
 
-                <div className="text-sm text-olive/60 bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-                  <div className="flex items-start gap-2">
-                    <AlertTriangle size={16} className="text-yellow-600 mt-0.5 flex-shrink-0" />
+                {isLoadingGallery ? (
+                  <div className="text-center py-8 text-olive/50">
+                    <RefreshCw className="animate-spin mx-auto mb-2" size={24} />
+                    <p className="text-sm">Nalaganje...</p>
+                  </div>
+                ) : galleryImages.length === 0 ? (
+                  <div className="bg-white rounded-3xl p-8 text-center text-olive/50">
+                    <ImageIcon size={32} className="mx-auto mb-2" />
+                    <p className="text-sm">Še ni naloženih slik</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {galleryImages.map((image) => (
+                      <div key={image.id} className="bg-white rounded-2xl border border-black/5 overflow-hidden shadow-sm hover:shadow-md transition-all group">
+                        <div className="relative aspect-square">
+                          <img src={image.src} alt={image.alt} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                            <button
+                              onClick={() => startEditGalleryImage(image)}
+                              className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
+                            >
+                              <Pencil size={16} className="text-olive" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteGalleryImage(image.id)}
+                              className="p-2 bg-white rounded-full hover:bg-red-50 transition-colors"
+                            >
+                              <Trash2 size={16} className="text-red-500" />
+                            </button>
+                          </div>
+                        </div>
+                        <div className="p-3">
+                          <p className="text-sm font-medium text-olive-dark truncate">{image.alt}</p>
+                          {image.description && <p className="text-xs text-olive/60 truncate">{image.description}</p>}
+                          {image.date && <p className="text-xs text-olive/40 mt-1">{parseEuropeanDate(image.date)?.toLocaleDateString('sl-SI')}</p>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className={`bg-white rounded-3xl p-6 shadow-sm border border-black/5 ${!sanityToken ? 'opacity-50 pointer-events-none' : ''}`}>
+                <div className="flex items-center gap-2 mb-6 text-olive/50 cursor-pointer" onClick={() => { setIsEditingGallery(false); setEditingGalleryId(null); setGalleryEditForm({ title: '', description: '', date: '' }); }}>
+                  <ArrowLeft size={16} />
+                  <span className="text-xs font-bold uppercase">Nazaj</span>
+                </div>
+
+                <h3 className="font-serif text-xl text-olive-dark mb-4">Uredi sliko</h3>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-xs font-bold uppercase text-olive/50 block mb-2">Naslov</label>
+                    <input
+                      type="text"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta"
+                      value={galleryEditForm.title}
+                      onChange={e => setGalleryEditForm({ ...galleryEditForm, title: e.target.value })}
+                      placeholder="Naslov slike"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold uppercase text-olive/50 block mb-2">Opis (neobvezno)</label>
+                    <textarea
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta min-h-[100px] resize-y"
+                      value={galleryEditForm.description}
+                      onChange={e => setGalleryEditForm({ ...galleryEditForm, description: e.target.value })}
+                      placeholder="Opis slike..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold uppercase text-olive/50 block mb-2">Datum</label>
+                    <input
+                      type="date"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta"
+                      value={galleryEditForm.date}
+                      onChange={e => setGalleryEditForm({ ...galleryEditForm, date: e.target.value })}
+                    />
+                  </div>
+
+                  <button
+                    onClick={handleSaveGalleryImage}
+                    disabled={isUploading}
+                    className="w-full bg-olive text-white py-4 rounded-2xl font-bold uppercase tracking-widest shadow-lg hover:bg-olive-dark transition-all flex items-center justify-center gap-2"
+                  >
+                    {isUploading ? <RefreshCw className="animate-spin" /> : <Save size={16} />}
+                    Shrani
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+
+
+
+
+        {/* --- SETTINGS TAB --- */}
+        {activeTab === 'settings' && (
+          <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-24">
+            <div className="max-w-2xl mx-auto">
+              <h2 className="font-serif text-2xl text-olive-dark mb-6 flex items-center gap-3">
+                <Pencil size={24} />
+                Nastavitve Spletne Strani
+              </h2>
+
+              <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm">
+                <h3 className="font-serif text-lg text-olive-dark mb-4 flex items-center gap-2">
+                  <ShoppingBag size={20} />
+                  Košarica in Naročila
+                </h3>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-cream/50 rounded-2xl">
                     <div>
-                      <strong>Nasvet:</strong> Izklopi košarico kadar ni ničesar na zalogi ali med vzdrževanjem.
-                      Obiskovalci bodo videli samo kontaktne podatke.
+                      <label className="font-medium text-olive-dark text-sm">
+                        Omogoči košarico na spletni strani
+                      </label>
+                      <p className="text-xs text-olive/60 mt-1">
+                        Če je izklopljeno, se sekcija naročil ne bo prikazovala
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => saveCartSetting(!cartEnabled)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${cartEnabled ? 'bg-olive' : 'bg-gray-200'
+                        }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${cartEnabled ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                      />
+                    </button>
+                  </div>
+
+                  <div className="text-sm text-olive/60 bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle size={16} className="text-yellow-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <strong>Nasvet:</strong> Izklopi košarico kadar ni ničesar na zalogi ali med vzdrževanjem.
+                        Obiskovalci bodo videli samo kontaktne podatke.
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* API Settings */}
-            <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm mt-6">
-              <h3 className="font-serif text-lg text-olive-dark mb-4 flex items-center gap-2">
-                <Lock size={20} />
-                API Povezava
-              </h3>
+              {/* API Settings */}
+              <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm mt-6">
+                <h3 className="font-serif text-lg text-olive-dark mb-4 flex items-center gap-2">
+                  <Lock size={20} />
+                  API Povezava
+                </h3>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="font-medium text-olive-dark text-sm block mb-2">
-                    Sanity API Token
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="password"
-                      value={sanityToken}
-                      onChange={(e) => handleTokenChange(e.target.value)}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta pr-10"
-                      placeholder="sk-..."
-                    />
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-olive/40">
-                      {verifyingToken ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-terracotta"></div>
-                      ) : sanityToken && tokenVerified === true ? (
-                        <Check size={16} className="text-green-500" />
-                      ) : sanityToken && tokenVerified === false ? (
-                        <AlertTriangle size={16} className="text-red-500" />
-                      ) : sanityToken ? (
-                        <div className="h-2 w-2 bg-yellow-400 rounded-full"></div>
-                      ) : (
-                        <AlertTriangle size={16} className="text-yellow-500" />
-                      )}
+                <div className="space-y-4">
+                  <div>
+                    <label className="font-medium text-olive-dark text-sm block mb-2">
+                      Sanity API Token
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="password"
+                        value={sanityToken}
+                        onChange={(e) => handleTokenChange(e.target.value)}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-terracotta pr-10"
+                        placeholder="sk-..."
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-olive/40">
+                        {verifyingToken ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-terracotta"></div>
+                        ) : sanityToken && tokenVerified === true ? (
+                          <Check size={16} className="text-green-500" />
+                        ) : sanityToken && tokenVerified === false ? (
+                          <AlertTriangle size={16} className="text-red-500" />
+                        ) : sanityToken ? (
+                          <div className="h-2 w-2 bg-yellow-400 rounded-full"></div>
+                        ) : (
+                          <AlertTriangle size={16} className="text-yellow-500" />
+                        )}
+                      </div>
                     </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {tokenVerified === false
+                        ? 'API ključ nima pravic za ustvarjanje. Pojdite v Sanity.io -> API -> Tokens in dodajte "Create" pravice.'
+                        : 'API ključ potrebuje "Create" pravice za slike in dokumente.'
+                      }
+                    </p>
+                    <p className="text-xs text-olive/60 mt-2">
+                      Token je potreben za urejanje zaloge in nalaganje slik. Če je polje prazno, se uporabi sistemska nastavitev.
+                    </p>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {tokenVerified === false
-                      ? 'API ključ nima pravic za ustvarjanje. Pojdite v Sanity.io -> API -> Tokens in dodajte "Create" pravice.'
-                      : 'API ključ potrebuje "Create" pravice za slike in dokumente.'
-                    }
-                  </p>
-                  <p className="text-xs text-olive/60 mt-2">
-                    Token je potreben za urejanje zaloge in nalaganje slik. Če je polje prazno, se uporabi sistemska nastavitev.
-                  </p>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-    </div>
+      </div>
     </div >
   );
 };
