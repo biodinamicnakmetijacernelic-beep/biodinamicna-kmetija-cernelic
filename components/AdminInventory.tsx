@@ -6,6 +6,7 @@ import { uploadImageToSanity, fetchProducts, updateProductStatus, createProduct,
 import { createClient } from '@sanity/client';
 import { sendOrderStatusUpdateEmail } from '../utils/emailService';
 import { compressImage } from '../utils/imageOptimizer';
+import DynamicReactRenderer from './blog/DynamicReactRenderer';
 
 // Helper function to parse DD.MM.YYYY date format
 function parseEuropeanDate(dateString: string): Date | null {
@@ -2207,7 +2208,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                     </select>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-100">
+                  <div className="pt-2 border-t border-gray-100">
                     <div>
                       <label className="text-[10px] font-bold uppercase text-olive/50 mb-1 block">Trenutna Zaloga</label>
                       <input
@@ -2218,18 +2219,6 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                         onChange={e => setEditForm({ ...editForm, quantity: e.target.value })}
                         placeholder="npr. 50"
                       />
-                    </div>
-                    <div>
-                      <label className="text-[10px] font-bold uppercase text-olive/50 mb-1 block">Max / Začetna Zaloga</label>
-                      <input
-                        type="number"
-                        step="0.1"
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3"
-                        value={editForm.maxQuantity}
-                        onChange={e => setEditForm({ ...editForm, maxQuantity: e.target.value })}
-                        placeholder="npr. 100"
-                      />
-                      <p className="text-[9px] text-olive/40 mt-1">Za prikaz drsnika na strani</p>
                     </div>
                   </div>
 
