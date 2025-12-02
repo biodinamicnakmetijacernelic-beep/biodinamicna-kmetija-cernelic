@@ -156,6 +156,7 @@ const Products: React.FC = () => {
 
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
+  const [showOrderProcess, setShowOrderProcess] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [customerForm, setCustomerForm] = useState({
     name: '',
