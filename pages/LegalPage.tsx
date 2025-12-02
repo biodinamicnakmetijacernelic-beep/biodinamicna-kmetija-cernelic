@@ -35,11 +35,14 @@ const LegalPage: React.FC = () => {
                         <h2 className="font-serif text-2xl text-olive-dark mb-6 pb-4 border-b border-olive/10">1. Podatki o ponudniku (Impresum)</h2>
                         <div className="space-y-4 text-olive/80 leading-relaxed">
                             <p><strong>Naziv:</strong> Biodinamična kmetija Černelič</p>
-                            <p><strong>Nosilec kmetije:</strong> [IME IN PRIIMEK NOSILCA]</p>
-                            <p><strong>Naslov:</strong> Dečno selo [ŠTEVILKA], 8253 Artiče, Slovenija</p>
-                            <p><strong>KMG-MID številka:</strong> [VAŠA KMG-MID ŠTEVILKA]</p>
-                            <p><strong>Davčna številka:</strong> [VAŠA DAVČNA ŠTEVILKA] (Nismo zavezanci za DDV)</p>
-                            <p><strong>Dopolnilna dejavnost:</strong> [VRSTA DEJAVNOSTI]</p>
+                            <p><strong>Nosilec kmetije:</strong> Černelič Zvonko</p>
+                            <p><strong>Naslov:</strong> Dečno selo 48, 8253 Artiče, Slovenija</p>
+                            <p><strong>KMG-MID številka:</strong> 100307183</p>
+                            <p><strong>Davčna številka:</strong> [Podatek bo dodan naknadno] (Nismo zavezanci za DDV)</p>
+                            <p><strong>Dopolnilna dejavnost:</strong><br />
+                                - Prodaja kmetijskih pridelkov (Neposredna prodaja sveže zelenjave in žit)<br />
+                                - Izobraževanje na kmetiji (Organizacija delavnic, praks in obiskov skupin)
+                            </p>
                             <p><strong>Kontakt:</strong> +386 51 363 447 | ekocernelic@gmail.com</p>
                         </div>
                     </section>
