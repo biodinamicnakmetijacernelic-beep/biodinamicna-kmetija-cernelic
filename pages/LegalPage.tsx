@@ -45,10 +45,13 @@ const LegalPage: React.FC = () => {
                                         <li><strong>Ime ponudnika:</strong> Biodinamična kmetija Černelič</li>
                                         <li><strong>Nosilec dejavnosti:</strong> Černelič Zvonko</li>
                                         <li><strong>Naslov:</strong> Dečno selo 48, 8253 Artiče</li>
-                                        <li><strong>Matična številka:</strong> 100307183</li>
+                                        <li><strong>KMG MID:</strong> 100307183</li>
                                         <li><strong>Davčna številka:</strong> [Podatek bo dodan naknadno] (Nismo zavezanci za DDV)</li>
                                         <li><strong>E-pošta:</strong> ekocernelic@gmail.com</li>
-                                        <li><strong>Glavna dejavnost:</strong> Neposredna prodaja sveže zelenjave in žit (trženje).</li>
+                                        <li><strong>Dopolnilna dejavnost na kmetiji:</strong><br />
+                                            - Prodaja kmetijskih pridelkov (Neposredna prodaja sveže zelenjave in žit)<br />
+                                            - Izobraževanje na kmetiji (Organizacija delavnic, praks in obiskov skupin)
+                                        </li>
                                     </ul>
                                 </div>
                                 <p className="mt-4 text-xs">SPP so sestavljeni v skladu z Zakonom o varstvu potrošnikov (ZVPot-1) in Obligacijskim zakonikom (OZ).</p>
