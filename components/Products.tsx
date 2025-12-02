@@ -65,20 +65,6 @@ const ProductCard: React.FC<ProductItemProps> = ({ product, quantity, onQuantity
           <span className="text-[9px] text-olive/40 uppercase font-bold ml-1">/ {product.unit}</span>
         </div>
 
-        {/* Stock Slider */}
-        {isAvailable && product.quantity !== undefined && product.maxQuantity !== undefined && product.maxQuantity > 0 && (
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-[9px] text-olive/40 font-bold uppercase tracking-wider">zaloga</span>
-            <div className="flex-1 h-1 bg-black/5 rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all duration-500 ${(product.quantity / product.maxQuantity) < 0.2 ? 'bg-red-500' :
-                  (product.quantity / product.maxQuantity) < 0.5 ? 'bg-yellow-500' : 'bg-green-500'
-                  }`}
-                style={{ width: `${Math.min(100, Math.max(0, (product.quantity / product.maxQuantity) * 100))}%` }}
-              />
-            </div>
-          </div>
-        )}
 
         {/* Quantity Control - Pushed to bottom */}
         <div className={`mt-auto flex items-center justify-center ${!isAvailable ? 'pointer-events-none opacity-50' : ''}`}>
