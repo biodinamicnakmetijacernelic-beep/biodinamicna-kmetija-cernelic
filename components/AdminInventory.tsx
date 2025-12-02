@@ -564,6 +564,24 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
 
       const oldStatus = currentOrder.status;
 
+      // STOCK VALIDATION: Check stock before confirming order
+      if (newStatus === 'in-preparation' && oldStatus !== 'in-preparation') {
+        const { allAvailable, itemsWithStock } = checkOrderStock(currentOrder.items);
+
+        if (!allAvailable) {
+          const insufficientItems = itemsWithStock
+            .filter(item => !item.hasEnoughStock)
+            .map(item => `${item.name} (potrebno: ${item.orderedQty}, na voljo: ${item.availableQty})`)
+            .join('\n');
+
+          const confirmMessage = `⚠️ OPOZORILO: Nekateri izdelki nimajo zadostne zaloge:\n\n${insufficientItems}\n\nAli ste prepričani, da želite potrditi naročilo?`;
+
+          if (!confirm(confirmMessage)) {
+            return; // User cancelled
+          }
+        }
+      }
+
       // Update order status in Sanity
       const success = await updateOrderStatus(orderId, newStatus, token);
       if (!success) {
@@ -2803,6 +2821,10 @@ export default function MyBlogComponent() {
                     const matchesStatus = order.status === orderStatusFilter;
                     const matchesLocation = pickupLocationFilter === 'all' || order.pickupLocation === pickupLocationFilter;
                     return matchesStatus && matchesLocation;
+                  })
+                  .sort((a, b) => {
+                    // Sort by creation date - oldest first (FIFO - First In First Out)
+                    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
                   })
                   .map((order) => {
                     // Calculate stock status for this order
