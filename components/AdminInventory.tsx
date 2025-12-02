@@ -1740,10 +1740,14 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
 
       // Auto-update status based on quantity
       let statusToSave = editForm.status;
-      if (quantityNum !== undefined && quantityNum <= 0) {
-        statusToSave = 'sold-out';
-      } else if (quantityNum !== undefined && quantityNum > 0 && editForm.status === 'sold-out') {
-        statusToSave = 'available';
+      if (quantityNum !== undefined) {
+        if (quantityNum <= 0) {
+          statusToSave = 'sold-out';
+        } else if (quantityNum > 0 && editForm.status === 'sold-out') {
+          // Only auto-change from sold-out to available when adding stock
+          statusToSave = 'available';
+        }
+        // Manual status changes are preserved if quantity > 0
       }
 
       const productDataToSave = {
@@ -2120,6 +2124,9 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                                 <button
                                   onClick={async () => {
                                     try {
+                                      const newQuantity = parseFloat(quickStockValue);
+                                      const newStatus = newQuantity <= 0 ? 'sold-out' : 'available';
+
                                       await updateProduct(
                                         product.id,
                                         {
@@ -2127,16 +2134,20 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                                           price: product.price,
                                           unit: product.unit,
                                           category: product.category,
-                                          quantity: parseFloat(quickStockValue),
+                                          quantity: newQuantity,
                                           maxQuantity: product.maxQuantity
                                         },
                                         null,
                                         sanityToken
                                       );
-                                      setProducts(prev => prev.map(p => p.id === product.id ? { ...p, quantity: parseFloat(quickStockValue) } : p));
+
+                                      // Also update status
+                                      await updateProductStatus(product.id, newStatus, sanityToken);
+
+                                      setProducts(prev => prev.map(p => p.id === product.id ? { ...p, quantity: newQuantity, status: newStatus } : p));
                                       setEditingStockId(null);
                                       setQuickStockValue('');
-                                      setNotification('✅ Zaloga posodobljena');
+                                      setNotification(`✅ Zaloga posodobljena (${newStatus === 'sold-out' ? 'razprodano' : 'na voljo'})`);
                                     } catch (error) {
                                       setNotification('❌ Napaka pri posodobitvi zaloge');
                                     }
