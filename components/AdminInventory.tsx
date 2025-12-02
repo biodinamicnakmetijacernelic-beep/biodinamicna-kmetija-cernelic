@@ -2232,7 +2232,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                       <option value="g">g</option>
                       <option value="kos">kos</option>
                       <option value="l">l</option>
-                      <option value="pack">paket</option>
+                      <option value="paket">paket</option>
                     </select>
                   </div>
 
