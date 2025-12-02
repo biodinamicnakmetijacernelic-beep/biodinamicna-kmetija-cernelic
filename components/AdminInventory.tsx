@@ -271,6 +271,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
   // Quick stock editing state
   const [editingStockId, setEditingStockId] = useState<string | null>(null);
   const [quickStockValue, setQuickStockValue] = useState<string>('');
+  const [quickUnitValue, setQuickUnitValue] = useState<string>('');
 
   // Inventory CRUD State
   const [isEditing, setIsEditing] = useState(false);
@@ -2129,7 +2130,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
 
                             {/* Quick Stock Editor */}
                             {editingStockId === product.id ? (
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
                                 <input
                                   type="number"
                                   step="0.1"
@@ -2139,10 +2140,18 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                                   placeholder="Zaloga"
                                   autoFocus
                                 />
+                                <input
+                                  type="text"
+                                  value={quickUnitValue}
+                                  onChange={(e) => setQuickUnitValue(e.target.value)}
+                                  className="w-20 px-2 py-1 text-xs border border-olive/30 rounded-lg focus:outline-none focus:border-olive"
+                                  placeholder="Enota"
+                                />
                                 <button
                                   onClick={async () => {
                                     try {
                                       const newQuantity = parseFloat(quickStockValue);
+                                      const newUnit = quickUnitValue.trim() || product.unit;
                                       const newStatus = newQuantity <= 0 ? 'sold-out' : 'available';
 
                                       await updateProduct(
@@ -2150,7 +2159,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                                         {
                                           name: product.name,
                                           price: product.price,
-                                          unit: product.unit,
+                                          unit: newUnit,
                                           category: product.category,
                                           quantity: newQuantity,
                                           maxQuantity: product.maxQuantity
@@ -2162,12 +2171,13 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                                       // Also update status
                                       await updateProductStatus(product.id, newStatus, sanityToken);
 
-                                      setProducts(prev => prev.map(p => p.id === product.id ? { ...p, quantity: newQuantity, status: newStatus } : p));
+                                      setProducts(prev => prev.map(p => p.id === product.id ? { ...p, quantity: newQuantity, unit: newUnit, status: newStatus } : p));
                                       setEditingStockId(null);
                                       setQuickStockValue('');
-                                      setNotification(`✅ Zaloga posodobljena (${newStatus === 'sold-out' ? 'razprodano' : 'na voljo'})`);
+                                      setQuickUnitValue('');
+                                      setNotification(`✅ Posodobljeno: ${newQuantity} ${newUnit}`);
                                     } catch (error) {
-                                      setNotification('❌ Napaka pri posodobitvi zaloge');
+                                      setNotification('❌ Napaka pri posodobitvi');
                                     }
                                   }}
                                   className="px-2 py-1 bg-olive text-white text-xs font-bold rounded-lg hover:bg-olive-dark transition-colors"
@@ -2178,6 +2188,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                                   onClick={() => {
                                     setEditingStockId(null);
                                     setQuickStockValue('');
+                                    setQuickUnitValue('');
                                   }}
                                   className="px-2 py-1 bg-gray-200 text-gray-600 text-xs font-bold rounded-lg hover:bg-gray-300 transition-colors"
                                 >
@@ -2189,6 +2200,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                                 onClick={() => {
                                   setEditingStockId(product.id);
                                   setQuickStockValue(product.quantity?.toString() || '0');
+                                  setQuickUnitValue(product.unit || '');
                                 }}
                                 className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-terracotta bg-terracotta/10 border border-terracotta/20 rounded-lg hover:bg-terracotta/20 transition-colors"
                               >
