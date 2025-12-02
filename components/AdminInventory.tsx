@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Save, Search, RefreshCw, MousePointerClick, ShoppingBag, ClipboardList, Bell, Image as ImageIcon, Upload, Trash2, Pencil, ArrowLeft, AlertTriangle, Plus, Lock, Send, Eye, EyeOff, FileText, Type, Video, Check, LogOut, Link as LinkIcon, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette, Code } from 'lucide-react';
+import { X, Save, Search, RefreshCw, MousePointerClick, ShoppingBag, ClipboardList, Bell, Image as ImageIcon, Upload, Trash2, Pencil, ArrowLeft, AlertTriangle, Plus, Lock, Send, Eye, EyeOff, FileText, Type, Video, Check, LogOut, Link as LinkIcon, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette, Code, Package } from 'lucide-react';
 import { GalleryItem, PreOrderItem, NewsItem, VideoGalleryItem, Order } from '../types';
 import { uploadImageToSanity, fetchProducts, updateProductStatus, createProduct, updateProduct, deleteProduct, createNewsPost, fetchAllNews, updateNewsPost, deleteNewsPost, fetchVideoGallery, createVideo, updateVideo, deleteVideo, fetchOrders, updateOrderStatus, deleteOrder, fetchGalleryImages, updateGalleryImage, deleteGalleryImage, verifyTokenPermissions } from '../sanityClient';
 import { createClient } from '@sanity/client';
@@ -266,6 +266,10 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
   const [connectionError, setConnectionError] = useState(false);
   const [filter, setFilter] = useState<'all' | 'fresh' | 'dry'>('all');
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Quick stock editing state
+  const [editingStockId, setEditingStockId] = useState<string | null>(null);
+  const [quickStockValue, setQuickStockValue] = useState<string>('');
 
   // Inventory CRUD State
   const [isEditing, setIsEditing] = useState(false);
@@ -2089,15 +2093,67 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                           className="rounded border-olive/30 text-olive focus:ring-olive"
                         />
                         <img src={product.image} className="w-12 h-12 rounded-lg object-cover bg-gray-50" />
-                        <div>
+                        <div className="flex-1">
                           <h4 className="font-serif text-lg text-olive-dark leading-none mb-1">{product.name}</h4>
                           <p className="text-xs text-olive/50 font-medium">{product.price.toFixed(2)}€ / {product.unit}</p>
-                          <button
-                            onClick={() => startEditProduct(product)}
-                            className="inline-flex items-center gap-2 mt-2 px-3 py-1 text-xs font-semibold text-olive/90 bg-olive/10 border border-olive/10 rounded-xl shadow-sm hover:bg-olive/20 transition-colors"
-                          >
-                            <Pencil size={14} /> Uredi
-                          </button>
+                          <div className="flex items-center gap-2 mt-2">
+                            <button
+                              onClick={() => startEditProduct(product)}
+                              className="inline-flex items-center gap-2 px-3 py-1 text-xs font-semibold text-olive/90 bg-olive/10 border border-olive/10 rounded-xl shadow-sm hover:bg-olive/20 transition-colors"
+                            >
+                              <Pencil size={14} /> Uredi
+                            </button>
+
+                            {/* Quick Stock Editor */}
+                            {editingStockId === product.id ? (
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="number"
+                                  step="0.1"
+                                  value={quickStockValue}
+                                  onChange={(e) => setQuickStockValue(e.target.value)}
+                                  className="w-20 px-2 py-1 text-xs border border-olive/30 rounded-lg focus:outline-none focus:border-olive"
+                                  placeholder="Zaloga"
+                                  autoFocus
+                                />
+                                <button
+                                  onClick={async () => {
+                                    try {
+                                      await updateProduct(product.id, { quantity: parseFloat(quickStockValue) });
+                                      setProducts(prev => prev.map(p => p.id === product.id ? { ...p, quantity: parseFloat(quickStockValue) } : p));
+                                      setEditingStockId(null);
+                                      setQuickStockValue('');
+                                      setNotification('✅ Zaloga posodobljena');
+                                    } catch (error) {
+                                      setNotification('❌ Napaka pri posodobitvi zaloge');
+                                    }
+                                  }}
+                                  className="px-2 py-1 bg-olive text-white text-xs font-bold rounded-lg hover:bg-olive-dark transition-colors"
+                                >
+                                  Shrani
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setEditingStockId(null);
+                                    setQuickStockValue('');
+                                  }}
+                                  className="px-2 py-1 bg-gray-200 text-gray-600 text-xs font-bold rounded-lg hover:bg-gray-300 transition-colors"
+                                >
+                                  Prekliči
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => {
+                                  setEditingStockId(product.id);
+                                  setQuickStockValue(product.quantity?.toString() || '0');
+                                }}
+                                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-terracotta bg-terracotta/10 border border-terracotta/20 rounded-lg hover:bg-terracotta/20 transition-colors"
+                              >
+                                <Package size={12} /> {product.quantity || 0} {product.unit}
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <button onClick={(e) => handleStatusToggle(e, product.id, product.status)} className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-full">
