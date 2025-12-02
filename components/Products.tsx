@@ -176,7 +176,7 @@ const Products: React.FC = () => {
     email: '',
     phone: '',
     note: '',
-    pickupLocation: 'home' as 'home' | 'market'
+    pickupLocation: '' as 'home' | 'market' | ''
   });
 
   useEffect(() => {
@@ -295,7 +295,7 @@ const Products: React.FC = () => {
         setOrderSuccess(false);
         setIsCheckoutModalOpen(false);
         setIsCartModalOpen(false);
-        setCustomerForm({ name: '', email: '', phone: '', note: '', pickupLocation: 'home' });
+        setCustomerForm({ name: '', email: '', phone: '', note: '', pickupLocation: '' });
       }, 3000);
     } catch (error) {
       console.error('❌ Order submission error:', error);
@@ -621,10 +621,11 @@ const Products: React.FC = () => {
                 </div>
 
                 <div className="pt-2">
-                  <label className="block text-xs font-bold uppercase tracking-widest text-olive/50 mb-2 ml-1">Prevzem pridelkov</label>
+                  <label className="block text-xs font-bold uppercase tracking-widest text-olive/50 mb-2 ml-1">Prevzem pridelkov <span className="text-red-500">*</span></label>
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
                       <input
+                        required
                         type="radio"
                         id="pickup-home"
                         name="pickupLocation"
@@ -639,6 +640,7 @@ const Products: React.FC = () => {
                     </div>
                     <div className="flex items-center gap-3">
                       <input
+                        required
                         type="radio"
                         id="pickup-market"
                         name="pickupLocation"
