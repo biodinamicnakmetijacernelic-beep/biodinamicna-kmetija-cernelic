@@ -22,33 +22,28 @@ const CookieConsent: React.FC = () => {
     if (!isVisible) return null;
 
     return (
-        <div className="fixed bottom-4 left-4 right-4 md:bottom-6 md:left-auto md:right-6 md:w-96 z-50 animate-in slide-in-from-bottom-4 duration-500">
-            <div className="bg-white/85 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.12)] p-4 md:p-6 rounded-2xl md:rounded-3xl">
-                <div className="flex items-start gap-3 md:gap-4">
-                    <div className="p-2 md:p-3 bg-olive/10 rounded-xl md:rounded-2xl text-olive shrink-0">
-                        <Cookie size={20} className="md:w-6 md:h-6" />
+        <div className="fixed bottom-4 left-4 right-4 md:left-6 md:right-auto md:bottom-6 md:w-[340px] z-50 animate-in slide-in-from-bottom-4 duration-500">
+            <div className="bg-white/90 backdrop-blur-md border border-white/20 shadow-[0_4px_20px_rgba(0,0,0,0.08)] p-3 md:p-4 rounded-2xl">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-olive/10 rounded-xl text-olive shrink-0">
+                        <Cookie size={18} />
                     </div>
-                    <div className="space-y-3 md:space-y-4 w-full">
-                        <div>
-                            <h3 className="font-serif text-base md:text-lg text-olive-dark mb-0.5 md:mb-1">Piškotki</h3>
-                            <p className="text-xs md:text-sm text-olive/70 leading-relaxed">
-                                Uporabljamo nujne piškotke za delovanje strani. Z uporabo se strinjate z našo <Link to="/pravno#piskotki" className="text-terracotta hover:underline font-medium">politiko piškotkov</Link>.
-                            </p>
-                        </div>
-                        <div className="flex gap-3">
-                            <button
-                                onClick={handleAccept}
-                                className="w-full px-4 py-2 md:py-2.5 bg-olive text-white text-xs md:text-sm font-bold rounded-lg md:rounded-xl hover:bg-olive-dark transition-colors shadow-lg shadow-olive/20"
-                            >
-                                Sprejmi
-                            </button>
-                        </div>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-[11px] md:text-xs text-olive/80 leading-tight mb-2">
+                            Uporabljamo piškotke. <Link to="/pravno#piskotki" className="text-terracotta hover:underline font-bold">Več info</Link>
+                        </p>
+                        <button
+                            onClick={handleAccept}
+                            className="w-full py-1.5 bg-olive text-white text-[10px] md:text-xs font-bold uppercase tracking-wider rounded-lg hover:bg-olive-dark transition-colors shadow-sm"
+                        >
+                            Sprejmi
+                        </button>
                     </div>
                     <button
                         onClick={handleAccept}
-                        className="text-olive/40 hover:text-olive-dark transition-colors -mt-1 -mr-1 p-1"
+                        className="text-olive/30 hover:text-olive-dark transition-colors self-start -mt-1 -mr-1 p-1"
                     >
-                        <X size={16} className="md:w-5 md:h-5" />
+                        <X size={14} />
                     </button>
                 </div>
             </div>
