@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PREORDER_PRODUCTS, PreOrderItem } from '../constants';
 import { submitOrder } from '../sanityClient';
 import { sendOrderConfirmationEmail, sendOrderNotificationToAdmin } from '../utils/emailService';
@@ -22,6 +22,14 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ quantities, onBack, onOrder
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
 
   // Calculate order items and total
   const orderItems = PREORDER_PRODUCTS
@@ -116,7 +124,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ quantities, onBack, onOrder
 
       console.log("🎉 Order submission completed!");
       onOrderSubmitted();
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error submitting order:', error);
       alert(`Napaka pri oddaji naročila: ${error.message}`);
     } finally {
@@ -133,204 +141,202 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ quantities, onBack, onOrder
   };
 
   return (
-    <section className="py-12 md:py-16 bg-cream border-t border-olive/5">
-      <div className="container mx-auto px-4 md:px-6 max-w-3xl">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
+        onClick={onBack}
+      ></div>
 
-        {/* Header */}
-        <FadeIn>
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-olive/10 text-olive px-4 py-2 rounded-full mb-4">
-              <ShoppingCart size={16} />
-              <span className="text-sm font-medium uppercase tracking-wider">Oddaja Naročila</span>
+      {/* Modal Content */}
+      <div className="relative w-full max-w-5xl bg-cream rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
+
+        {/* Header Bar */}
+        <div className="flex items-center justify-between p-6 border-b border-olive/10 bg-white/50 backdrop-blur-sm sticky top-0 z-10">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-olive/10 rounded-full text-olive">
+              <ShoppingCart size={20} />
             </div>
-            <h2 className="font-serif text-3xl md:text-4xl text-olive-dark mb-4">
-              Potrdite vaše naročilo
+            <h2 className="font-serif text-xl md:text-2xl text-olive-dark">
+              Zaključek naročila
             </h2>
-            <p className="text-lg text-olive/60">
-              Izpolnite podatke in vaše naročilo bo oddano.
-            </p>
           </div>
-        </FadeIn>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-
-          {/* Order Summary */}
-          <FadeIn>
-            <div className="bg-white border border-gray-100 rounded-3xl p-5 md:p-6">
-              <h3 className="font-serif text-2xl text-olive-dark mb-6 flex items-center gap-2">
-                <ShoppingCart size={20} />
-                Povzetek naročila
-              </h3>
-
-              <div className="space-y-4 mb-6">
-                {orderItems.map((item, index) => (
-                  <div key={index} className="flex justify-between items-center py-2 border-b border-gray-50 last:border-b-0">
-                    <div>
-                      <span className="font-medium text-olive-dark">{item.name}</span>
-                      <span className="text-sm text-olive/50 ml-2">
-                        {item.quantity} × {item.price.toFixed(2)} € / {item.unit}
-                      </span>
-                    </div>
-                    <span className="font-bold text-terracotta">
-                      {(item.quantity * item.price).toFixed(2)} €
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="border-t border-gray-100 pt-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-lg font-bold text-olive-dark">Skupaj</span>
-                  <span className="text-xl font-bold text-terracotta">{total.toFixed(2)} €</span>
-                </div>
-              </div>
-            </div>
-          </FadeIn>
-
-          {/* Customer Form */}
-          <FadeIn delay={100}>
-            <div className="bg-white border border-gray-100 rounded-3xl p-5 md:p-6">
-              <h3 className="font-serif text-2xl text-olive-dark mb-6 flex items-center gap-2">
-                <User size={20} />
-                Vaši podatki
-              </h3>
-
-              <form onSubmit={handleSubmit} className="space-y-6">
-
-                {/* Name Fields */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-olive-dark mb-2">
-                      Ime *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.firstName}
-                      onChange={(e) => handleInputChange('firstName', e.target.value)}
-                      className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-olive/20 focus:border-olive transition-colors ${errors.firstName ? 'border-red-300' : 'border-gray-200'
-                        }`}
-                      placeholder="Vaše ime"
-                    />
-                    {errors.firstName && (
-                      <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-olive-dark mb-2">
-                      Priimek *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.lastName}
-                      onChange={(e) => handleInputChange('lastName', e.target.value)}
-                      className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-olive/20 focus:border-olive transition-colors ${errors.lastName ? 'border-red-300' : 'border-gray-200'
-                        }`}
-                      placeholder="Vaš priimek"
-                    />
-                    {errors.lastName && (
-                      <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Phone */}
-                <div>
-                  <label className="block text-sm font-medium text-olive-dark mb-2 flex items-center gap-2">
-                    <Phone size={16} />
-                    Telefon *
-                  </label>
-                  <input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-olive/20 focus:border-olive transition-colors ${errors.phone ? 'border-red-300' : 'border-gray-200'
-                      }`}
-                    placeholder="+386 51 123 456"
-                  />
-                  {errors.phone && (
-                    <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
-                  )}
-                </div>
-
-                {/* Email */}
-                <div>
-                  <label className="block text-sm font-medium text-olive-dark mb-2 flex items-center gap-2">
-                    <Mail size={16} />
-                    E-mail naslov *
-                  </label>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-olive/20 focus:border-olive transition-colors ${errors.email ? 'border-red-300' : 'border-gray-200'
-                      }`}
-                    placeholder="vas@email.com"
-                  />
-                  {errors.email && (
-                    <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-                  )}
-                </div>
-
-                {/* Notes */}
-                <div>
-                  <label className="block text-sm font-medium text-olive-dark mb-2 flex items-center gap-2">
-                    <MessageSquare size={16} />
-                    Dodatne opombe
-                  </label>
-                  <textarea
-                    value={formData.notes}
-                    onChange={(e) => handleInputChange('notes', e.target.value)}
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-olive/20 focus:border-olive transition-colors resize-none"
-                    rows={3}
-                    placeholder="Posebne zahteve, čas prevzema, itd. (neobvezno)"
-                  />
-                </div>
-
-                {/* Submit Buttons */}
-                <div className="flex gap-4 pt-4">
-                  <button
-                    type="button"
-                    onClick={onBack}
-                    className="flex-1 bg-gray-100 text-olive-dark px-6 py-3 rounded-xl font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <ArrowLeft size={18} />
-                    Nazaj
-                  </button>
-
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="flex-1 bg-terracotta text-white px-6 py-3 rounded-xl font-medium hover:bg-terracotta/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                        Pošiljanje...
-                      </>
-                    ) : (
-                      <>
-                        <Check size={18} />
-                        Oddaj naročilo
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </FadeIn>
+          <button
+            onClick={onBack}
+            className="p-2 hover:bg-olive/10 rounded-full transition-colors text-olive/60 hover:text-olive"
+          >
+            <X size={24} />
+          </button>
         </div>
 
-        {/* Footer Note */}
-        <FadeIn delay={200}>
-          <div className="text-center mt-12 p-6 bg-white/50 border border-white rounded-2xl">
-            <p className="text-olive/60 text-sm">
-              * Po oddaji naročila boste prejeli potrditveno e-pošto. Plačilo se izvede ob prevzemu na kmetiji ali tržnici.
-            </p>
+        {/* Scrollable Content */}
+        <div className="overflow-y-auto p-6 md:p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+            {/* Order Summary (Left Column on Desktop) */}
+            <div className="lg:col-span-5 space-y-6">
+              <div className="bg-white border border-gray-100 rounded-3xl p-6">
+                <h3 className="font-serif text-lg text-olive-dark mb-4 flex items-center gap-2">
+                  <ShoppingCart size={18} />
+                  Vaša košarica
+                </h3>
+
+                <div className="space-y-3 mb-6 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                  {orderItems.map((item, index) => (
+                    <div key={index} className="flex justify-between items-start py-2 border-b border-gray-50 last:border-b-0">
+                      <div>
+                        <div className="font-medium text-olive-dark text-sm">{item.name}</div>
+                        <div className="text-xs text-olive/50">
+                          {item.quantity} × {item.price.toFixed(2)} € / {item.unit}
+                        </div>
+                      </div>
+                      <span className="font-bold text-terracotta text-sm">
+                        {(item.quantity * item.price).toFixed(2)} €
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="border-t border-gray-100 pt-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-base font-bold text-olive-dark">Skupaj za plačilo</span>
+                    <span className="text-xl font-bold text-terracotta">{total.toFixed(2)} €</span>
+                  </div>
+                  <p className="text-xs text-olive/40 mt-2 text-center">
+                    Plačilo se izvede ob prevzemu.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Customer Form (Right Column on Desktop) */}
+            <div className="lg:col-span-7">
+              <div className="bg-white border border-gray-100 rounded-3xl p-6 md:p-8">
+                <h3 className="font-serif text-xl text-olive-dark mb-6 flex items-center gap-2">
+                  <User size={20} />
+                  Podatki za naročilo
+                </h3>
+
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-olive/50 mb-1.5">
+                        Ime *
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.firstName}
+                        onChange={(e) => handleInputChange('firstName', e.target.value)}
+                        className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-olive/20 focus:border-olive transition-colors text-sm ${errors.firstName ? 'border-red-300' : 'border-gray-200'
+                          }`}
+                        placeholder="Janez"
+                      />
+                      {errors.firstName && (
+                        <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-olive/50 mb-1.5">
+                        Priimek *
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.lastName}
+                        onChange={(e) => handleInputChange('lastName', e.target.value)}
+                        className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-olive/20 focus:border-olive transition-colors text-sm ${errors.lastName ? 'border-red-300' : 'border-gray-200'
+                          }`}
+                        placeholder="Novak"
+                      />
+                      {errors.lastName && (
+                        <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-olive/50 mb-1.5">
+                        Telefon *
+                      </label>
+                      <input
+                        type="tel"
+                        value={formData.phone}
+                        onChange={(e) => handleInputChange('phone', e.target.value)}
+                        className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-olive/20 focus:border-olive transition-colors text-sm ${errors.phone ? 'border-red-300' : 'border-gray-200'
+                          }`}
+                        placeholder="041 123 456"
+                      />
+                      {errors.phone && (
+                        <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-olive/50 mb-1.5">
+                        E-mail *
+                      </label>
+                      <input
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-olive/20 focus:border-olive transition-colors text-sm ${errors.email ? 'border-red-300' : 'border-gray-200'
+                          }`}
+                        placeholder="janez@email.com"
+                      />
+                      {errors.email && (
+                        <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-olive/50 mb-1.5">
+                      Opombe (neobvezno)
+                    </label>
+                    <textarea
+                      value={formData.notes}
+                      onChange={(e) => handleInputChange('notes', e.target.value)}
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-olive/20 focus:border-olive transition-colors resize-none text-sm"
+                      rows={2}
+                      placeholder="Posebne želje glede prevzema..."
+                    />
+                  </div>
+
+                  <div className="pt-4 flex gap-3">
+                    <button
+                      type="button"
+                      onClick={onBack}
+                      className="flex-1 bg-gray-100 text-olive-dark px-6 py-3 rounded-xl font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 text-sm"
+                    >
+                      Prekliči
+                    </button>
+
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="flex-[2] bg-terracotta text-white px-6 py-3 rounded-xl font-bold uppercase tracking-wider hover:bg-terracotta/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm shadow-lg shadow-terracotta/20"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                          Pošiljanje...
+                        </>
+                      ) : (
+                        <>
+                          <Check size={18} />
+                          Oddaj naročilo
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
-        </FadeIn>
+        </div>
       </div>
-    </section>
+    </div>
   );
 };
 
