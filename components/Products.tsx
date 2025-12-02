@@ -657,6 +657,55 @@ const Products: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Order Process Information */}
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 space-y-3">
+                  <div className="flex items-start gap-2">
+                    <div className="text-blue-600 mt-0.5">
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm text-blue-900 font-medium mb-1">
+                        To je povpraševanje, ne zavezujoče naročilo
+                      </p>
+                      <p className="text-xs text-blue-700 leading-relaxed">
+                        Če je pridelek na voljo, vas bomo obvestili preko e-maila ali telefona.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setShowOrderProcess(!showOrderProcess)}
+                        className="text-xs text-blue-600 hover:text-blue-800 font-bold mt-2 flex items-center gap-1 hover:underline"
+                      >
+                        {showOrderProcess ? '▼' : '▶'} Postopek oddaje povpraševanja
+                      </button>
+                    </div>
+                  </div>
+
+                  {showOrderProcess && (
+                    <div className="text-xs text-blue-900 space-y-2 pl-7 border-l-2 border-blue-300 ml-2">
+                      <div className="pl-3">
+                        <p className="font-bold mb-1">1. Oddaja povpraševanja</p>
+                        <p className="text-blue-700 leading-relaxed">
+                          Kupec izbere želene pridelke in s klikom na gumb »POŠLJI POVPRAŠEVANJE« odda povpraševanje, ki velja kot neobvezujoč predlog za sklenitev pogodbe.
+                        </p>
+                      </div>
+                      <div className="pl-3">
+                        <p className="font-bold mb-1">2. Sprejem povpraševanja</p>
+                        <p className="text-blue-700 leading-relaxed">
+                          Ponudnik v najkrajšem možnem času (najkasneje v 24 urah) pregleda povpraševanje, preveri razpoložljivost in o njem sprejme odločitev.
+                        </p>
+                      </div>
+                      <div className="pl-3">
+                        <p className="font-bold mb-1">3. Sklenitev pogodbe</p>
+                        <p className="text-blue-700 leading-relaxed">
+                          Pogodba med Ponudnikom in kupcem se šteje za sklenjeno šele, ko kupec prejme Potrditveno e-sporočilo o sprejemu naročila s strani Ponudnika. Šele s tem potrdilom se Ponudnik zaveže k dobavi pridelkov, Kupec pa k prevzemu in plačilu.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <div className="pt-2">
                   <button
                     type="submit"
