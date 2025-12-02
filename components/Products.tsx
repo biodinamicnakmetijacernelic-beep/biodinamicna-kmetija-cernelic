@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { PREORDER_PRODUCTS } from '../constants';
 import { PreOrderItem } from '../types';
 import FadeIn from './FadeIn';
-import { ShoppingBag, Truck, Plus, Minus, Check, ShoppingCart, Trash2, X, ChevronUp, ChevronDown, ArrowRight } from 'lucide-react';
-import { fetchProducts, submitOrder } from '../sanityClient';
+import { ShoppingCart, X, Plus, Minus, Check, ArrowRight, Info } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { submitOrder } from '../sanityClient';
 
 // --- Type Definitions & Helpers ---
 
@@ -654,12 +654,26 @@ const Products: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="pt-4">
+                <div className="pt-4 pb-2">
+                  <div className="flex items-start gap-3">
+                    <input
+                      required
+                      type="checkbox"
+                      id="terms"
+                      className="mt-1 h-4 w-4 text-olive focus:ring-olive border-gray-300 rounded"
+                    />
+                    <label htmlFor="terms" className="text-xs text-olive/70 leading-relaxed">
+                      Strinjam se s <Link to="/pravno#pogoji" target="_blank" className="text-terracotta hover:underline font-bold">Splošnimi pogoji poslovanja</Link> in <Link to="/pravno#zasebnost" target="_blank" className="text-terracotta hover:underline font-bold">Politiko zasebnosti</Link>. Potrjujem, da sem seznanjen, da za sveže pridelke ni možnosti odstopa od pogodbe.
+                    </label>
+                  </div>
+                </div>
+
+                <div className="pt-2">
                   <button
                     type="submit"
                     disabled={isSubmittingOrder || totalItems === 0}
                     onClick={() => console.log('🔘 Submit button clicked!', { isSubmitting: isSubmittingOrder, totalItems })}
-                    className="w-full bg-olive text-white py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-olive-dark transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                    className="w-full bg-olive text-white py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-olive-dark transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSubmittingOrder ? (
                       <>
@@ -673,9 +687,6 @@ const Products: React.FC = () => {
                       </>
                     )}
                   </button>
-                  <p className="text-[10px] text-center text-olive/40 mt-3">
-                    S klikom na gumb se strinjate z obdelavo osebnih podatkov za namen priprave ponudbe.
-                  </p>
                 </div>
               </form>
             )}
