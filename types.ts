@@ -38,7 +38,7 @@ export interface AwardItem {
   image: string;
 }
 
-export type ProductStatus = 'available' | 'sold-out' | 'coming-soon';
+export type ProductStatus = 'available' | 'sold-out' | 'coming-soon' | 'display-only';
 
 export interface PreOrderItem {
   id: string;

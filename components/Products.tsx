@@ -13,6 +13,7 @@ const getStatusStyles = (status: string) => {
     case 'available': return 'bg-green-100 text-olive-dark border-green-200';
     case 'sold-out': return 'bg-red-50 text-red-600 border-red-200';
     case 'coming-soon': return 'bg-yellow-50 text-yellow-700 border-yellow-200';
+    case 'display-only': return 'hidden'; // Hide badge for display-only
     default: return 'bg-gray-100';
   }
 };
@@ -22,6 +23,7 @@ const getStatusLabel = (status: string) => {
     case 'available': return 'Na Voljo';
     case 'sold-out': return 'Razprodano';
     case 'coming-soon': return 'Kmalu';
+    case 'display-only': return ''; // No label for display-only
     default: return '';
   }
 };
@@ -36,13 +38,16 @@ interface ProductItemProps {
 
 const ProductCard: React.FC<ProductItemProps> = ({ product, quantity, onQuantityChange }) => {
   const isAvailable = product.status === 'available';
+  const isDisplayOnly = product.status === 'display-only';
 
   return (
-    <div className={`group relative bg-white border border-black/5 rounded-[2rem] overflow-hidden transition-all duration-300 flex flex-col h-full ${isAvailable ? 'hover:shadow-xl hover:border-olive/20' : 'opacity-70'}`}>
+    <div className={`group relative bg-white border border-black/5 rounded-[2rem] overflow-hidden transition-all duration-300 flex flex-col h-full ${isAvailable ? 'hover:shadow-xl hover:border-olive/20' : isDisplayOnly ? '' : 'opacity-70'}`}>
       {/* Status Badge */}
-      <div className={`absolute top-4 left-4 z-10 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${getStatusStyles(product.status)}`}>
-        {getStatusLabel(product.status)}
-      </div>
+      {!isDisplayOnly && (
+        <div className={`absolute top-4 left-4 z-10 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${getStatusStyles(product.status)}`}>
+          {getStatusLabel(product.status)}
+        </div>
+      )}
 
       {/* Image */}
       <div className="h-40 sm:h-48 overflow-hidden bg-gray-50 relative shrink-0">
@@ -51,7 +56,7 @@ const ProductCard: React.FC<ProductItemProps> = ({ product, quantity, onQuantity
           alt={product.name}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
-        {!isAvailable && <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px]" />}
+        {!isAvailable && !isDisplayOnly && <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px]" />}
       </div>
 
       {/* Content */}
@@ -59,35 +64,38 @@ const ProductCard: React.FC<ProductItemProps> = ({ product, quantity, onQuantity
         {/* Product Name */}
         <h4 className="font-serif text-sm sm:text-lg text-olive-dark leading-tight mb-2">{product.name}</h4>
 
-        {/* Price */}
-        <div className="mb-2">
-          <span className="font-bold text-terracotta text-base sm:text-lg">{product.price.toFixed(2)}€</span>
-          <span className="text-[9px] text-olive/40 uppercase font-bold ml-1">/ {product.unit}</span>
-        </div>
-
-
-        {/* Quantity Control - Pushed to bottom */}
-        <div className={`mt-auto flex items-center justify-center ${!isAvailable ? 'pointer-events-none opacity-50' : ''}`}>
-          <div className="inline-flex items-center gap-2 bg-cream rounded-full p-1">
-            <button
-              onClick={() => onQuantityChange(product.id, -1)}
-              className="w-6 h-6 rounded-full bg-white shadow-sm text-olive flex items-center justify-center hover:bg-olive hover:text-white transition-colors disabled:opacity-50"
-              disabled={quantity === 0}
-            >
-              <Minus size={12} />
-            </button>
-
-            <span className="w-8 text-center font-bold text-olive-dark text-sm">{quantity > 0 ? quantity : <span className="text-olive/20">0</span>}</span>
-
-            <button
-              onClick={() => onQuantityChange(product.id, 1)}
-              className="w-6 h-6 rounded-full bg-olive text-white shadow-md flex items-center justify-center hover:bg-olive-dark transition-transform active:scale-90 disabled:opacity-50 disabled:bg-gray-300 disabled:cursor-not-allowed"
-              disabled={product.quantity !== undefined && quantity >= product.quantity}
-            >
-              <Plus size={12} />
-            </button>
+        {/* Price - Hidden for display-only */}
+        {!isDisplayOnly && (
+          <div className="mb-2">
+            <span className="font-bold text-terracotta text-base sm:text-lg">{product.price.toFixed(2)}€</span>
+            <span className="text-[9px] text-olive/40 uppercase font-bold ml-1">/ {product.unit}</span>
           </div>
-        </div>
+        )}
+
+        {/* Quantity Control - Hidden for display-only */}
+        {!isDisplayOnly && (
+          <div className={`mt-auto flex items-center justify-center ${!isAvailable ? 'pointer-events-none opacity-50' : ''}`}>
+            <div className="inline-flex items-center gap-2 bg-cream rounded-full p-1">
+              <button
+                onClick={() => onQuantityChange(product.id, -1)}
+                className="w-6 h-6 rounded-full bg-white shadow-sm text-olive flex items-center justify-center hover:bg-olive hover:text-white transition-colors disabled:opacity-50"
+                disabled={quantity === 0}
+              >
+                <Minus size={12} />
+              </button>
+
+              <span className="w-8 text-center font-bold text-olive-dark text-sm">{quantity > 0 ? quantity : <span className="text-olive/20">0</span>}</span>
+
+              <button
+                onClick={() => onQuantityChange(product.id, 1)}
+                className="w-6 h-6 rounded-full bg-olive text-white shadow-md flex items-center justify-center hover:bg-olive-dark transition-transform active:scale-90 disabled:opacity-50 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                disabled={product.quantity !== undefined && quantity >= product.quantity}
+              >
+                <Plus size={12} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

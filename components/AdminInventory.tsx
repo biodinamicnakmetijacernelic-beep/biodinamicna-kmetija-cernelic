@@ -1629,6 +1629,8 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
         return { label: 'razprodano', color: 'bg-red-500', text: 'text-red-500' };
       case 'coming-soon':
         return { label: 'kmalu', color: 'bg-yellow-400', text: 'text-yellow-600' };
+      case 'display-only':
+        return { label: 'samo prikaz', color: 'bg-blue-400', text: 'text-blue-600' };
       default:
         return { label: status, color: 'bg-gray-300', text: 'text-gray-500' };
     }
@@ -1636,10 +1638,11 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
 
   const handleStatusToggle = async (e: React.MouseEvent, id: string, currentStatus: string) => {
     e.stopPropagation();
-    // status cycle: available -> sold-out -> coming-soon -> available
+    // status cycle: available -> sold-out -> coming-soon -> display-only -> available
     let nextStatus = '';
     if (currentStatus === 'available') nextStatus = 'sold-out';
     else if (currentStatus === 'sold-out') nextStatus = 'coming-soon';
+    else if (currentStatus === 'coming-soon') nextStatus = 'display-only';
     else nextStatus = 'available';
     setProducts(prev => prev.map(p => p.id === id ? { ...p, status: nextStatus as any } : p));
 
@@ -2080,6 +2083,12 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
                         className="px-3 py-1.5 bg-yellow-500 text-white rounded-lg text-xs font-bold uppercase hover:bg-yellow-600 transition-colors"
                       >
                         Kmalu
+                      </button>
+                      <button
+                        onClick={() => handleBulkStatusChange('display-only')}
+                        className="px-3 py-1.5 bg-blue-500 text-white rounded-lg text-xs font-bold uppercase hover:bg-blue-600 transition-colors"
+                      >
+                        Samo prikaz
                       </button>
                     </div>
                   )}
