@@ -52,7 +52,7 @@ const Locations: React.FC = () => {
 
                   <div className="mt-auto space-y-4 md:space-y-6">
                     <div className="border-l-2 border-terracotta/30 pl-6 py-2">
-                      <p className="text-2xl md:text-3xl font-light text-white tracking-tight mb-2">{item.time}</p>
+                      <p className="text-2xl md:text-3xl font-light text-white tracking-tight mb-2 whitespace-pre-line">{item.time}</p>
                       <p className="text-terracotta font-medium tracking-wide uppercase text-xs">{item.day}</p>
                     </div>
 
