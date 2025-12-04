@@ -184,7 +184,7 @@ export async function fetchAwards(): Promise<AwardItem[]> {
 // Fetch Products (Live Inventory)
 export async function fetchProducts(): Promise<PreOrderItem[]> {
   try {
-    const query = `*[_type == "product"] | order(name asc) {
+    const query = `*[_type == "product" && category != "settings"] | order(name asc) {
       _id,
       name,
       category,
@@ -799,6 +799,51 @@ export async function deleteVideo(id: string, token: string) {
     throw error;
   }
 }
+
+/**
+ * GLOBAL SETTINGS (Stored as a special product)
+ */
+export async function fetchGlobalSettings(): Promise<{ cartEnabled: boolean }> {
+  try {
+    const query = `*[_type == "product" && _id == "site-settings"][0]`;
+    const doc = await client.fetch(query);
+    if (!doc) return { cartEnabled: true }; // Default
+    return { cartEnabled: doc.quantity === 1 };
+  } catch (error) {
+    console.warn("Failed to fetch global settings:", error);
+    return { cartEnabled: true };
+  }
+}
+
+export async function updateGlobalSettings(settings: { cartEnabled: boolean }, token: string) {
+  const authClient = createClient({
+    ...sanityConfig,
+    token: token,
+    ignoreBrowserTokenWarning: true
+  });
+
+  try {
+    const doc = {
+      _type: 'product',
+      _id: 'site-settings',
+      name: 'SYSTEM_SETTINGS_DO_NOT_DELETE',
+      category: 'settings',
+      price: 0,
+      unit: 'settings',
+      status: 'display-only',
+      quantity: settings.cartEnabled ? 1 : 0,
+      maxQuantity: 1,
+      image: undefined // No image needed
+    };
+
+    await authClient.createOrReplace(doc);
+    return true;
+  } catch (error) {
+    console.error("Update global settings failed:", error);
+    throw error;
+  }
+}
+
 
 // --- ORDERS ---
 

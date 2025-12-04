@@ -4,7 +4,7 @@ import { PreOrderItem } from '../types';
 import FadeIn from './FadeIn';
 import { ShoppingCart, X, Plus, Minus, Check, ArrowRight, Info, ShoppingBag, Truck, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { submitOrder, fetchProducts } from '../sanityClient';
+import { submitOrder, fetchProducts, fetchGlobalSettings } from '../sanityClient';
 
 // --- Type Definitions & Helpers ---
 
@@ -138,25 +138,18 @@ const Products: React.FC = () => {
 
   const sectionRef = useRef<HTMLElement>(null);
 
-  // Check cart setting on mount and listen for changes
+  // Check cart setting on mount
   useEffect(() => {
-    const checkCartSetting = () => {
-      const savedCartEnabled = localStorage.getItem('cartEnabled');
-      if (savedCartEnabled !== null) {
-        setIsCartEnabled(savedCartEnabled === 'true');
+    const checkCartSetting = async () => {
+      try {
+        const settings = await fetchGlobalSettings();
+        setIsCartEnabled(settings.cartEnabled);
+      } catch (error) {
+        console.error("Failed to load cart settings:", error);
       }
     };
 
     checkCartSetting();
-
-    const handleCartSettingChange = (e: CustomEvent) => {
-      setIsCartEnabled(e.detail.cartEnabled);
-    };
-
-    window.addEventListener('cartSettingChanged', handleCartSettingChange as EventListener);
-    return () => {
-      window.removeEventListener('cartSettingChanged', handleCartSettingChange as EventListener);
-    };
   }, []);
 
   // LIVE PRODUCTS STATE

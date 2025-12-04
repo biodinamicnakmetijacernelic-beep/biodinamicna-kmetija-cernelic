@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Save, Search, RefreshCw, MousePointerClick, ShoppingBag, ClipboardList, Bell, Image as ImageIcon, Upload, Trash2, Pencil, ArrowLeft, AlertTriangle, Plus, Lock, Send, Eye, EyeOff, FileText, Type, Video, Check, LogOut, Link as LinkIcon, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette, Code, Package } from 'lucide-react';
 import { GalleryItem, PreOrderItem, NewsItem, VideoGalleryItem, Order } from '../types';
-import { uploadImageToSanity, fetchProducts, updateProductStatus, createProduct, updateProduct, deleteProduct, createNewsPost, fetchAllNews, updateNewsPost, deleteNewsPost, fetchVideoGallery, createVideo, updateVideo, deleteVideo, fetchOrders, updateOrderStatus, deleteOrder, fetchGalleryImages, updateGalleryImage, deleteGalleryImage, verifyTokenPermissions } from '../sanityClient';
+import { uploadImageToSanity, fetchProducts, updateProductStatus, createProduct, updateProduct, deleteProduct, createNewsPost, fetchAllNews, updateNewsPost, deleteNewsPost, fetchVideoGallery, createVideo, updateVideo, deleteVideo, fetchOrders, updateOrderStatus, deleteOrder, fetchGalleryImages, updateGalleryImage, deleteGalleryImage, verifyTokenPermissions, fetchGlobalSettings, updateGlobalSettings } from '../sanityClient';
 import { createClient } from '@sanity/client';
 import { sendOrderStatusUpdateEmail } from '../utils/emailService';
 import { compressImage } from '../utils/imageOptimizer';
@@ -206,20 +206,35 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
   const [activeTab, setActiveTab] = useState<'inventory' | 'orders' | 'gallery' | 'news' | 'videos' | 'settings'>(initialTab);
   const [cartEnabled, setCartEnabled] = useState(true);
 
-  // Load settings from localStorage
+  // Load settings from Sanity
   useEffect(() => {
-    const savedCartEnabled = localStorage.getItem('cartEnabled');
-    if (savedCartEnabled !== null) {
-      setCartEnabled(savedCartEnabled === 'true');
-    }
+    const loadSettings = async () => {
+      try {
+        const settings = await fetchGlobalSettings();
+        setCartEnabled(settings.cartEnabled);
+      } catch (error) {
+        console.error("Failed to load global settings:", error);
+      }
+    };
+    loadSettings();
   }, []);
 
-  // Save cart setting to localStorage
-  const saveCartSetting = (enabled: boolean) => {
-    setCartEnabled(enabled);
-    localStorage.setItem('cartEnabled', enabled.toString());
-    // Dispatch custom event to notify other components
-    window.dispatchEvent(new CustomEvent('cartSettingChanged', { detail: { cartEnabled: enabled } }));
+  // Save cart setting to Sanity
+  const saveCartSetting = async (enabled: boolean) => {
+    setCartEnabled(enabled); // Optimistic update
+
+    if (sanityToken) {
+      try {
+        await updateGlobalSettings({ cartEnabled: enabled }, sanityToken);
+        setNotification("✅ Nastavitev shranjena v oblak!");
+        setTimeout(() => setNotification(null), 2000);
+      } catch (error) {
+        console.error("Failed to save global settings:", error);
+        setNotification("❌ Napaka pri shranjevanju nastavitve.");
+      }
+    } else {
+      setNotification("⚠️ Manjka API žeton za shranjevanje v oblak.");
+    }
   };
 
   // Admin credentials (v produkciji shranite v environment variables!)
