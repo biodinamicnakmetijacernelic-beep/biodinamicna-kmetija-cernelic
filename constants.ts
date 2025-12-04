@@ -51,7 +51,7 @@ export const VIDEO_GALLERY = [
 ];
 
 export const ABOUT_TEXT = {
-  title: "Od njive do evropskega priznanja",
+  title: "Od njive do evropskih priznanj",
   quote: "Vse se začne pri tleh. Če so tla živa in zdrava, bo takšna tudi hrana – in ljudje, ki jo uživajo. To je preprosta, a mogočna filozofija, ki nas vodi že več kot dve desetletji.",
   storyBlocks: [
     {
