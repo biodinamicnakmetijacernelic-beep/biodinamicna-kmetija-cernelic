@@ -71,7 +71,7 @@ export const ABOUT_TEXT = {
     {
       id: 'today',
       title: "Kako delamo danes?",
-      content: "V središču našega dela je celostni, zaprti cikel in spoštovanje naravnih ritmov. Rodovitnost tal gradimo brez kemije: z močjo dragocenega komposta iz lastne reje, posebno izbranimi posevki za biotsko pestrost in certificiranimi biodinamičnimi preparati. Ta celovit model nam omogoča pridelavo hrane z izjemno vitalnostjo in je bil potrjen z najvišjimi evropskimi priznanji, vključno z nagrado za najboljše upravljanje s tlemi.",
+      content: "V središču našega dela je celostni, zaprti cikel in spoštovanje naravnih ritmov. Rodovitnost tal gradimo brez kemije: z močjo dragocenega komposta iz lastne reje goveda, posebno izbranimi posevki za biotsko pestrost in biodinamičnimi preparati. Ta celovit model nam omogoča pridelavo hrane z izjemno vitalnostjo in je bil potrjen z najvišjimi evropskimi priznanji, vključno z nagrado za najboljše upravljanje s tlemi.",
       image: "/images/sedanjost.jpg",
       imageAlt: "Zvone Černelič s pridelkom"
     }
@@ -177,18 +177,18 @@ export const FEATURES: FeatureItem[] = [
   {
     id: 'ecosystem',
     title: "Kmetija kot Zaprti Ekosistem",
-    description: "Kmetija je organizem, kjer živali, rastline in zemlja delujejo v popolni simbiozi. Rodovitnost ustvarjamo z lastnim dragocenim kompostom in gnojem krav, ki so del našega kroga. Ne vnašamo umetnih gnojil ali uvoženih virov. Smo samozadostni in avtonomni.",
+    description: "Kmetija je organizem, kjer živali, rastline in zemlja delujejo v popolni simbiozi. Rodovitnost ustvarjamo z lastnim dragocenim kompostom, kolobarjenjem in uporabo biodinamičnih preparatov kot osnova za vitalnost tal.",
     icon: 'recycle' // Circle/Cycle
   },
   {
     id: 'soil',
     title: "Aktivno Zdravje Tla in Vitalnost",
-    description: "Ne gojimo samo rastlin, temveč gojimo živo zemljo. Z globokim kolobarjenjem in posevki za biotsko pestrost aktivno obnavljamo strukturo tal. Bolj zdrava in vitalna kot so tla, bolj odporni so pridelki in višja je njihova življenjska energija.",
+    description: "Ne gojimo samo rastlin, temveč gojimo živo zemljo. Z pravilnim kolobarjenjem in posevki za biotsko pestrost aktivno obnavljamo strukturo tal. Bolj zdrava in vitalna kot so tla, bolj odporni so pridelki in višja je njihova življenjska energija.",
     icon: 'sprout' // Roots/Soil representation
   },
   {
     id: 'cosmic',
-    title: "Kozmični Ritem in Demeter Preparati",
+    title: "Kozmičnimi Ritmi in biodinamičnimi preparati",
     description: "Delamo v harmoniji z naravnimi, lunarnimi in kozmičnimi ritmi. Uporabljamo posebne, visoko potencirane biodinamične preparate, ki v zemljo in pridelke vnašajo vitalnost. To je bistvo Demeter standarda, ki je najvišja garancija za kakovost.",
     icon: 'moon' // Moon/Star/Cosmic
   }
@@ -197,7 +197,7 @@ export const FEATURES: FeatureItem[] = [
 export const OPENING_HOURS: OpeningHours[] = [
   {
     day: "Torek & Petek",
-    time: "Ob mraku - 22:00",
+    time: "Poletni čas: 19:00 - 20:30 | Zimski čas: 17:00 - 19:00",
     location: "Biodinamična kmetija Černelič",
     address: "Dečno selo 48, 8253 Artiče",
     season: "Torek: maj-sep | Petek: maj-nov",
