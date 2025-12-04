@@ -197,7 +197,7 @@ export const FEATURES: FeatureItem[] = [
 export const OPENING_HOURS: OpeningHours[] = [
   {
     day: "Torek & Petek",
-    time: "Poletni čas: 19:00 - 20:30 | Zimski čas: 17:00 - 19:00",
+    time: "Poletni čas: 19:00 - 20:30\nZimski čas: 17:00 - 19:00",
     location: "Biodinamična kmetija Černelič",
     address: "Dečno selo 48, 8253 Artiče",
     season: "Torek: maj-sep | Petek: maj-nov",
