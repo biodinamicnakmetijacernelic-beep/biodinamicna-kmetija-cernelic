@@ -7,6 +7,9 @@ import { createClient } from '@sanity/client';
 import { sendOrderStatusUpdateEmail } from '../utils/emailService';
 import { compressImage } from '../utils/imageOptimizer';
 import DynamicReactRenderer from './blog/DynamicReactRenderer';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { FARM_LOGO } from '../constants';
 
 // Helper function to parse DD.MM.YYYY date format
 function parseEuropeanDate(dateString: string): Date | null {
@@ -170,7 +173,7 @@ import { sanityConfig } from '../sanityConfig';
 
 interface AdminProps {
   onClose: () => void;
-  initialTab?: 'inventory' | 'orders' | 'gallery' | 'news' | 'videos' | 'settings';
+  initialTab?: 'inventory' | 'orders' | 'gallery' | 'news' | 'videos' | 'settings' | 'offer';
   currentImages?: GalleryItem[];
   onAddImage?: (img: GalleryItem) => void;
   onDeleteImage?: (id: string) => void;
@@ -195,6 +198,168 @@ interface NewsBlock {
   images?: Record<string, string>; // For customReact images
 }
 
+const generatePDF = (recipient: any, items: any[], type: 'ponudba' | 'racun', options: any) => {
+  const doc = new jsPDF();
+
+  // Register OpenSans font if available
+  const fontBase64 = localStorage.getItem('pdf_font_base64_v2');
+  let useCustomFont = false;
+
+  if (fontBase64 && fontBase64.length > 100) {
+    try {
+      const fontName = 'OpenSans-Regular.ttf';
+      doc.addFileToVFS(fontName, fontBase64);
+      doc.addFont(fontName, 'OpenSans', 'normal');
+      doc.setFont('OpenSans');
+      useCustomFont = true;
+    } catch (e) {
+      console.warn("Failed to load custom font, falling back to Helvetica", e);
+      doc.setFont("helvetica");
+    }
+  } else {
+    doc.setFont("helvetica");
+  }
+
+  const title = type === 'ponudba' ? 'PONUDBA' : 'RAČUN';
+
+  // Header Group
+  doc.setFont(useCustomFont ? "Roboto" : "helvetica", "bold");
+  doc.setFontSize(28);
+  doc.setTextColor(80, 80, 80);
+  doc.text(title, 20, 25);
+
+  // Add Logo on the right
+  const logoBase64 = localStorage.getItem('pdf_logo_base64');
+  if (logoBase64) {
+    try {
+      doc.addImage(logoBase64, 'WEBP', 140, 10, 50, 25);
+    } catch (e) {
+      console.warn("Failed to add image to PDF", e);
+    }
+  }
+
+  // Datum on the right
+  doc.setFontSize(10);
+  doc.setFont(useCustomFont ? "OpenSans" : "helvetica", "bold");
+  doc.setTextColor(100, 100, 100);
+  doc.text("Datum:", 150, 45);
+  doc.setFont(useCustomFont ? "OpenSans" : "helvetica", "normal");
+
+  try {
+    const dateStr = recipient.date ? new Date(recipient.date).toLocaleDateString('sl-SI') : new Date().toLocaleDateString('sl-SI');
+    doc.text(dateStr, 175, 45);
+  } catch (e) {
+    doc.text(new Date().toLocaleDateString('sl-SI'), 175, 45);
+  }
+
+  // Recipient info on the left
+  doc.setFontSize(11);
+  doc.setFont(useCustomFont ? "Roboto" : "helvetica", "bold");
+  doc.setTextColor(0, 0, 0);
+  doc.text(recipient.name || '', 20, 45);
+  doc.setFont(useCustomFont ? "Roboto" : "helvetica", "normal");
+  const addressLines = (recipient.address || '').split(',');
+  addressLines.forEach((line: string, i: number) => {
+    doc.text(line.trim(), 20, 51 + (i * 5));
+  });
+
+  if (recipient.email) doc.text(recipient.email, 20, 51 + (addressLines.length * 5));
+
+  // Table Preparation
+  const headers = ['OPIS'];
+  if (options.showQuantity) headers.push('KOLIČINA');
+  if (options.showPrice) headers.push('ENOTA /KG');
+  if (options.showTotal) headers.push('SKUPAJ');
+
+  const tableData = items.map((item) => {
+    const row = [item.name];
+    if (options.showQuantity) row.push(`${item.quantity} ${item.unit}`);
+    if (options.showPrice) row.push(`${item.price.toFixed(2)} €`);
+    if (options.showTotal) row.push(`${(item.price * item.quantity).toFixed(2)} €`);
+    return row;
+  });
+
+  const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  autoTable(doc, {
+    startY: 85,
+    head: [headers],
+    body: tableData,
+    theme: 'plain',
+    headStyles: {
+      textColor: [0, 0, 0],
+      fontStyle: 'bold',
+      fontSize: 10,
+      font: useCustomFont ? 'OpenSans' : 'helvetica'
+    },
+    bodyStyles: {
+      fontSize: 10,
+      textColor: [0, 0, 0],
+      font: useCustomFont ? 'OpenSans' : 'helvetica'
+    },
+    columnStyles: {
+      0: { cellWidth: 'auto' },
+      1: { halign: 'right' },
+      2: { halign: 'right' },
+      3: { halign: 'right' }
+    },
+    margin: { left: 20, right: 20 }
+  });
+
+  const finalY = (doc as any).lastAutoTable.finalY + 10;
+
+  if (options.showTotal) {
+    doc.setFont(useCustomFont ? "Roboto" : "helvetica", "bold");
+    doc.text(`SKUPAJ: ${total.toFixed(2)} €`, 190, finalY, { align: 'right' });
+  }
+
+  // Footer Section
+  const pageHeight = doc.internal.pageSize.height;
+  doc.setLineWidth(0.2);
+  doc.setDrawColor(200, 200, 200);
+  doc.line(20, pageHeight - 30, 190, pageHeight - 30);
+
+  doc.setFontSize(8);
+  doc.setTextColor(100, 100, 100);
+
+  // Footer Column 1
+  doc.text("Biodinamična kmetija Černelič", 20, pageHeight - 20);
+  doc.text("Dečno selo 48,", 20, pageHeight - 15);
+  doc.text("8253 Artiče", 20, pageHeight - 10);
+
+  // Footer Column 2
+  doc.text("051 363 447", 105, pageHeight - 20, { align: 'center' });
+  doc.text("ekocernelic@gmail.com", 105, pageHeight - 15, { align: 'center' });
+  doc.text("biodinamicnakmetija-cernelic.si", 105, pageHeight - 10, { align: 'center' });
+
+  // Footer Column 3
+  doc.text("Deželna banka Slovenije", 190, pageHeight - 20, { align: 'right' });
+  doc.text("Zvonko Černelič", 190, pageHeight - 15, { align: 'right' });
+  doc.text("SI56 1992 0500 4781 380", 190, pageHeight - 10, { align: 'right' });
+
+  // Save PDF
+  doc.save(`${title}_${recipient.offerNumber}.pdf`);
+};
+
+// Helper function to get base64 from image URL
+const getBase64FromUrl = async (url: string): Promise<string | null> => {
+  try {
+    const data = await fetch(url);
+    const blob = await data.blob();
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = () => {
+        const base64data = reader.result;
+        resolve(base64data as string);
+      };
+    });
+  } catch (e) {
+    console.error("Failed to load image for PDF:", e);
+    return null;
+  }
+};
+
 const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory', currentImages = [], onAddImage, onDeleteImage }) => {
   // Authentication State
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('admin_session'));
@@ -203,7 +368,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loginError, setLoginError] = useState('');
 
-  const [activeTab, setActiveTab] = useState<'inventory' | 'orders' | 'gallery' | 'news' | 'videos' | 'settings'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'inventory' | 'orders' | 'gallery' | 'news' | 'videos' | 'settings' | 'offer'>(initialTab as any);
   const [cartEnabled, setCartEnabled] = useState(true);
 
   // Load settings from Sanity
@@ -217,6 +382,43 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
       }
     };
     loadSettings();
+
+    // Pre-load logo for PDF
+    if (!localStorage.getItem('pdf_logo_base64')) {
+      getBase64FromUrl(FARM_LOGO).then(base64 => {
+        if (base64) localStorage.setItem('pdf_logo_base64', base64);
+      });
+    }
+
+    // Pre-load OpenSans font for PDF (for Slovenian characters)
+    // We try to load from localStorage first, or fetch from local public folder
+    const loadFont = async () => {
+      // Always fetch if missing OR if we want to ensure freshness (optional logic could check version)
+      // For now, if missing, we fetch. The error handler above clears it on failure.
+      if (!localStorage.getItem('pdf_font_base64_v2')) {
+        try {
+          const res = await fetch('/fonts/OpenSans-Regular.ttf');
+          const blob = await res.blob();
+          const reader = new FileReader();
+          reader.readAsDataURL(blob);
+          reader.onloadend = () => {
+            const result = reader.result as string;
+            // Remove "data:font/ttf;base64," prefix if present, or just split
+            const base64data = result.split(',')[1];
+            // Validate start of TTF (usually AAEAAA or similar for base64 encoded TTF)
+            if (base64data && base64data.startsWith('AAEAAA')) {
+              localStorage.setItem('pdf_font_base64_v2', base64data);
+              console.log('OpenSans font cached for PDF from local source (v2)');
+            } else {
+              console.warn('Fetched font data does not look like a valid TTF base64, skipping cache.');
+            }
+          };
+        } catch (err) {
+          console.error('Failed to load OpenSans font:', err);
+        }
+      }
+    };
+    loadFont();
   }, []);
 
   // Save cart setting to Sanity
@@ -368,6 +570,23 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
   const [orderStatusFilter, setOrderStatusFilter] = useState<'pending' | 'in-preparation' | 'ready-for-pickup' | 'completed' | 'rejected'>('pending');
   const [pickupLocationFilter, setPickupLocationFilter] = useState<'all' | 'home' | 'market'>('all');
   const [orderSearchTerm, setOrderSearchTerm] = useState('');
+
+  // Offer / Invoice State
+  const [offerRecipient, setOfferRecipient] = useState({
+    name: '',
+    address: '',
+    email: '',
+    phone: '',
+    date: new Date().toISOString().split('T')[0],
+    offerNumber: `PON-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`,
+    type: 'ponudba' as 'ponudba' | 'racun'
+  });
+  const [selectedOfferItems, setSelectedOfferItems] = useState<Record<string, { quantity: number, price: number }>>({});
+  const [offerOptions, setOfferOptions] = useState({
+    showQuantity: true,
+    showPrice: true,
+    showTotal: true
+  });
 
   // --- Authentication ---
   const handleLogin = async (e: React.FormEvent) => {
@@ -2041,6 +2260,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
           <button onClick={() => setActiveTab('news')} className={`flex-1 min-w-[80px] py-4 text-xs font-bold uppercase tracking-widest flex flex-col md:flex-row items-center gap-2 transition-colors ${activeTab === 'news' ? 'text-olive border-b-2 border-olive bg-olive/5' : 'text-olive/40'}`}><FileText size={16} />Novice</button>
           <button onClick={() => setActiveTab('videos')} className={`flex-1 min-w-[80px] py-4 text-xs font-bold uppercase tracking-widest flex flex-col md:flex-row items-center gap-2 transition-colors ${activeTab === 'videos' ? 'text-olive border-b-2 border-olive bg-olive/5' : 'text-olive/40'}`}><Video size={16} />Video</button>
           <button onClick={() => setActiveTab('gallery')} className={`flex-1 min-w-[80px] py-4 text-xs font-bold uppercase tracking-widest flex flex-col md:flex-row items-center gap-2 transition-colors ${activeTab === 'gallery' ? 'text-olive border-b-2 border-olive bg-olive/5' : 'text-olive/40'}`}><ImageIcon size={16} />Galerija</button>
+          <button onClick={() => setActiveTab('offer')} className={`flex-1 min-w-[80px] py-4 text-xs font-bold uppercase tracking-widest flex flex-col md:flex-row items-center gap-2 transition-colors ${activeTab === 'offer' ? 'text-olive border-b-2 border-olive bg-olive/5' : 'text-olive/40'}`}><FileText size={16} />Ponudba</button>
           <button onClick={() => setActiveTab('settings')} className={`flex-1 min-w-[80px] py-4 text-xs font-bold uppercase tracking-widest flex flex-col md:flex-row items-center gap-2 transition-colors ${activeTab === 'settings' ? 'text-olive border-b-2 border-olive bg-olive/5' : 'text-olive/40'}`}><Pencil size={16} />Nastavitve</button>
         </div>
 
@@ -3272,6 +3492,308 @@ export default function MyBlogComponent() {
 
 
         {/* --- SETTINGS TAB --- */}
+        {activeTab === 'offer' && (
+          <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-8 custom-scrollbar pb-24">
+            <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-black/5">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
+                <div>
+                  <h2 className="font-serif text-2xl md:text-3xl text-olive-dark">Generiranje Ponudbe / Računa</h2>
+                  <p className="text-olive/50 text-sm mt-1">Izberite artikle in vnesite podatke prejemnika.</p>
+                </div>
+                <div className="flex gap-2 bg-gray-100 p-1 rounded-xl w-full md:w-auto">
+                  <button
+                    onClick={() => setOfferRecipient({ ...offerRecipient, type: 'ponudba' })}
+                    className={`flex-1 md:flex-none px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${offerRecipient.type === 'ponudba' ? 'bg-white text-olive shadow-sm' : 'text-olive/40 hover:text-olive/60'}`}
+                  >
+                    Ponudba
+                  </button>
+                  <button
+                    onClick={() => setOfferRecipient({ ...offerRecipient, type: 'racun' })}
+                    className={`flex-1 md:flex-none px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${offerRecipient.type === 'racun' ? 'bg-white text-olive shadow-sm' : 'text-olive/40 hover:text-olive/60'}`}
+                  >
+                    Račun
+                  </button>
+                </div>
+              </div>
+
+              {/* Visibility Options */}
+              <div className="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                <p className="text-[10px] font-bold uppercase text-olive/40 mb-3 tracking-widest">Vidnost na dokumentu</p>
+                <div className="flex flex-wrap gap-6">
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4 rounded border-gray-300 text-olive focus:ring-olive"
+                      checked={offerOptions.showQuantity}
+                      onChange={e => setOfferOptions({ ...offerOptions, showQuantity: e.target.checked })}
+                    />
+                    <span className="text-sm text-olive-dark group-hover:text-olive transition-colors">Prikaži količino</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4 rounded border-gray-300 text-olive focus:ring-olive"
+                      checked={offerOptions.showPrice}
+                      onChange={e => setOfferOptions({ ...offerOptions, showPrice: e.target.checked })}
+                    />
+                    <span className="text-sm text-olive-dark group-hover:text-olive transition-colors">Prikaži ceno</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4 rounded border-gray-300 text-olive focus:ring-olive"
+                      checked={offerOptions.showTotal}
+                      onChange={e => setOfferOptions({ ...offerOptions, showTotal: e.target.checked })}
+                    />
+                    <span className="text-sm text-olive-dark group-hover:text-olive transition-colors">Prikaži skupni znesek</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="grid lg:grid-cols-2 gap-8">
+                {/* Recipient Form */}
+                <div className="space-y-6">
+                  <h3 className="text-xs font-bold uppercase text-olive/50 tracking-widest border-b border-olive/10 pb-2 flex items-center gap-2">
+                    <ClipboardList size={14} /> Podatki o prejemniku
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="col-span-2">
+                      <label className="text-[10px] font-bold uppercase text-olive/40 block mb-1">Ime in priimek / Naziv</label>
+                      <input
+                        type="text"
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-olive transition-colors"
+                        value={offerRecipient.name}
+                        onChange={e => setOfferRecipient({ ...offerRecipient, name: e.target.value })}
+                        placeholder="npr. Janez Novak"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="text-[10px] font-bold uppercase text-olive/40 block mb-1">Naslov</label>
+                      <input
+                        type="text"
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-olive transition-colors"
+                        value={offerRecipient.address}
+                        onChange={e => setOfferRecipient({ ...offerRecipient, address: e.target.value })}
+                        placeholder="Ulica, Pošta, Kraj"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold uppercase text-olive/40 block mb-1">Email</label>
+                      <input
+                        type="email"
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-olive transition-colors"
+                        value={offerRecipient.email}
+                        onChange={e => setOfferRecipient({ ...offerRecipient, email: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold uppercase text-olive/40 block mb-1">Telefon</label>
+                      <input
+                        type="tel"
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-olive transition-colors"
+                        value={offerRecipient.phone}
+                        onChange={e => setOfferRecipient({ ...offerRecipient, phone: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold uppercase text-olive/40 block mb-1">Številka dokumenta</label>
+                      <input
+                        type="text"
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-olive transition-colors"
+                        value={offerRecipient.offerNumber}
+                        onChange={e => setOfferRecipient({ ...offerRecipient, offerNumber: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold uppercase text-olive/40 block mb-1">Datum</label>
+                      <input
+                        type="date"
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-olive transition-colors"
+                        value={offerRecipient.date}
+                        onChange={e => setOfferRecipient({ ...offerRecipient, date: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Selected Items Summary */}
+                <div className="space-y-6">
+                  <h3 className="text-xs font-bold uppercase text-olive/50 tracking-widest border-b border-olive/10 pb-2 flex items-center gap-2">
+                    <ShoppingBag size={14} /> Izbrani artikli
+                  </h3>
+                  <div className="bg-cream/30 rounded-2xl p-4 min-h-[250px] max-h-[400px] overflow-y-auto border border-olive/5">
+                    {Object.keys(selectedOfferItems).length === 0 ? (
+                      <div className="h-full flex flex-col items-center justify-center text-olive/30 py-12">
+                        <ShoppingBag size={48} className="mb-4 opacity-10" />
+                        <p className="text-xs uppercase tracking-widest font-bold">Niste še izbrali artiklov</p>
+                        <p className="text-[10px] mt-2 italic text-center">Spodaj na seznamu s klikom dodajte artikle iz zaloge.</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {(Object.entries(selectedOfferItems) as [string, { quantity: number; price: number }][]).map(([id, itemData]) => {
+                          const product = products.find(p => p.id === id);
+                          if (!product) return null;
+                          return (
+                            <div key={id} className="bg-white p-3 rounded-xl border border-black/5 shadow-sm space-y-3">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-8 h-8 rounded-full overflow-hidden border border-black/5 flex-shrink-0">
+                                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-bold text-olive-dark">{product.name}</p>
+                                    <p className="text-[10px] text-olive/50 uppercase tracking-tighter">Original: {product.price.toFixed(2)} € / {product.unit}</p>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    const next = { ...selectedOfferItems };
+                                    delete next[id];
+                                    setSelectedOfferItems(next);
+                                  }}
+                                  className="text-red-400 hover:text-red-600 transition-colors p-1"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                              <div className="grid grid-cols-2 gap-3 pt-2 border-t border-gray-50">
+                                <div>
+                                  <label className="text-[9px] font-bold uppercase text-olive/30 block mb-1">Količina</label>
+                                  <div className="flex items-center gap-1">
+                                    <input
+                                      type="number"
+                                      min="1"
+                                      step="0.1"
+                                      className="w-full bg-gray-50 border border-gray-100 rounded px-2 py-1 text-sm focus:outline-none focus:border-olive"
+                                      value={itemData.quantity}
+                                      onChange={e => setSelectedOfferItems({ ...selectedOfferItems, [id]: { ...itemData, quantity: Number(e.target.value) } })}
+                                    />
+                                    <span className="text-[10px] text-olive/40">{product.unit}</span>
+                                  </div>
+                                </div>
+                                <div>
+                                  <label className="text-[9px] font-bold uppercase text-olive/30 block mb-1">Cena (€/{product.unit})</label>
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    className="w-full bg-gray-50 border border-gray-100 rounded px-2 py-1 text-sm focus:outline-none focus:border-olive"
+                                    value={itemData.price}
+                                    onChange={e => setSelectedOfferItems({ ...selectedOfferItems, [id]: { ...itemData, price: Number(e.target.value) } })}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                        <div className="pt-4 mt-4 border-t border-olive/10 flex justify-between items-center px-1">
+                          <span className="text-xs font-bold uppercase text-olive/50">Skupaj:</span>
+                          <span className="text-xl font-serif text-olive-dark">
+                            {(Object.values(selectedOfferItems) as { quantity: number; price: number }[]).reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)} €
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      const items = (Object.entries(selectedOfferItems) as [string, { quantity: number; price: number }][]).map(([id, data]) => {
+                        const p = products.find(p => p.id === id);
+                        return p ? { ...p, quantity: data.quantity, price: data.price } : null;
+                      }).filter((item): item is (PreOrderItem & { quantity: number; price: number }) => item !== null && item.id !== undefined);
+
+                      if (items.length === 0) {
+                        setNotification("⚠️ Prosim izberite vsaj en artikel.");
+                        setTimeout(() => setNotification(null), 3000);
+                        return;
+                      }
+                      if (!offerRecipient.name) {
+                        setNotification("⚠️ Prosim vnesite ime prejemnika.");
+                        setTimeout(() => setNotification(null), 3000);
+                        return;
+                      }
+
+                      try {
+                        generatePDF(offerRecipient, items, offerRecipient.type, offerOptions);
+                      } catch (e: any) {
+                        console.error("PDF Generation failed:", e);
+                        localStorage.removeItem('pdf_font_base64_v2'); // Clear potentially bad font cache
+                        const errorMsg = e instanceof Error ? e.message : String(e);
+                        setNotification(`⚠️ Napaka pri PDF: ${errorMsg}. Pisava je ponastavljena, poskusite znova.`);
+                        setTimeout(() => setNotification(null), 10000);
+                      }
+                    }}
+                    className="w-full bg-olive text-white py-4 rounded-2xl font-bold uppercase tracking-widest shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex items-center justify-center gap-3"
+                  >
+                    <FileText size={20} />
+                    Prenesi {offerRecipient.type === 'ponudba' ? 'Ponudbo' : 'Račun'} (PDF)
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Product Selection List */}
+            <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-black/5">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+                <div>
+                  <h3 className="font-serif text-xl md:text-2xl text-olive-dark">Dodaj artikle iz zaloge</h3>
+                  <p className="text-olive/50 text-xs mt-1">Kliknite na artikel, da ga dodate na seznam.</p>
+                </div>
+                <div className="relative max-w-sm w-full">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-olive/30"><Search size={18} /></span>
+                  <input
+                    type="text"
+                    placeholder="Išči artikle..."
+                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl pl-12 pr-4 py-3 text-sm focus:outline-none focus:border-olive transition-colors"
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-4">
+                {[...products]
+                  .sort((a, b) => a.name.localeCompare(b.name, 'sl'))
+                  .filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                  .map(product => {
+                    const isSelected = !!selectedOfferItems[product.id || ''];
+                    return (
+                      <div
+                        key={product.id}
+                        onClick={() => {
+                          if (isSelected) {
+                            const next = { ...selectedOfferItems };
+                            delete next[product.id || ''];
+                            setSelectedOfferItems(next);
+                          } else {
+                            setSelectedOfferItems({
+                              ...selectedOfferItems,
+                              [product.id || '']: { quantity: 1, price: product.price }
+                            });
+                          }
+                        }}
+                        className={`relative cursor-pointer rounded-2xl border transition-all p-4 flex flex-col items-center text-center gap-3 group ${isSelected ? 'border-olive bg-olive/5 shadow-md scale-[1.02]' : 'border-black/5 bg-cream/20 hover:bg-white hover:border-olive/20 hover:shadow-sm'}`}
+                      >
+                        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0 transition-transform group-hover:scale-110">
+                          <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                        </div>
+                        <div>
+                          <p className={`text-xs font-bold leading-tight line-clamp-2 ${isSelected ? 'text-olive-dark' : 'text-olive/70'}`}>{product.name}</p>
+                          <p className="text-[10px] text-olive/40 uppercase tracking-tighter mt-1">{product.price.toFixed(2)} € / {product.unit}</p>
+                        </div>
+                        {isSelected && (
+                          <div className="absolute top-2 right-2 w-6 h-6 bg-olive text-white rounded-full flex items-center justify-center shadow-md animate-in zoom-in duration-300">
+                            <Check size={14} strokeWidth={3} />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          </div>
+        )}
+
         {activeTab === 'settings' && (
           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-24">
             <div className="max-w-2xl mx-auto">
