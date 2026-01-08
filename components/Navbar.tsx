@@ -50,6 +50,7 @@ const Navbar: React.FC = () => {
     { name: 'Video', href: '#video-galerija', isSection: true },
     { name: 'Galerija', href: '#galerija', isSection: true },
     { name: 'Novice', href: '/blog-novice', isSection: false },
+    { name: 'Setveni Koledar', href: '/setveni-koledar', isSection: false },
     { name: 'Kontakt', href: '#kontakt', isSection: true },
   ];
 
