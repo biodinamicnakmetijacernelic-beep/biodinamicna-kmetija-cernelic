@@ -1,0 +1,50 @@
+[
+  {
+    "date": "2026-01-01",
+    "dayType": "Root",
+    "recommendations": ["Plant root crops (e.g., carrots, potatoes)", "Cultivate soil"],
+    "notes": ""
+  },
+  {
+    "date": "2026-01-02",
+    "dayType": "Root",
+    "recommendations": ["Harvest root vegetables", "Store root crops"],
+    "notes": "Good day for storage"
+  },
+  {
+    "date": "2026-01-03",
+    "dayType": "Leaf",
+    "recommendations": ["Plant leafy greens (e.g., lettuce, spinach)", "Water plants"],
+    "notes": ""
+  },
+  {
+    "date": "2026-01-04",
+    "dayType": "Leaf",
+    "recommendations": ["Harvest leafy vegetables", "Prepare compost"],
+    "notes": "Good day for making herbal teas"
+  },
+  {
+    "date": "2026-01-05",
+    "dayType": "Flower",
+    "recommendations": ["Plant flowering plants (e.g., broccoli, cauliflower)", "Collect seeds"],
+    "notes": ""
+  },
+  {
+    "date": "2026-01-06",
+    "dayType": "Flower",
+    "recommendations": ["Harvest flowers", "Dry herbs"],
+    "notes": "Aromatic plants benefit today"
+  },
+  {
+    "date": "2026-01-07",
+    "dayType": "Fruit",
+    "recommendations": ["Plant fruit-bearing plants (e.g., tomatoes, beans)", "Prune fruit trees"],
+    "notes": "Good day for sowing fruit seeds"
+  },
+  {
+    "date": "2026-01-08",
+    "dayType": "Fruit",
+    "recommendations": ["Harvest fruits and berries", "Make jams and preserves"],
+    "notes": ""
+  }
+]
