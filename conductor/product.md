@@ -27,5 +27,5 @@ To create a comprehensive and engaging online presence for Biodinamična kmetija
 *   **"About Us" Section:** A comprehensive area detailing the farm's history, its philosophy, the team, and in-depth information about the Demeter certification.
 *   **Product Catalog:** An online catalog showcasing all farm products with descriptions, images, and availability.
 *   **News/Blog Section:** A dynamic section for posting farm news, articles on biodynamic practices, event announcements, and educational content.
-*   **Interactive Sowing Calendar:** A digital, interactive version of the Maria Thun sowing calendar to provide practical value to visitors and reinforce the farm's commitment to biodynamic methods.
+*   **Interactive Sowing Calendar:** A dynamic, user-friendly digital calendar providing daily Maria Thun sowing recommendations to help visitors plan gardening activities and deepen their understanding of biodynamic practices.
 *   **Contact & Order Form:** A clear and easy-to-use form for customers to place orders and make inquiries about products or educational programs.
