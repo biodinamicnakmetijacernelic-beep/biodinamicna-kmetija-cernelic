@@ -533,7 +533,7 @@ const BlogPostPage: React.FC = () => {
       // Extract video ID from URL
       const videoId = extractYouTubeId(url);
       if (videoId) {
-        const embedHtml = `<div class="relative w-full" style="padding-bottom: 56.25%"><iframe src="https://www.youtube.com/embed/${videoId}" class="absolute top-0 left-0 w-full h-full rounded-2xl" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div><p><br></p>`;
+        const embedHtml = `<div class="relative w-full" style="padding-bottom: 56.25%"><iframe src="https://www.youtube-nocookie.com/embed/${videoId}" class="absolute top-0 left-0 w-full h-full rounded-2xl" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div><p><br></p>`;
         document.execCommand('insertHTML', false, embedHtml);
         setEditedContent(editor.innerHTML);
       } else {

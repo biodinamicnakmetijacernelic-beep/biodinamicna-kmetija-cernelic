@@ -6,7 +6,7 @@ import Footer from './components/Footer';
 import AdminInventory from './components/AdminInventory';
 import AllPostsPopup from './components/AllPostsPopup';
 import NewPostPopup from './components/NewPostPopup';
-import CookieConsent from './components/CookieConsent';
+
 import { GALLERY_IMAGES } from './constants';
 import { GalleryItem } from './types';
 import { fetchGalleryImages } from './sanityClient';
@@ -162,8 +162,7 @@ const App: React.FC = () => {
         />
       )}
 
-      {/* Cookie Consent Banner */}
-      <CookieConsent />
+
     </div>
   );
 };

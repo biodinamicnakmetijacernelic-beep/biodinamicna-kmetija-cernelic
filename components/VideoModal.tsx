@@ -27,7 +27,7 @@ const VideoModal: React.FC<VideoModalProps> = ({ isOpen, onClose, videoId }) => 
   const activeVideoId = videoId || YOUTUBE_VIDEO_ID;
 
   // Construct URL with autoplay and strict security policies
-  const videoSrc = `https://www.youtube.com/embed/${activeVideoId}?autoplay=1&rel=0&modestbranding=1`;
+  const videoSrc = `https://www.youtube-nocookie.com/embed/${activeVideoId}?autoplay=1&rel=0&modestbranding=1`;
   const directLink = `https://www.youtube.com/watch?v=${activeVideoId}`;
 
   return (

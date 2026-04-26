@@ -74,7 +74,7 @@ const Navbar: React.FC = () => {
         <Link to="/" className="relative z-10 group rounded-xl overflow-hidden p-[1px] hover:scale-105 transition-transform duration-300 origin-left">
 
           {/* Rotating Conic Gradient Border - Visible only at top of homepage */}
-          <div className={`absolute inset-[-100%] bg-[conic-gradient(from_0deg,transparent_0deg,rgba(255,255,255,0.7)_90deg,transparent_180deg)] animate-[spin_4s_linear_infinite] transition-opacity duration-500 ${(isScrolled || !isHomePage) ? 'opacity-0' : 'opacity-60'}`}></div>
+          <div className={`absolute inset-[-100%] bg-[conic-gradient(from_0deg,transparent_0deg,rgba(255,255,255,0.7)_90deg,transparent_180deg)] animate-spin-4s transition-opacity duration-500 ${(isScrolled || !isHomePage) ? 'opacity-0' : 'opacity-60'}`}></div>
 
           {/* Inner Container: 50% White at Top, Transparent on Scroll */}
           <div className={`relative backdrop-blur-md rounded-xl px-2 py-1 flex items-center justify-center transition-all duration-500 ${(isScrolled || !isHomePage) ? 'bg-transparent border-transparent' : 'bg-white/50 border border-white/20'}`}>

@@ -1,0 +1,114 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== Global Styles (moved from index.html inline styles) ===== */
+
+html {
+  scroll-padding-top: 100px;
+  /* Offset for fixed navbar */
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+body {
+  background-color: #F5F5F7;
+  color: #1A2619;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  /* Mobile optimizations - strict vertical scrolling only */
+  touch-action: pan-y;
+  overscroll-behavior-x: none;
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+}
+
+/* Selective touch handling - allow interactions */
+* {
+  -webkit-tap-highlight-color: rgba(204, 164, 59, 0.1);
+  box-sizing: border-box;
+}
+
+/* Allow buttons and interactive elements to work */
+button,
+a,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(204, 164, 59, 0.2);
+}
+
+/* Modal elements can have their own touch behavior */
+[class*="modal"],
+[class*="overlay"],
+[class*="backdrop"] {
+  touch-action: auto;
+  overscroll-behavior: contain;
+}
+
+/* Ensure scroll to top button works */
+.fixed {
+  position: fixed !important;
+}
+
+/* Prevent horizontal overflow but allow vertical */
+#root {
+  overflow-y: visible;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* ===== Glass Effects ===== */
+
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.glass-dark {
+  background: rgba(26, 38, 25, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* ===== Custom Spin Animations ===== */
+
+@keyframes spin-4s {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-4s {
+  animation: spin-4s 4s linear infinite;
+}
+
+/* ===== Custom Scrollbar Styling ===== */
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(58, 77, 57, 0.2);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(58, 77, 57, 0.4);
+}
+
+/* Firefox scrollbar styling */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(58, 77, 57, 0.2) transparent;
+}

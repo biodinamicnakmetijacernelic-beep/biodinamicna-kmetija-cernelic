@@ -1430,7 +1430,7 @@ const AdminInventory: React.FC<AdminProps> = ({ onClose, initialTab = 'inventory
       if (match) videoId = match[1];
 
       if (videoId) {
-        const embedHtml = `<div class="my-10 relative w-full" style="padding-bottom: 56.25%"><iframe src="https://www.youtube.com/embed/${videoId}" class="absolute top-0 left-0 w-full h-full rounded-2xl shadow-lg" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+        const embedHtml = `<div class="my-10 relative w-full" style="padding-bottom: 56.25%"><iframe src="https://www.youtube-nocookie.com/embed/${videoId}" class="absolute top-0 left-0 w-full h-full rounded-2xl shadow-lg" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
         editor.focus();
         document.execCommand('insertHTML', false, embedHtml);
       } else {
