@@ -144,6 +144,113 @@ export const STATIC_NEWS: NewsItem[] = [
         ]
       }
     ]
+  },
+  {
+    id: 'skrivnost-zivih-tal-rtv-slo-ljudje-in-zemlja',
+    title: 'Skrivnost živih tal: Biodinamična kmetija Černelič v oddaji Ljudje in zemlja (RTV SLO)',
+    slug: 'skrivnost-zivih-tal-rtv-slo-ljudje-in-zemlja',
+    publishedAt: '2026-10-06T10:00:00.000Z',
+    category: 'Mediji',
+    image: '/images/skrivnost-zivih-tal-rtv-slo.jpg',
+    body: [
+      {
+        _key: 'intro-video',
+        _type: 'block',
+        style: 'normal',
+        children: [
+          {
+            _key: 'sv1',
+            _type: 'span',
+            marks: [],
+            text: 'V rubriki **»Ekološko + Lokalno = Idealno«** priljubljene oddaje **Ljudje in zemlja na RTV Slovenija** so obiskali našo **Biodinamično kmetijo Černelič** v Dečnem selu pri Artičah. Vabljeni k ogledu celotnega televizijskega prispevka o rodovitnosti živih tal, valjanju podsevkov ter naravnem kmetovanju z najvišjim certifikatom Demeter.'
+          }
+        ]
+      },
+      {
+        _key: 'yt-player',
+        _type: 'youtube',
+        videoId: 'aBQb6YLPFMM',
+        title: 'Skrivnost živih tal: Biodinamična kmetija Černelič | RTV SLO – Ljudje in zemlja'
+      },
+      {
+        _key: 'video-citat',
+        _type: 'block',
+        style: 'blockquote',
+        children: [
+          {
+            _key: 'sv2',
+            _type: 'span',
+            marks: [],
+            text: '»Zavezanost živim, zdravim tlom, ohranjanju biotske raznovrstnosti in spoštovanju naravnih ciklov nas je pripeljala do vrhunskih pridelkov ter prepoznavnosti na najvišji evropski ravni. V prispevku Zvone Černelič predstavi biodinamični pristop, pomen zastiranja tal, valjanje podsevkov za zeleno gnojenje in kako brez kemije ter sintetičnih škropiv pridelati zdravo hrano.«'
+          }
+        ]
+      },
+      {
+        _key: 'heading-kaj-boste-izvedeli',
+        _type: 'block',
+        style: 'h2',
+        children: [
+          {
+            _key: 'sv3',
+            _type: 'span',
+            marks: [],
+            text: 'Kaj boste izvedeli v prispevku?'
+          }
+        ]
+      },
+      {
+        _key: 'vsebina-tocke',
+        _type: 'block',
+        style: 'normal',
+        children: [
+          {
+            _key: 'sv4',
+            _type: 'span',
+            marks: [],
+            text: '• **Živa tla kot temelj kmetovanja:** Zakaj je zdravje in mikrobiološko življenje tal ključ do vitalnosti rastlin ter pristnega, polnega okusa pridelkov.\n• **Zeleno gnojenje in valjanje podsevkov:** Kako s posebnim valjanjem ustvarimo zaščitno preprogo organske mase, ki hrani mikroorganizme v tleh in preprečuje izsuševanje.\n• **Zastiranje (mulčenje):** Zadrževanje dragocene vlage v sušnih obdobjih ter naravna zaščita tal pred vročino in erozijo.\n• **Demeter certifikat in evropska priznanja:** Pomen najvišjega biodinamičnega standarda Demeter ter mednarodnih priznanj za varovanje tal (*Land and Soil Management Award*) in navdih podeželja (*Rural Inspiration Awards*).'
+          }
+        ]
+      },
+      {
+        _key: 'heading-zaznamki',
+        _type: 'block',
+        style: 'h2',
+        children: [
+          {
+            _key: 'sv5',
+            _type: 'span',
+            marks: [],
+            text: 'Časovni zaznamki za ogled'
+          }
+        ]
+      },
+      {
+        _key: 'zaznamki-list',
+        _type: 'block',
+        style: 'normal',
+        children: [
+          {
+            _key: 'sv6',
+            _type: 'span',
+            marks: [],
+            text: '⏱️ **0:00** – Uvod – Rubrika Ekološko + Lokalno = Idealno\n⏱️ **0:40** – Zvone Černelič o rodovitnosti in ohranjanju živih tal\n⏱️ **2:15** – Valjanje podsevkov in zeleno gnojenje na njivah\n⏱️ **4:30** – Zastiranje in naravna zaščita tal pred sušo\n⏱️ **6:20** – Evropska priznanja in pomen lokalne biodinamične pridelave'
+          }
+        ]
+      },
+      {
+        _key: 'vir-oddaje',
+        _type: 'block',
+        style: 'blockquote',
+        children: [
+          {
+            _key: 'sv7',
+            _type: 'span',
+            marks: [],
+            text: '📺 **Oddaja:** Ljudje in zemlja (rubrika: Ekološko + Lokalno = Idealno)\n🎥 **Produkcija:** RTV Slovenija / TV Maribor\n🔗 **Uradni arhiv RTV 365:** [Ogled izvirnega arhivskega posnetka na RTV 365](https://365.rtvslo.si/arhiv/ljudje-in-zemlja/175225841)\n🌱 **Kmetija:** [Biodinamična kmetija Černelič](https://biodinamicnakmetija-cernelic.si)'
+          }
+        ]
+      }
+    ]
   }
 ];
 

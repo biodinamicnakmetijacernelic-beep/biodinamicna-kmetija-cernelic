@@ -14,37 +14,50 @@ export const YOUTUBE_CHANNEL_URL = "https://www.youtube.com/c/BiodinamičnaKmeti
 
 export const VIDEO_GALLERY = [
   {
+    id: 'aBQb6YLPFMM',
+    videoId: 'aBQb6YLPFMM',
+    title: 'Skrivnost živih tal: Biodinamična kmetija Černelič | RTV SLO – Ljudje in zemlja',
+    category: 'RTV SLO'
+  },
+  {
     id: 'XNoxdosgmPM',
+    videoId: 'XNoxdosgmPM',
     title: 'Trošenje komposta IMT 539 deluxe',
     category: 'Mehanizacija'
   },
   {
     id: 'QvpCisXTYtE',
+    videoId: 'QvpCisXTYtE',
     title: 'Ripanje - IMT 539 Deluxe',
     category: 'Mehanizacija'
   },
   {
     id: 'qYwbyOI_K9c',
-    title: 'Kmetija Černelič - Predstavitev',
+    videoId: 'qYwbyOI_K9c',
+    title: 'Biodinamična kmetija Černelič - Predstavitev',
     category: 'O Kmetiji'
   },
   {
     id: 'Nq-yVQWax6Y',
+    videoId: 'Nq-yVQWax6Y',
     title: 'Upravljanje z zemljišči in tlemi (Oddaja Ljudje in zemlja)',
     category: 'Reportaža'
   },
   {
     id: 'gG8mWBDgPUQ',
+    videoId: 'gG8mWBDgPUQ',
     title: 'Košnja Trave New Holland T4040 & Krone Easy Cut 280',
     category: 'Mehanizacija'
   },
   {
     id: 'xbjt6PuBXRw',
+    videoId: 'xbjt6PuBXRw',
     title: 'Selitev Krav Na Drug Pašnik New Holland T4040',
     category: 'Živali'
   },
   {
     id: 'R4LSMWU-4fQ',
+    videoId: 'R4LSMWU-4fQ',
     title: 'IMT 539 Deluxe - Polaganje Folije - Laying foil',
     category: 'Mehanizacija'
   }

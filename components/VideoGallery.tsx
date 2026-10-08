@@ -14,10 +14,21 @@ const VideoGallery: React.FC = () => {
    useEffect(() => {
       const loadVideos = async () => {
          const sanityVideos = await fetchVideoGallery();
-         // Only override if we got videos from Sanity
-         if (sanityVideos && sanityVideos.length > 0) {
-            setDisplayVideos(sanityVideos);
+         // Merge static videos (newest/featured first) with Sanity videos without duplicates
+         const videoMap = new Map<string, any>();
+         for (const vid of VIDEO_GALLERY) {
+            const vidId = (vid as any).videoId || vid.id;
+            videoMap.set(vidId, { ...vid, videoId: vidId });
          }
+         if (sanityVideos && sanityVideos.length > 0) {
+            for (const vid of sanityVideos) {
+               const vidId = vid.videoId || vid.id;
+               if (!videoMap.has(vidId)) {
+                  videoMap.set(vidId, { ...vid, videoId: vidId });
+               }
+            }
+         }
+         setDisplayVideos(Array.from(videoMap.values()));
       };
       loadVideos();
    }, []);
@@ -64,19 +75,21 @@ const VideoGallery: React.FC = () => {
 
             {/* Video Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
-               {displayVideos.slice(0, visibleCount).map((video, idx) => (
-                  <FadeIn key={idx} delay={Math.min(idx * 50, 500)}>
-                     <div
-                        className="group relative aspect-video bg-black rounded-3xl overflow-hidden cursor-pointer shadow-2xl border border-white/5 hover:border-terracotta/50 transition-colors"
-                        onClick={() => handleVideoClick(video.videoId)}
-                     >
-                        {/* Thumbnail Image (Auto-fetched from YouTube) */}
-                        <img
-                           src={`https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`}
-                           alt={video.title}
-                           className="w-full h-full object-cover opacity-80 group-hover:opacity-60 group-hover:scale-105 transition-all duration-700"
-                           loading={idx < 6 ? "eager" : "lazy"}
-                        />
+               {displayVideos.slice(0, visibleCount).map((video, idx) => {
+                  const vidId = (video as any).videoId || video.id;
+                  return (
+                     <FadeIn key={idx} delay={Math.min(idx * 50, 500)}>
+                        <div
+                           className="group relative aspect-video bg-black rounded-3xl overflow-hidden cursor-pointer shadow-2xl border border-white/5 hover:border-terracotta/50 transition-colors"
+                           onClick={() => handleVideoClick(vidId)}
+                        >
+                           {/* Thumbnail Image (Auto-fetched from YouTube) */}
+                           <img
+                              src={`https://img.youtube.com/vi/${vidId}/hqdefault.jpg`}
+                              alt={video.title}
+                              className="w-full h-full object-cover opacity-80 group-hover:opacity-60 group-hover:scale-105 transition-all duration-700"
+                              loading={idx < 6 ? "eager" : "lazy"}
+                           />
 
                         {/* Overlay Content */}
                         <div className="absolute inset-0 flex flex-col justify-between p-4 md:p-6 bg-gradient-to-t from-black/80 via-transparent to-black/20" >
@@ -101,10 +114,11 @@ const VideoGallery: React.FC = () => {
                               <Play size={20} fill="currentColor" className="ml-1" />
                            </div>
                         </div >
-                     </div >
-                  </FadeIn >
-               ))}
-            </div >
+                     </div>
+                  </FadeIn>
+               );
+            })}
+         </div>
 
             {/* Load More & YouTube Buttons */}
             <div className="mt-12 flex flex-col sm:flex-row justify-center items-center gap-4">

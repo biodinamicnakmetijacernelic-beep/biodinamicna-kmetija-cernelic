@@ -51,6 +51,25 @@ export const renderPortableText = (body: any[], onImageClick?: (src: string) => 
       );
     }
 
+    // Handle YouTube embed blocks
+    if (block._type === 'youtube') {
+      const vidId = block.videoId || (typeof block.url === 'string' ? block.url.replace(/.*(?:youtu\.be\/|v=)([^&]+).*/, '$1') : null);
+      if (vidId) {
+        return (
+          <div key={block._key || index} className="my-10 relative w-full aspect-video rounded-2xl overflow-hidden shadow-2xl border border-black/5 bg-black">
+            <iframe
+              src={`https://www.youtube-nocookie.com/embed/${vidId}`}
+              className="absolute inset-0 w-full h-full"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              title={block.title || 'YouTube video'}
+            />
+          </div>
+        );
+      }
+    }
+
     if (block._type === 'block') {
       const style = block.style || 'normal';
 
