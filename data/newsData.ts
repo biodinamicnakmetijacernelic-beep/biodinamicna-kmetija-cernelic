@@ -251,6 +251,222 @@ export const STATIC_NEWS: NewsItem[] = [
         ]
       }
     ]
+  },
+  {
+    id: 'obisk-evropskega-komisarja-christophe-hansen-ministrica-mateja-calusic',
+    title: '23. 5. 2025: Obisk evropskega komisarja za kmetijstvo Christoph-a Hansen-a in naše ministrice Mateje Čalušić na Biodinamični kmetiji Černelič',
+    slug: 'obisk-evropskega-komisarja-christophe-hansen-ministrica-mateja-calusic',
+    publishedAt: '2025-05-23T14:00:00.000Z',
+    category: 'Visoki obisk',
+    image: '/images/obisk-komisar-hansen/foto-1.jpg',
+    body: [
+      {
+        _key: 'intro-obisk',
+        _type: 'block',
+        style: 'normal',
+        children: [
+          {
+            _key: 'o1',
+            _type: 'span',
+            marks: [],
+            text: 'V petek, **23. maja 2025**, je Biodinamično kmetijo Černelič v Dečnem selu pri Artičah obiskala visoka evropska in slovenska delegacija na najvišji ravni. Na kmetiji sta se mudila evropski komisar za kmetijstvo in razvoj podeželja **Christophe Hansen** ter ministrica za kmetijstvo, gozdarstvo in prehrano RS **Mateja Čalušić** s sodelavci in strokovno ekipo.'
+          }
+        ]
+      },
+      {
+        _key: 'citat-obisk',
+        _type: 'block',
+        style: 'blockquote',
+        children: [
+          {
+            _key: 'o2',
+            _type: 'span',
+            marks: [],
+            text: '»Z velikim ponosom in odgovornostjo smo na naši domačiji sprejeli evropskega komisarja za kmetijstvo Christopheja Hansena in ministrico Matejo Čalušić. To srečanje je izjemno priznanje našemu več kot dvajsetletnemu prizadevanju za živa tla, biotsko raznovrstnost in zaprti krog kmetovanja ter dokaz, da slovenska biodinamična praksa uživa spoštovanje v samem vrhu evropske kmetijske politike.«\n\n— **Zvone Černelič**'
+          }
+        ]
+      },
+      {
+        _key: 'h2-vizija',
+        _type: 'block',
+        style: 'h2',
+        children: [
+          {
+            _key: 'o3',
+            _type: 'span',
+            marks: [],
+            text: 'Slovensko kmetijstvo lahko postane zgled ekološke in biodinamične pridelave'
+          }
+        ]
+      },
+      {
+        _key: 'p-vizija',
+        _type: 'block',
+        style: 'normal',
+        children: [
+          {
+            _key: 'o4',
+            _type: 'span',
+            marks: [],
+            text: 'Kot je v toplem pozdravu visokim gostom poudaril Zvone Černelič, je njegova iskrena želja in življenjsko poslanstvo, da slovensko kmetijstvo v čim večji meri postane ekološko in biodinamično. Po njegovem prepričanju lahko ta pomemben cilj dosežemo predvsem z doslednim, praktičnim izobraževanjem pridelovalcev ter sočasnim osveščanjem kupcev o vrednosti pristne, z naravo pridelane hrane.'
+          }
+        ]
+      },
+      {
+        _key: 'h2-predstavitev',
+        _type: 'block',
+        style: 'h2',
+        children: [
+          {
+            _key: 'o5',
+            _type: 'span',
+            marks: [],
+            text: 'Predstavitev biodinamičnih praks in evropskih priznanj'
+          }
+        ]
+      },
+      {
+        _key: 'p-predstavitev',
+        _type: 'block',
+        style: 'normal',
+        children: [
+          {
+            _key: 'o6',
+            _type: 'span',
+            marks: [],
+            text: 'Delegaciji je gospodar kmetije skozi strokovno razlago in kratek predstavitveni film predstavil svoje več kot dve desetletji trajajoče uspehe v biodinamični pridelavi pod strogim certifikatom Demeter. Prikazal je pomen zaokroženega cikla brez sintetičnih mineralnih gnojil in kemije, vlogo lastnega komposta iz proste reje goveda, valjanje podsevkov z namenskim valjarjem za ohranjanje talne vlage ter uporabo naravnih preparatov za krepitev odpornosti rastlin.\n\nPosebno mesto v predstavitvi sta imeli tudi dve prestižni nagradi, ki ju je kmetija prejela na ravni celotne Evropske unije:\n• **Rural Inspiration Awards 2020 (Popular Vote Winner)** – zmaga ljudstva med vsemi projekti EU za navdihujoče kmetijske prakse pri prilagajanju na podnebne spremembe.\n• **Land and Soil Management Award 2021** – mednarodna nagrada Evropske komisije in ELO za najboljše upravljanje z zemljišči in ohranjanje živih tal.'
+          }
+        ]
+      },
+      {
+        _key: 'h2-sekem',
+        _type: 'block',
+        style: 'h2',
+        children: [
+          {
+            _key: 'o7',
+            _type: 'span',
+            marks: [],
+            text: 'Povezovanje z največjim biodinamičnim posestvom na svetu (Sekem, Egipt)'
+          }
+        ]
+      },
+      {
+        _key: 'p-sekem',
+        _type: 'block',
+        style: 'normal',
+        children: [
+          {
+            _key: 'o8',
+            _type: 'span',
+            marks: [],
+            text: 'Zvone Černelič je komisarju Hansenu in ministrici Čalušić predstavil tudi svoj obisk v Egiptu in tamkajšnjem svetovno znanem posestvu **Sekem**. Sekem velja za največje biodinamično posestvo na planetu, kjer z Demeter biodinamičnimi metodami obdelujejo prek dva tisoč hektarjev puščavskih površin ter dokazujejo neverjetno moč oživljanja zemlje tudi v najbolj sušnih in zahtevnih razmerah.'
+          }
+        ]
+      },
+      {
+        _key: 'h2-pogovor',
+        _type: 'block',
+        style: 'h2',
+        children: [
+          {
+            _key: 'o9',
+            _type: 'span',
+            marks: [],
+            text: 'Domači sprejem, pokušina pridelkov in pogled v prihodnost kmetijstva'
+          }
+        ]
+      },
+      {
+        _key: 'p-pogovor',
+        _type: 'block',
+        style: 'normal',
+        children: [
+          {
+            _key: 'o10',
+            _type: 'span',
+            marks: [],
+            text: 'Obisk je potekal v pristnem in sproščenem domačem vzdušju. Gostje so se ob predstavitveni mizi okrepčali s sveže obranimi biodinamičnimi jagodami in domačimi dobrotami. Evropski komisar Christophe Hansen je med razpravo izpostavil pomembnost ohranjanja rodovitnih tal ter nujnost menjave generacij v kmetijstvu, saj je ključno, da poklic kmeta postane privlačen, spoštovan in trajnostno vzdržen za mlade prevzemnike.'
+          }
+        ]
+      },
+      {
+        _key: 'h2-galerija',
+        _type: 'block',
+        style: 'h2',
+        children: [
+          {
+            _key: 'o11',
+            _type: 'span',
+            marks: [],
+            text: 'Fotogalerija: Utrinki z obiska evropskega komisarja in ministrice'
+          }
+        ]
+      },
+      {
+        _key: 'galerija-obisk',
+        _type: 'gallery',
+        images: [
+          {
+            src: '/images/obisk-komisar-hansen/foto-1.jpg',
+            caption: 'Uradna skupinska fotografija delegacije z evropskim komisarjem Christophom Hansenom, ministrico Matejo Čalušić in Zvonom Černeličem pred tablo z evropskima nagradama.'
+          },
+          {
+            src: '/images/obisk-komisar-hansen/foto-2.jpg',
+            caption: 'Zvone Černelič z ministrico Matejo Čalušić in evropskim komisarjem Christophom Hansenom.'
+          },
+          {
+            src: '/images/obisk-komisar-hansen/foto-3.jpg',
+            caption: 'Predstavniki kmetije in visoka delegacija pred tablo z oznako Demeter in evropskimi priznanji.'
+          },
+          {
+            src: '/images/obisk-komisar-hansen/foto-4.jpg',
+            caption: 'Predstavitev dosežkov kmetije in filma v predstavitvenem prostoru ob domačih jagodah.'
+          },
+          {
+            src: '/images/obisk-komisar-hansen/foto-5.jpg',
+            caption: 'Pogovor o biodinamiki in ohranjanju živih tal z evropskim komisarjem in ministrico.'
+          },
+          {
+            src: '/images/obisk-komisar-hansen/foto-6.jpg',
+            caption: 'Zvone Černelič med razlago načel biodinamičnega kmetovanja in zaprtega kroga.'
+          },
+          {
+            src: '/images/obisk-komisar-hansen/foto-7.jpg',
+            caption: 'Zvone Černelič z vnuki – zaveza prihodnjim generacijam in prenos ljubezni do zemlje.'
+          },
+          {
+            src: '/images/obisk-komisar-hansen/foto-8.jpg',
+            caption: 'Sproščena razprava ob obloženi mizi z domačimi biodinamičnimi dobrotami.'
+          },
+          {
+            src: '/images/obisk-komisar-hansen/foto-9.jpg',
+            caption: 'Strokovna izmenjava mnenj na dvorišču Biodinamične kmetije Černelič.'
+          },
+          {
+            src: '/images/obisk-komisar-hansen/foto-10.jpg',
+            caption: 'Stisk rok med Zvonom Černeličem in evropskim komisarjem za kmetijstvo Christophom Hansenom.'
+          },
+          {
+            src: '/images/obisk-komisar-hansen/foto-11.jpg',
+            caption: 'Predstavitev kmetijske infrastrukture in naprave za mešanje biodinamičnih preparatov.'
+          }
+        ]
+      },
+      {
+        _key: 'vir-in-povezave',
+        _type: 'block',
+        style: 'blockquote',
+        children: [
+          {
+            _key: 'o12',
+            _type: 'span',
+            marks: [],
+            text: '📸 **Fotoalbum (11 fotografij):** [Ogled celotnega fotoalbuma na Google Photos](https://photos.app.goo.gl/H8ScUazCt5MWHEVQ6)\n\n📰 **Članek v Dolenjskem listu:** [Sadjarjem slabe tri milijone evrov pomoči po pozebi – Dolenjski list](https://dolenjskilist.svet24.si/novice/gospodarstvo/sadjarjem-slabe-tri-milijone-evrov-pomoci-po-pozebi-1820753)\n\n🌱 **Kmetija:** [Biodinamična kmetija Černelič](https://biodinamicnakmetija-cernelic.si)'
+          }
+        ]
+      }
+    ]
   }
 ];
 

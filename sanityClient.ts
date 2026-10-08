@@ -265,7 +265,8 @@ export async function fetchAllNews(): Promise<NewsItem[]> {
 
 export async function fetchNewsBySlug(slug: string): Promise<NewsItem | null> {
   // First check static news & events
-  const staticItem = STATIC_NEWS.find(p => p.slug === slug);
+  const decoded = decodeURIComponent(slug).toLowerCase();
+  const staticItem = STATIC_NEWS.find(p => p.slug === slug || p.slug.toLowerCase() === decoded);
   if (staticItem) {
     return staticItem;
   }

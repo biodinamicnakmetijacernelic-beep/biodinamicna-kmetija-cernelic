@@ -412,25 +412,59 @@ export const renderPortableText = (body: any[], onImageClick?: (src: string) => 
       );
     }
 
-    if (block._type === 'image' && block.asset) {
-      const imageUrl = urlFor(block.asset).width(1200).url() + "&auto=format&q=80";
+    if (block._type === 'image' && (block.asset || block.src || block.url)) {
+      const imageUrl = block.src || block.url || (block.asset ? urlFor(block.asset).width(1200).url() + "&auto=format&q=80" : '');
+      const caption = block.caption || block.alt || '';
       return (
-        <div key={block._key || index} className="rounded-2xl overflow-hidden">
-          {onImageClick ? (
-            <div
-              onClick={() => onImageClick(imageUrl)}
-              className="cursor-zoom-in block"
-            >
-              <img src={imageUrl} alt="Slika v novici" className="w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-500" loading="eager" />
-            </div>
-          ) : (
-            <a href={imageUrl} target="_blank" rel="noopener noreferrer" className="cursor-zoom-in block">
-              <img src={imageUrl} alt="Slika v novici" className="w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-500" loading="eager" />
-            </a>
+        <figure key={block._key || index} className="my-8 rounded-2xl overflow-hidden group">
+          <div
+            onClick={() => onImageClick && onImageClick(imageUrl)}
+            className="cursor-zoom-in block"
+          >
+            <img
+              src={imageUrl}
+              alt={caption || "Slika v novici"}
+              className="w-full h-auto object-cover hover:scale-[1.01] transition-transform duration-500 rounded-2xl shadow-md border border-black/5"
+              loading="lazy"
+            />
+          </div>
+          {caption && (
+            <figcaption className="text-xs text-olive/60 mt-2.5 text-center italic font-light">{caption}</figcaption>
           )}
+        </figure>
+      );
+    }
+
+    if (block._type === 'gallery' && Array.isArray(block.images)) {
+      return (
+        <div key={block._key || index} className="my-10">
+          {block.title && <h3 className="font-serif text-2xl text-olive-dark mb-4">{block.title}</h3>}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {block.images.map((img: any, imgIdx: number) => {
+              const src = typeof img === 'string' ? img : img.src || img.url;
+              const caption = typeof img === 'string' ? '' : img.caption || img.alt || '';
+              return (
+                <div
+                  key={imgIdx}
+                  onClick={() => onImageClick && onImageClick(src)}
+                  className="group relative cursor-zoom-in rounded-2xl overflow-hidden aspect-[4/3] bg-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 border border-black/5"
+                >
+                  <img
+                    src={src}
+                    alt={caption || `Fotografija ${imgIdx + 1}`}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                  {caption && (
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 pt-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <p className="text-white text-xs leading-snug line-clamp-2">{caption}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
-
-
       );
     }
 
