@@ -62,55 +62,101 @@ const Navbar: React.FC = () => {
     { name: 'Naročila', action: 'manage_orders' },
   ];
 
+  const isSolidNav = isScrolled || !isHomePage;
+
+  const isLinkActive = (link: typeof navLinks[0]) => {
+    if (link.href === '/blog-novice') {
+      return location.pathname.startsWith('/blog-novice');
+    }
+    if (link.name === 'Domov' && isHomePage && !location.hash) {
+      return true;
+    }
+    return false;
+  };
+
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b fixed-navbar ${(isScrolled || !isHomePage)
-        ? 'glass border-black/5 py-0'
-        : 'bg-transparent border-transparent py-1'
-        }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${
+        isSolidNav
+          ? 'bg-white/95 backdrop-blur-md border-black/10 shadow-sm py-2.5 md:py-3'
+          : 'bg-transparent border-transparent py-3 md:py-4'
+      }`}
     >
       <div className="container mx-auto px-6 max-w-7xl flex justify-between items-center">
-        {/* Logo Section - Dynamic Background & Resizing */}
-        <Link to="/" className="relative z-10 group rounded-xl overflow-hidden p-[1px] hover:scale-105 transition-transform duration-300 origin-left">
-
+        {/* Logo Section */}
+        <Link
+          to="/"
+          onClick={(e) => {
+            if (isHomePage) {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+          }}
+          className="relative z-10 group rounded-xl overflow-hidden p-[1px] hover:scale-105 transition-transform duration-300 origin-left"
+        >
           {/* Rotating Conic Gradient Border - Visible only at top of homepage */}
-          <div className={`absolute inset-[-100%] bg-[conic-gradient(from_0deg,transparent_0deg,rgba(255,255,255,0.7)_90deg,transparent_180deg)] animate-spin-4s transition-opacity duration-500 ${(isScrolled || !isHomePage) ? 'opacity-0' : 'opacity-60'}`}></div>
+          <div
+            className={`absolute inset-[-100%] bg-[conic-gradient(from_0deg,transparent_0deg,rgba(255,255,255,0.7)_90deg,transparent_180deg)] animate-spin-4s transition-opacity duration-500 ${
+              isSolidNav ? 'opacity-0 pointer-events-none' : 'opacity-60'
+            }`}
+          />
 
-          {/* Inner Container: 50% White at Top, Transparent on Scroll */}
-          <div className={`relative backdrop-blur-md rounded-xl px-2 py-1 flex items-center justify-center transition-all duration-500 ${(isScrolled || !isHomePage) ? 'bg-transparent border-transparent' : 'bg-white/50 border border-white/20'}`}>
+          {/* Inner Container: Frosted White at Top of Hero, Clean Transparent on Solid Nav */}
+          <div
+            className={`relative backdrop-blur-md rounded-xl px-2.5 py-1.5 flex items-center justify-center transition-all duration-300 ${
+              isSolidNav
+                ? 'bg-transparent border-transparent'
+                : 'bg-white/80 border border-white/30 shadow-sm'
+            }`}
+          >
             <img
               src={FARM_LOGO}
-              alt="Kmetija Černelič"
-              className="w-auto h-12 object-contain"
+              alt="Biodinamična kmetija Černelič"
+              className="w-auto h-11 md:h-12 object-contain"
             />
           </div>
         </Link>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex items-center space-x-8 lg:space-x-10">
-          {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              to={link.isSection ? `/${link.href}` : link.href}
-              onClick={(e) => {
-                // Special handling for Domov link
-                if (link.name === 'Domov' && isHomePage) {
-                  e.preventDefault();
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                } else if (link.isSection && isHomePage) {
-                  e.preventDefault();
-                  const element = document.querySelector(link.href);
-                  if (element) {
-                    element.scrollIntoView({ behavior: 'smooth' });
+        <div className="hidden md:flex items-center space-x-7 lg:space-x-9">
+          {navLinks.map((link) => {
+            const active = isLinkActive(link);
+            return (
+              <Link
+                key={link.name}
+                to={link.isSection ? `/${link.href}` : link.href}
+                onClick={(e) => {
+                  if (link.name === 'Domov' && isHomePage) {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  } else if (link.href === '/blog-novice' && location.pathname === '/blog-novice') {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  } else if (link.isSection && isHomePage) {
+                    e.preventDefault();
+                    const element = document.querySelector(link.href);
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth' });
+                    }
                   }
-                }
-              }}
-              className={`text-xs font-semibold uppercase tracking-[0.15em] transition-colors duration-300 hover:scale-105 transform ${(isScrolled || !isHomePage) ? 'text-olive hover:text-terracotta' : 'text-cream/90 hover:text-white'
+                }}
+                className={`text-xs font-semibold uppercase tracking-[0.15em] transition-all duration-300 hover:scale-105 transform relative py-1 ${
+                  isSolidNav
+                    ? active
+                      ? 'text-terracotta font-bold'
+                      : 'text-olive-dark hover:text-terracotta'
+                    : active
+                    ? 'text-white font-bold'
+                    : 'text-cream/90 hover:text-white'
                 }`}
-            >
-              {link.name}
-            </Link>
-          ))}
+              >
+                {link.name}
+                {active && (
+                  <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-terracotta rounded-full" />
+                )}
+              </Link>
+            );
+          })}
 
           {/* Admin Menu Button */}
           {isAdmin && (
@@ -213,46 +259,66 @@ const Navbar: React.FC = () => {
 
           {/* Menu Toggle */}
           <button
-            className={`focus:outline-none transition-colors ${(isScrolled || !isHomePage) ? 'text-olive' : 'text-cream'}`}
+            aria-label="Toggle navigation menu"
+            className={`p-2 rounded-lg focus:outline-none transition-colors ${
+              isSolidNav
+                ? 'text-olive-dark hover:text-terracotta'
+                : 'text-cream hover:text-white'
+            }`}
             onClick={() => setIsMobileOpen(!isMobileOpen)}
           >
-            {isMobileOpen ? <X size={24} /> : <Menu size={24} />}
+            {isMobileOpen ? <X size={26} /> : <Menu size={26} />}
           </button>
         </div>
       </div>
 
       {/* Mobile Menu Overlay */}
-      <div className={`md:hidden absolute top-full left-0 w-full glass-dark border-b border-white/10 shadow-2xl transition-all duration-500 overflow-hidden ${isMobileOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'}`}>
-        <div className="flex flex-col items-center py-6 space-y-6">
-          {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              to={link.isSection ? `/${link.href}` : link.href}
-              onClick={(e) => {
-                setIsMobileOpen(false);
-                // Special handling for Domov link
-                if (link.name === 'Domov' && isHomePage) {
-                  e.preventDefault();
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                } else if (link.isSection && isHomePage) {
-                  e.preventDefault();
-                  const element = document.querySelector(link.href);
-                  if (element) {
-                    element.scrollIntoView({ behavior: 'smooth' });
+      <div
+        className={`md:hidden absolute top-full left-0 w-full transition-all duration-300 overflow-hidden border-b ${
+          isSolidNav
+            ? 'bg-white/98 backdrop-blur-xl border-black/10 shadow-2xl'
+            : 'bg-olive-dark/98 backdrop-blur-xl border-white/10 shadow-2xl'
+        } ${isMobileOpen ? 'max-h-screen opacity-100 py-6' : 'max-h-0 opacity-0 py-0'}`}
+      >
+        <div className="flex flex-col items-center space-y-5 px-6">
+          {navLinks.map((link) => {
+            const active = isLinkActive(link);
+            return (
+              <Link
+                key={link.name}
+                to={link.isSection ? `/${link.href}` : link.href}
+                onClick={(e) => {
+                  setIsMobileOpen(false);
+                  if (link.name === 'Domov' && isHomePage) {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  } else if (link.href === '/blog-novice' && location.pathname === '/blog-novice') {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  } else if (link.isSection && isHomePage) {
+                    e.preventDefault();
+                    const element = document.querySelector(link.href);
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth' });
+                    }
                   }
-                }
-              }}
-              className="text-cream text-lg font-serif tracking-wide hover:text-terracotta transition-colors"
-            >
-              {link.name}
-            </Link>
-          ))}
-
+                }}
+                className={`text-lg font-serif tracking-wide transition-colors ${
+                  isSolidNav
+                    ? active
+                      ? 'text-terracotta font-bold'
+                      : 'text-olive-dark hover:text-terracotta'
+                    : active
+                    ? 'text-white font-bold'
+                    : 'text-cream hover:text-terracotta'
+                }`}
+              >
+                {link.name}
+              </Link>
+            );
+          })}
         </div>
       </div>
-
-      {/* Progress bar tracking page scroll */}
-      <div className="scroll-progress-bar"></div>
     </nav>
   );
 };

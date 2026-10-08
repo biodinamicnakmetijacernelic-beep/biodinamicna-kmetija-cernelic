@@ -61,7 +61,7 @@ const BlogListPage: React.FC = () => {
   const newsCount = posts.filter(p => !isEventPost(p)).length;
 
   return (
-    <section className="pt-24 pb-32 bg-white min-h-screen">
+    <section className="pt-28 md:pt-32 pb-32 bg-white min-h-screen">
       <div className="container mx-auto px-6">
         {/* Header */}
         <FadeIn>

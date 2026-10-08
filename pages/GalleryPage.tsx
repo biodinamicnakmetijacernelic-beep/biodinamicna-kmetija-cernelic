@@ -37,7 +37,7 @@ const GalleryPage: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-cream pt-20">
+        <div className="min-h-screen bg-cream pt-24 md:pt-28">
             <Gallery images={images} showViewAll={false} />
         </div>
     );
