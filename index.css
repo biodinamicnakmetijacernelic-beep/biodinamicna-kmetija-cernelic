@@ -112,3 +112,132 @@ textarea {
   scrollbar-width: thin;
   scrollbar-color: rgba(58, 77, 57, 0.2) transparent;
 }
+
+/* ===== Visual Modernization & Premium Effects ===== */
+
+/* Procedural Organic Paper/Soil Texture (SVG noise data-URL) */
+.organic-texture {
+  position: relative;
+}
+
+.organic-texture::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.035; /* Extremely subtle organic feel */
+  z-index: 2;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Slow dynamic floating animations for background leaves/blobs */
+@keyframes float-slow {
+  0% { transform: translateY(0px) rotate(0deg) scale(1); }
+  50% { transform: translateY(-30px) rotate(180deg) scale(1.05); }
+  100% { transform: translateY(0px) rotate(360deg) scale(1); }
+}
+
+@keyframes float-medium {
+  0% { transform: translateY(0px) rotate(0deg) scale(1); }
+  50% { transform: translateY(-15px) rotate(-180deg) scale(0.95); }
+  100% { transform: translateY(0px) rotate(-360deg) scale(1); }
+}
+
+.animate-float-slow {
+  animation: float-slow 25s infinite ease-in-out;
+}
+
+.animate-float-medium {
+  animation: float-medium 18s infinite ease-in-out;
+}
+
+/* Dynamic Spotlight Glow effect for cards */
+.spotlight-card {
+  position: relative;
+}
+
+.spotlight-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    600px circle at var(--mouse-x, 0px) var(--mouse-y, 0px),
+    rgba(90, 110, 85, 0.07),
+    transparent 40%
+  );
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.spotlight-card:hover::after {
+  opacity: 1;
+}
+
+.spotlight-card-dark {
+  position: relative;
+}
+
+.spotlight-card-dark::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    400px circle at var(--mouse-x, 0px) var(--mouse-y, 0px),
+    rgba(204, 164, 59, 0.12),
+    transparent 40%
+  );
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.spotlight-card-dark:hover::after {
+  opacity: 1;
+}
+
+/* Scroll Progress Bar at the top of Navbar */
+.scroll-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(to right, #CCA43B, #C85A17); /* Terracotta / Gold */
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  z-index: 51;
+}
+
+/* Native CSS Scroll-driven animations */
+@supports ((animation-timeline: scroll()) and (animation-range: 0% 100%)) {
+  nav.fixed-navbar {
+    animation: shrink-nav auto linear both;
+    animation-timeline: scroll(block root);
+    animation-range: 0px 80px;
+  }
+  
+  .scroll-progress-bar {
+    animation: grow-progress auto linear both;
+    animation-timeline: scroll(block root);
+  }
+}
+
+@keyframes shrink-nav {
+  to {
+    padding-top: 0rem;
+    padding-bottom: 0rem;
+    background-color: rgba(26, 38, 25, 0.85); /* olive dark glass */
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+}
+
+@keyframes grow-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+

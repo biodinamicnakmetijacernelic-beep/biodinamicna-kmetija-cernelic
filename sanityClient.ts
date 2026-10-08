@@ -4,6 +4,7 @@ import { createClient } from '@sanity/client';
 import imageUrlBuilder from '@sanity/image-url';
 import { sanityConfig } from './sanityConfig';
 import { GalleryItem, AwardItem, PreOrderItem, NewsItem, VideoGalleryItem, Order } from './types';
+import { mergeNewsWithStatic, STATIC_NEWS } from './data/newsData';
 
 // Initialize the read-only client (for public display)
 export const client = createClient({
@@ -220,40 +221,18 @@ export async function fetchProducts(): Promise<PreOrderItem[]> {
   }
 }
 
-// Fetch News
+// Fetch News (Returns latest 3 posts, including upcoming events)
 export async function fetchNews(): Promise<NewsItem[]> {
   try {
-    // We fetch 'body' which can be string (legacy) or array (Portable Text)
-    const query = `*[_type == "post"] | order(publishedAt desc)[0...3] {
-      _id,
-      title,
-      "slug": slug.current,
-      publishedAt,
-      "image": coalesce(mainImage.asset->url + "?auto=format&q=80", null),
-      body,
-      link
-    }`;
-
-    const data = await client.fetch(query);
-
-    if (!data || !Array.isArray(data)) return [];
-
-    return data.map((item: any) => ({
-      id: item._id,
-      title: item.title,
-      slug: item.slug,
-      publishedAt: item.publishedAt,
-      image: item.image,
-      body: item.body
-    }));
+    const all = await fetchAllNews();
+    return all.slice(0, 3);
   } catch (error) {
     console.warn("Sanity (Novice): Povezava ni uspela.", error);
-    return [];
+    return mergeNewsWithStatic([]).slice(0, 3);
   }
 }
 
 // Import blog posts data
-
 export async function fetchAllNews(): Promise<NewsItem[]> {
   try {
     const query = `*[_type == "post"] | order(publishedAt desc) {
@@ -267,10 +246,7 @@ export async function fetchAllNews(): Promise<NewsItem[]> {
     }`;
 
     const data = await client.fetch(query);
-
-    if (!data || !Array.isArray(data)) return [];
-
-    return data.map((item: any) => ({
+    const sanityPosts = (Array.isArray(data) ? data : []).map((item: any) => ({
       id: item._id,
       title: item.title,
       slug: item.slug,
@@ -279,13 +255,21 @@ export async function fetchAllNews(): Promise<NewsItem[]> {
       body: item.body,
       link: item.link
     }));
+
+    return mergeNewsWithStatic(sanityPosts);
   } catch (error) {
     console.warn("Sanity (Vse Novice): Povezava ni uspela.", error);
-    return [];
+    return mergeNewsWithStatic([]);
   }
 }
 
 export async function fetchNewsBySlug(slug: string): Promise<NewsItem | null> {
+  // First check static news & events
+  const staticItem = STATIC_NEWS.find(p => p.slug === slug);
+  if (staticItem) {
+    return staticItem;
+  }
+
   try {
     const query = `*[_type == "post" && slug.current == $slug][0] {
       _id,

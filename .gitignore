@@ -50,3 +50,8 @@ netlify-deploy.zip
 # Cache directories
 .npx-cache/
 .vercel/
+.agents/
+.claude/
+.impeccable/
+skills-lock.json
+Icon*

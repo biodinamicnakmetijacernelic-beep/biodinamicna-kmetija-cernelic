@@ -2,15 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchAllNews } from '../sanityClient';
 import { NewsItem } from '../types';
-import { Calendar, ArrowRight } from 'lucide-react';
+import { Calendar, ArrowRight, Sparkles } from 'lucide-react';
 import FadeIn from '../components/FadeIn';
 import { getPreviewText } from '../utils/newsHelpers';
 import AdminInventory from '../components/AdminInventory';
 import { useNavigate } from 'react-router-dom';
+import { isEventPost } from '../data/newsData';
 
 const BlogListPage: React.FC = () => {
   const [posts, setPosts] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<'all' | 'events' | 'news'>('all');
   const [showAdmin, setShowAdmin] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
@@ -24,7 +26,6 @@ const BlogListPage: React.FC = () => {
     setIsAdmin(!!adminSession);
   }, []);
 
-
   useEffect(() => {
     const loadPosts = async () => {
       setLoading(true);
@@ -37,9 +38,16 @@ const BlogListPage: React.FC = () => {
     loadPosts();
   }, []);
 
-  // Featured post (first one)
-  const featuredPost = posts.length > 0 ? posts[0] : null;
-  const regularPosts = posts.length > 1 ? posts.slice(1) : [];
+  // Filter posts based on selected tab
+  const filteredPosts = posts.filter(post => {
+    if (filter === 'events') return isEventPost(post);
+    if (filter === 'news') return !isEventPost(post);
+    return true;
+  });
+
+  // Featured post (first one of current filter)
+  const featuredPost = filteredPosts.length > 0 ? filteredPosts[0] : null;
+  const regularPosts = filteredPosts.length > 1 ? filteredPosts.slice(1) : [];
 
   // Helper to check if post is new (within 7 days)
   const isNewPost = (publishedAt: string) => {
@@ -49,18 +57,60 @@ const BlogListPage: React.FC = () => {
     return daysDiff <= 7;
   };
 
+  const eventCount = posts.filter(isEventPost).length;
+  const newsCount = posts.filter(p => !isEventPost(p)).length;
+
   return (
     <section className="pt-24 pb-32 bg-white min-h-screen">
       <div className="container mx-auto px-6">
         {/* Header */}
         <FadeIn>
-          <div className="text-center mb-16">
-            <h1 className="font-serif text-4xl md:text-5xl text-olive-dark mb-6 tracking-tight">Novice in Vpogledi v Kmetijo</h1>
+          <div className="text-center mb-12">
+            <span className="text-terracotta font-bold uppercase tracking-widest text-xs mb-3 block">Aktualno & Blog</span>
+            <h1 className="font-serif text-4xl md:text-5xl text-olive-dark mb-6 tracking-tight">Novice in Dogodki</h1>
             <p className="text-lg text-olive/70 max-w-2xl mx-auto font-light">
-              Na enem mestu zbiramo vse, kar morate vedeti: sveže novice, poglobljeni zapisi o biodinamiki, prihajajoči dogodki in vpogledi v naše vsakdanje delovanje.
+              Na enem mestu zbiramo vse, kar morate vedeti: prihajajoča usposabljanja in delavnice, sveže novice ter poglobljene vpoglede v biodinamično kmetovanje.
             </p>
           </div>
         </FadeIn>
+
+        {/* Filter Pills */}
+        {!loading && posts.length > 0 && (
+          <FadeIn>
+            <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3 mb-14">
+              <button
+                onClick={() => setFilter('all')}
+                className={`px-6 py-2.5 rounded-full text-xs font-semibold tracking-wider uppercase transition-all duration-300 ${
+                  filter === 'all'
+                    ? 'bg-olive-dark text-white shadow-md'
+                    : 'bg-cream text-olive/70 hover:bg-cream-dark hover:text-olive-dark'
+                }`}
+              >
+                Vse objave ({posts.length})
+              </button>
+              <button
+                onClick={() => setFilter('events')}
+                className={`px-6 py-2.5 rounded-full text-xs font-semibold tracking-wider uppercase transition-all duration-300 flex items-center gap-2 ${
+                  filter === 'events'
+                    ? 'bg-terracotta text-white shadow-md'
+                    : 'bg-cream text-olive/70 hover:bg-cream-dark hover:text-olive-dark'
+                }`}
+              >
+                <span>📅</span> Dogodki & Usposabljanja ({eventCount})
+              </button>
+              <button
+                onClick={() => setFilter('news')}
+                className={`px-6 py-2.5 rounded-full text-xs font-semibold tracking-wider uppercase transition-all duration-300 ${
+                  filter === 'news'
+                    ? 'bg-olive-dark text-white shadow-md'
+                    : 'bg-cream text-olive/70 hover:bg-cream-dark hover:text-olive-dark'
+                }`}
+              >
+                Novice & Zgodbe ({newsCount})
+              </button>
+            </div>
+          </FadeIn>
+        )}
 
         {/* Loading State */}
         {loading && (
@@ -71,14 +121,14 @@ const BlogListPage: React.FC = () => {
         )}
 
         {/* Empty State */}
-        {!loading && posts.length === 0 && (
+        {!loading && filteredPosts.length === 0 && (
           <div className="text-center py-20">
-            <p className="text-olive/60">Trenutno ni objavljenih novic.</p>
+            <p className="text-olive/60">V tej kategoriji trenutno ni objav.</p>
           </div>
         )}
 
         {/* Posts Display */}
-        {!loading && posts.length > 0 && (
+        {!loading && filteredPosts.length > 0 && (
           <div className="space-y-16">
             {/* Featured Post */}
             {featuredPost && (
@@ -95,11 +145,16 @@ const BlogListPage: React.FC = () => {
                         alt={featuredPost.title}
                         className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
                       />
-                      {isNewPost(featuredPost.publishedAt) && (
-                        <div className="absolute top-6 left-6 bg-terracotta text-white px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">
+                      {isEventPost(featuredPost) ? (
+                        <div className="absolute top-6 left-6 bg-terracotta text-white px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                          {featuredPost.eventDate ? `Dogodek: ${featuredPost.eventDate.split('(')[0].trim()}` : 'Dogodek'}
+                        </div>
+                      ) : isNewPost(featuredPost.publishedAt) ? (
+                        <div className="absolute top-6 left-6 bg-olive-dark text-white px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">
                           Novo
                         </div>
-                      )}
+                      ) : null}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                     </div>
 
@@ -107,7 +162,7 @@ const BlogListPage: React.FC = () => {
                     <div className="p-10 md:p-16 flex flex-col justify-center">
                       <div className="inline-flex items-center gap-2 text-xs text-terracotta font-semibold uppercase tracking-[0.2em] mb-6">
                         <Calendar size={14} />
-                        {new Date(featuredPost.publishedAt).toLocaleDateString('sl-SI')}
+                        {featuredPost.eventDate || new Date(featuredPost.publishedAt).toLocaleDateString('sl-SI')}
                       </div>
                       <h2 className="font-serif text-3xl md:text-4xl text-olive-dark mb-6 leading-tight tracking-tight group-hover:text-olive transition-colors break-words">
                         {featuredPost.title}
@@ -116,7 +171,7 @@ const BlogListPage: React.FC = () => {
                         {getPreviewText(featuredPost.body, 280)}
                       </p>
                       <div className="inline-flex items-center gap-3 text-sm font-semibold text-olive-dark group-hover:gap-4 transition-all">
-                        Preberi zgodbo
+                        {isEventPost(featuredPost) ? 'Podrobnosti o dogodku & vabilo' : 'Preberi zgodbo'}
                         <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                       </div>
                     </div>
@@ -132,21 +187,28 @@ const BlogListPage: React.FC = () => {
                   <FadeIn key={post.id}>
                     <Link
                       to={`/blog-novice/${post.slug}`}
-                      className="group block bg-white rounded-3xl overflow-hidden hover:shadow-xl transition-all duration-500"
+                      className="group block bg-white rounded-3xl overflow-hidden hover:shadow-xl transition-all duration-500 border border-black/5 h-full flex flex-col"
                     >
                       {/* Image */}
-                      <div className="h-48 sm:h-56 overflow-hidden bg-gray-100">
+                      <div className="h-48 sm:h-56 overflow-hidden bg-gray-100 relative">
                         <img
                           src={post.image || 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80&w=800'}
                           alt={post.title}
                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         />
+                        {isEventPost(post) && (
+                          <div className="absolute top-4 left-4 bg-terracotta text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-md flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                            Dogodek
+                          </div>
+                        )}
                       </div>
 
                       {/* Content */}
-                      <div className="p-6">
-                        <div className="text-xs text-terracotta font-semibold uppercase tracking-[0.2em] mb-3">
-                          {new Date(post.publishedAt).toLocaleDateString('sl-SI', {
+                      <div className="p-6 flex flex-col flex-grow">
+                        <div className="text-xs text-terracotta font-semibold uppercase tracking-[0.2em] mb-3 flex items-center gap-1.5">
+                          <Calendar size={12} />
+                          {post.eventDate || new Date(post.publishedAt).toLocaleDateString('sl-SI', {
                             day: 'numeric',
                             month: 'short',
                             year: 'numeric'
@@ -155,11 +217,11 @@ const BlogListPage: React.FC = () => {
                         <h3 className="font-serif text-lg sm:text-xl text-olive-dark mb-3 leading-tight group-hover:text-olive transition-colors line-clamp-2 break-words">
                           {post.title}
                         </h3>
-                        <p className="text-olive/70 text-sm leading-relaxed line-clamp-3 mb-4 break-words overflow-hidden">
+                        <p className="text-olive/70 text-sm leading-relaxed line-clamp-3 mb-4 break-words overflow-hidden flex-grow">
                           {getPreviewText(post.body, 140)}
                         </p>
-                        <div className="inline-flex items-center gap-2 text-xs font-semibold text-olive-dark group-hover:gap-3 transition-all">
-                          Preberi več
+                        <div className="inline-flex items-center gap-2 text-xs font-semibold text-olive-dark group-hover:gap-3 transition-all mt-auto">
+                          {isEventPost(post) ? 'Več o dogodku' : 'Preberi več'}
                           <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                         </div>
                       </div>

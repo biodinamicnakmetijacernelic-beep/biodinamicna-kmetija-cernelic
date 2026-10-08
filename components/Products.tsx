@@ -40,8 +40,20 @@ const ProductCard: React.FC<ProductItemProps> = ({ product, quantity, onQuantity
   const isAvailable = product.status === 'available';
   const isDisplayOnly = product.status === 'display-only';
 
+  // Handle Spotlight Hover Effect
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    e.currentTarget.style.setProperty('--mouse-x', `${x}px`);
+    e.currentTarget.style.setProperty('--mouse-y', `${y}px`);
+  };
+
   return (
-    <div className={`group relative bg-white border border-black/5 rounded-[2rem] overflow-hidden transition-all duration-300 flex flex-col h-full ${isAvailable ? 'hover:shadow-xl hover:border-olive/20' : isDisplayOnly ? '' : 'opacity-70'}`}>
+    <div
+      onMouseMove={handleMouseMove}
+      className={`group relative bg-white border border-black/5 rounded-[2rem] overflow-hidden transition-all duration-300 flex flex-col h-full spotlight-card ${isAvailable ? 'hover:shadow-xl hover:border-olive/20' : isDisplayOnly ? '' : 'opacity-70'}`}
+    >
       {/* Status Badge */}
       {!isDisplayOnly && (
         <div className={`absolute top-4 left-4 z-10 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${getStatusStyles(product.status)}`}>
@@ -315,7 +327,7 @@ const Products: React.FC = () => {
   const cartItemsList = displayProducts.filter(p => (quantities[p.id] || 0) > 0);
 
   return (
-    <section id="ponudba" ref={sectionRef} className="py-24 bg-cream dark:bg-cream-dim rounded-t-[3rem] -mt-10 relative z-20 min-h-screen transition-colors duration-300">
+    <section id="ponudba" ref={sectionRef} className="py-24 bg-cream dark:bg-cream-dim rounded-t-[3rem] -mt-10 relative z-20 min-h-screen transition-colors duration-300 organic-texture">
       <div className="container mx-auto px-6 max-w-[90rem]"> {/* Wider container for 3 cols + sidebar */}
 
         <div className="text-center mb-16 max-w-3xl mx-auto">

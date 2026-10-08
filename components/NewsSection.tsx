@@ -3,9 +3,10 @@ import React, { useEffect, useState } from 'react';
 import { NewsItem } from '../types';
 import { fetchNews } from '../sanityClient';
 import FadeIn from './FadeIn';
-import { Calendar, ArrowRight } from 'lucide-react';
+import { Calendar, ArrowRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { getPreviewText } from '../utils/newsHelpers';
+import { isEventPost } from '../data/newsData';
 
 const NewsSection: React.FC = () => {
   const [news, setNews] = useState<NewsItem[]>([]);
@@ -33,9 +34,9 @@ const NewsSection: React.FC = () => {
       <div className="container mx-auto px-6 max-w-7xl">
         <FadeIn>
           <div className="text-center mb-12 md:mb-16">
-            <span className="text-terracotta font-bold uppercase tracking-widest text-xs mb-3 block">Blog & Aktualno</span>
-            <h2 className="font-serif text-3xl md:text-4xl text-olive-dark mb-4">Novice s Kmetije</h2>
-            <p className="text-olive/70 max-w-2xl mx-auto">Sveže zgodbe iz naravnega ritma kmečkega življenja.</p>
+            <span className="text-terracotta font-bold uppercase tracking-widest text-xs mb-3 block">Aktualno, Novice & Dogodki</span>
+            <h2 className="font-serif text-3xl md:text-4xl text-olive-dark mb-4">Dogodki in Novice s Kmetije</h2>
+            <p className="text-olive/70 max-w-2xl mx-auto">Prihajajoča izobraževanja, delavnice in sveže zgodbe iz naravnega ritma kmečkega življenja.</p>
           </div>
         </FadeIn>
 
@@ -53,16 +54,21 @@ const NewsSection: React.FC = () => {
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
-                  {isNewPost(item.publishedAt) && (
-                    <div className="absolute top-4 left-4 bg-terracotta text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg z-10">
+                  {isEventPost(item) ? (
+                    <div className="absolute top-4 left-4 bg-terracotta text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg z-10 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                      Dogodek
+                    </div>
+                  ) : isNewPost(item.publishedAt) ? (
+                    <div className="absolute top-4 left-4 bg-olive-dark text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg z-10">
                       Novo
                     </div>
-                  )}
+                  ) : null}
                 </div>
                 <div className="p-6 flex flex-col flex-grow">
                   <div className="text-xs text-terracotta font-bold uppercase tracking-widest mb-2 flex items-center gap-2">
                     <Calendar size={12} />
-                    {new Date(item.publishedAt).toLocaleDateString('sl-SI')}
+                    {item.eventDate || new Date(item.publishedAt).toLocaleDateString('sl-SI')}
                   </div>
                   <h3 className="font-serif text-lg sm:text-xl text-olive-dark mb-3 group-hover:text-olive transition-colors leading-tight">
                     {item.title}
@@ -82,9 +88,9 @@ const NewsSection: React.FC = () => {
         <div className="mt-12 flex justify-center">
           <Link
             to="/blog-novice"
-            className="inline-flex items-center gap-2 px-8 py-3 rounded-full border border-olive/20 text-xs font-bold uppercase tracking-widest text-olive-dark hover:bg-olive-dark hover:text-white transition-all"
+            className="inline-flex items-center gap-2 px-8 py-3 rounded-full border border-olive/20 text-xs font-bold uppercase tracking-widest text-olive-dark hover:bg-olive-dark hover:text-white transition-all shadow-sm"
           >
-            Preberi vse objave
+            Vse novice in dogodki
             <ArrowRight size={16} />
           </Link>
         </div>

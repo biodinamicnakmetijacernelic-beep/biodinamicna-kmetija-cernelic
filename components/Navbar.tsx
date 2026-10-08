@@ -49,7 +49,7 @@ const Navbar: React.FC = () => {
     { name: 'Pridelki', href: '#ponudba', isSection: true },
     { name: 'Video', href: '#video-galerija', isSection: true },
     { name: 'Galerija', href: '#galerija', isSection: true },
-    { name: 'Novice', href: '/blog-novice', isSection: false },
+    { name: 'Novice & Dogodki', href: '/blog-novice', isSection: false },
     { name: 'Kontakt', href: '#kontakt', isSection: true },
   ];
 
@@ -64,7 +64,7 @@ const Navbar: React.FC = () => {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b ${(isScrolled || !isHomePage)
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b fixed-navbar ${(isScrolled || !isHomePage)
         ? 'glass border-black/5 py-0'
         : 'bg-transparent border-transparent py-1'
         }`}
@@ -251,6 +251,8 @@ const Navbar: React.FC = () => {
         </div>
       </div>
 
+      {/* Progress bar tracking page scroll */}
+      <div className="scroll-progress-bar"></div>
     </nav>
   );
 };

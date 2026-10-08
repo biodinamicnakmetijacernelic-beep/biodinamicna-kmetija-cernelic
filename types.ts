@@ -61,6 +61,11 @@ export interface NewsItem {
   image: string;
   body: any[]; // Changed from string to any[] to support Portable Text blocks
   link?: string;
+  category?: string;
+  eventDate?: string;
+  isEvent?: boolean;
+  location?: string;
+  pdfUrl?: string;
 }
 
 export interface VideoGalleryItem {

@@ -58,12 +58,15 @@ const FadeIn: React.FC<FadeInProps> = ({
   return (
     <div
       ref={domRef}
-      className={`transition-all duration-1000 cubic-bezier(0.2, 0.8, 0.2, 1) 
+      className={`transition-all duration-1000 
         ${getTransform()} 
         ${isVisible ? 'opacity-100 blur-0' : 'opacity-0'} 
         ${!isVisible && blur ? 'blur-md' : ''} 
         ${className}`}
-      style={{ transitionDelay: `${delay}ms` }}
+      style={{ 
+        transitionDelay: `${delay}ms`,
+        transitionTimingFunction: 'cubic-bezier(0.2, 0.8, 0.2, 1)'
+      }}
     >
       {children}
     </div>

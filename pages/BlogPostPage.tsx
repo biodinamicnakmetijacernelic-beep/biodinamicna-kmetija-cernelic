@@ -5,9 +5,10 @@ import { NewsItem } from '../types';
 import { renderPortableText } from '../utils/newsHelpers';
 import getCroppedImg from '../utils/imageHelpers';
 import Cropper from 'react-easy-crop';
-import { ArrowLeft, Calendar, Share2, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette, Link as LinkIcon, Image as ImageIcon, Video, MousePointerClick, Heading2, Heading3, ZoomIn, ZoomOut, Check, X, Pencil, Sprout, Code, LayoutTemplate, Info, FileText } from 'lucide-react';
+import { ArrowLeft, Calendar, Share2, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Palette, Link as LinkIcon, Image as ImageIcon, Video, MousePointerClick, Heading2, Heading3, ZoomIn, ZoomOut, Check, X, Pencil, Sprout, Code, LayoutTemplate, Info, FileText, MapPin, Clock, Download, Utensils, ExternalLink } from 'lucide-react';
 import Lightbox from '../components/Lightbox';
 import LinkPopup from '../components/LinkPopup';
+import { isEventPost } from '../data/newsData';
 
 const BlogPostPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -1312,9 +1313,84 @@ const BlogPostPage: React.FC = () => {
               </div>
             ) : (
               !hasCustomReact && (
-                <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-olive-dark leading-[0.95] tracking-tight mb-6">
-                  {post.title}
-                </h1>
+                <>
+                  {isEventPost(post) && (
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-terracotta/10 text-terracotta font-bold text-xs uppercase tracking-widest mb-4">
+                      <Calendar size={12} />
+                      Dogodek & Usposabljanje
+                    </div>
+                  )}
+                  <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-olive-dark leading-[0.95] tracking-tight mb-6">
+                    {post.title}
+                  </h1>
+
+                  {/* Event Quick Info Card */}
+                  {isEventPost(post) && !isEditMode && (
+                    <div className="my-8 p-6 sm:p-8 bg-cream/70 rounded-3xl border border-terracotta/20 shadow-sm backdrop-blur-sm">
+                      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-terracotta mb-5">
+                        <span className="w-2 h-2 rounded-full bg-terracotta animate-pulse" />
+                        Podrobnosti o dogodku
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 text-sm text-olive-dark">
+                        <div className="flex items-start gap-3">
+                          <div className="p-2.5 rounded-xl bg-white text-terracotta shadow-xs border border-black/5 mt-0.5">
+                            <Calendar size={18} />
+                          </div>
+                          <div>
+                            <span className="block text-xs uppercase font-semibold text-olive/60">Datum & Čas</span>
+                            <span className="font-semibold text-base">{post.eventDate || '12. 10. 2026 (09:00 – 15:30)'}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-3">
+                          <div className="p-2.5 rounded-xl bg-white text-terracotta shadow-xs border border-black/5 mt-0.5">
+                            <MapPin size={18} />
+                          </div>
+                          <div>
+                            <span className="block text-xs uppercase font-semibold text-olive/60">Lokacija</span>
+                            <span className="font-semibold block">{post.location || 'Kmetija Črnelič, Dečno selo 48, 8253 Artiče'}</span>
+                            <a
+                              href="https://www.google.com/maps/search/?api=1&query=Dečno+selo+48+Artiče"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-xs text-terracotta hover:underline mt-1 font-medium"
+                            >
+                              Odpri v Google Maps <ExternalLink size={12} />
+                            </a>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-3">
+                          <div className="p-2.5 rounded-xl bg-white text-terracotta shadow-xs border border-black/5 mt-0.5">
+                            <Utensils size={18} />
+                          </div>
+                          <div>
+                            <span className="block text-xs uppercase font-semibold text-olive/60">Topla malica</span>
+                            <span className="leading-snug block">Domača biodinamična enolončnica (5 € prispevek, gotovina)</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-3">
+                          <div className="p-2.5 rounded-xl bg-white text-terracotta shadow-xs border border-black/5 mt-0.5">
+                            <Download size={18} />
+                          </div>
+                          <div>
+                            <span className="block text-xs uppercase font-semibold text-olive/60">Uradno vabilo (PDF)</span>
+                            <a
+                              href={post.pdfUrl || '/vabilo-nadaljevalno-usposabljanje-biodinamika-2026.pdf'}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 font-bold text-terracotta hover:text-terracotta-dark text-sm mt-1 underline"
+                            >
+                              Prenesi uradno vabilo <Download size={14} />
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
               )
             )}
 

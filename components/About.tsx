@@ -34,10 +34,32 @@ const About: React.FC = () => {
   }, [selectedAward]);
 
   return (
-    <section id="o-nas" className="bg-cream relative z-20 transition-colors duration-300">
+    <section id="o-nas" className="bg-cream relative z-20 transition-colors duration-300 organic-texture overflow-hidden">
+
+      {/* Floating Organic Vector Shapes in Background */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        {/* Floating Leaf 1 */}
+        <div className="absolute top-[10%] left-[5%] w-32 h-32 text-olive/10 opacity-[0.06] animate-float-slow">
+          <svg viewBox="0 0 100 100" fill="currentColor" className="w-full h-full">
+            <path d="M50 0 C70 30, 90 40, 50 100 C10 40, 30 30, 50 0 Z" />
+          </svg>
+        </div>
+        {/* Floating Leaf 2 */}
+        <div className="absolute top-[40%] right-[3%] w-48 h-48 text-terracotta/10 opacity-[0.05] animate-float-medium">
+          <svg viewBox="0 0 100 100" fill="currentColor" className="w-full h-full">
+            <path d="M10 50 C20 10, 80 10, 90 50 C80 90, 20 90, 10 50 Z" />
+          </svg>
+        </div>
+        {/* Floating Leaf 3 */}
+        <div className="absolute bottom-[20%] left-[8%] w-40 h-40 text-olive/10 opacity-[0.05] animate-float-slow">
+          <svg viewBox="0 0 100 100" fill="currentColor" className="w-full h-full">
+            <path d="M50,0 Q80,20 100,50 Q80,80 50,100 Q20,80 0,50 Q20,20 50,0 Z" />
+          </svg>
+        </div>
+      </div>
 
       {/* Header & Intro Quote */}
-      <div className="pt-16 md:pt-24 pb-10 md:pb-16 container mx-auto px-6 max-w-7xl">
+      <div className="relative z-10 pt-16 md:pt-24 pb-10 md:pb-16 container mx-auto px-6 max-w-7xl">
         <FadeIn delay={100} direction="up">
           <h2 className="font-serif text-4xl sm:text-5xl md:text-6xl text-olive-dark text-center mb-10 md:mb-16 leading-[0.9]">
             {ABOUT_TEXT.title}
