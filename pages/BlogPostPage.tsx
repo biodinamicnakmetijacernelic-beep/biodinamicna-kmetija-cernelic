@@ -1349,7 +1349,7 @@ const BlogPostPage: React.FC = () => {
                           </div>
                           <div>
                             <span className="block text-xs uppercase font-semibold text-olive/60">Lokacija</span>
-                            <span className="font-semibold block">{post.location || 'Kmetija Črnelič, Dečno selo 48, 8253 Artiče'}</span>
+                            <span className="font-semibold block">{post.location || 'Biodinamična kmetija Černelič, Dečno selo 48, 8253 Artiče'}</span>
                             <a
                               href="https://www.google.com/maps/search/?api=1&query=Dečno+selo+48+Artiče"
                               target="_blank"
