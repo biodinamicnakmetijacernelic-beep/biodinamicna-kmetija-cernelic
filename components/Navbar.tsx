@@ -79,6 +79,8 @@ const Navbar: React.FC = () => {
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${
         isSolidNav
           ? 'bg-white/95 backdrop-blur-md border-black/10 shadow-sm py-2.5 md:py-3'
+          : isMobileOpen
+          ? 'bg-olive-dark/95 backdrop-blur-md border-white/10 py-3 md:py-4'
           : 'bg-transparent border-transparent py-3 md:py-4'
       }`}
     >
@@ -276,8 +278,8 @@ const Navbar: React.FC = () => {
       <div
         className={`md:hidden absolute top-full left-0 w-full transition-all duration-300 overflow-hidden border-b ${
           isSolidNav
-            ? 'bg-white/98 backdrop-blur-xl border-black/10 shadow-2xl'
-            : 'bg-olive-dark/98 backdrop-blur-xl border-white/10 shadow-2xl'
+            ? 'bg-white/[0.98] backdrop-blur-xl border-black/10 shadow-2xl'
+            : 'bg-olive-dark/[0.98] backdrop-blur-xl border-white/10 shadow-2xl'
         } ${isMobileOpen ? 'max-h-screen opacity-100 py-6' : 'max-h-0 opacity-0 py-0'}`}
       >
         <div className="flex flex-col items-center space-y-5 px-6">
